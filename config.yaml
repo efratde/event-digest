@@ -1,0 +1,127 @@
+# Configuration for Dad's daily ticket digest
+
+recipient:
+  name: "אבא"
+  home_address: "דיזנגוף סנטר, תל אביב"  # generic public landmark — demo origin for drive-time
+  home_city: "תל אביב"
+  max_travel_minutes: 60
+
+preferences:
+  # Genres to INCLUDE (anything not listed is excluded by default after we add classification)
+  include_genres:
+    - "תיאטרון"
+    - "סטנדאפ"
+    - "מוזיקה ישראלית"
+    - "מחזות זמר"
+    - "פסטיבלים"
+    - "מוזיקה רוק/פופ"
+    - "ג'אז"
+    - "מזרחית"
+  # Explicit excludes (override include if ambiguous)
+  exclude_genres:
+    - "מוזיקה קלאסית"
+    - "בלט"
+    - "אופרה"
+    - "ילדים"
+  # Front-center seat preference (used in v2 for actual seat detection)
+  preferred_seats:
+    rows: [1, 2, 3, 4, 5]
+    section: "מרכז"
+
+# Sources to scrape, with rough drive-time from Tel Aviv (minutes)
+sources:
+  - id: habima
+    name: "תיאטרון הבימה"
+    city: "תל אביב"
+    geocode_query: "כיכר הבימה, תל אביב"   # OSM doesn't index "Habima Theater" by name
+    enabled: true
+  - id: cameri
+    name: "תיאטרון הקאמרי"
+    city: "תל אביב"
+    geocode_query: "המשכן לאמנויות הבמה, תל אביב"  # the Cameri at the Performing Arts Center
+    enabled: true
+  - id: lessin
+    name: "בית ליסין"
+    city: "תל אביב"
+    geocode_query: "בית ליסין, תל אביב"
+    enabled: true
+  - id: tzavta
+    name: "צוותא"
+    city: "תל אביב"
+    geocode_query: "צוותא, תל אביב"
+    enabled: true
+  - id: zappa_tlv
+    name: "זאפה תל אביב"
+    city: "תל אביב"
+    geocode_query: "זאפה תל אביב"
+    enabled: true
+  - id: zappa_herzliya
+    name: "זאפה הרצליה"
+    city: "הרצליה"
+    geocode_query: "זאפה הרצליה"
+    enabled: true
+  - id: shuni
+    name: "אמפי שוני"
+    city: "בנימינה"
+    geocode_query: "פארק שוני, בנימינה"
+    enabled: true
+  - id: heichal_tlv
+    name: "היכל התרבות תל אביב (ברונפמן)"
+    city: "תל אביב"
+    geocode_query: "היכל התרבות, תל אביב"
+    enabled: true
+  - id: caesarea
+    name: "אמפי קיסריה"
+    city: "קיסריה"
+    geocode_query: "Caesarea Amphitheater"
+    enabled: true
+  - id: gesher
+    name: "תיאטרון גשר"
+    city: "יפו"
+    geocode_query: "נחלת בנימין 28, תל אביב יפו"
+    enabled: true
+  - id: barby
+    name: "מועדון בארבי"
+    city: "תל אביב"
+    geocode_query: "קיבוץ גלויות 52, תל אביב"
+    enabled: true
+  - id: suzanne_dellal
+    name: "מרכז סוזן דלל"
+    city: "תל אביב"
+    geocode_query: "מרכז סוזן דלל, תל אביב"
+    enabled: true
+  - id: heichal_givatayim
+    name: "היכל התרבות גבעתיים"
+    city: "גבעתיים"
+    geocode_query: "תיאטרון גבעתיים"
+    enabled: true
+  - id: reading3
+    name: "ריידינג 3"
+    city: "תל אביב"
+    geocode_query: "Reading 3, Tel Aviv"
+    enabled: true
+  - id: tmuna
+    name: "תיאטרון תמונע"
+    city: "תל אביב"
+    geocode_query: "סונצ'ינו 8, תל אביב"
+    enabled: true
+  - id: yoram_loewenstein
+    name: "סטודיו יורם לוינשטיין"
+    city: "תל אביב"
+    geocode_query: "יסוד המעלה 17, תל אביב"
+    enabled: true
+  - id: hasimta
+    name: "תיאטרון הסמטה"
+    city: "יפו"
+    geocode_query: "מזל אריה 8, יפו"
+    enabled: true
+
+# How many days back is "fresh"
+freshness:
+  fresh_days: 7   # First-seen within last N days = "🆕 חדש"
+  warm_days: 21  # First-seen within last N days = "טרי-יחסית"
+  # older = "ותיק"
+
+# Output
+output:
+  html_path: "output/index.html"   # static-host friendly

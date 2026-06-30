@@ -1,0 +1,18 @@
+[project]
+name = "tickets"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "lxml>=6.1.0",
+    "python-dateutil>=2.9.0.post0",
+    "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "playwright>=1.59.0",
+]

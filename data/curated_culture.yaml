@@ -1,0 +1,207 @@
+# Curated lists of Israeli artists, performers, directors, and genres.
+# Used to populate the questionnaire and the preferences editor with
+# meaningful suggestions instead of raw scraper output (which contains
+# show titles, ensemble names, multi-artist combos, etc.).
+#
+# Skewed toward what a 70-year-old Tel Aviv resident might recognize —
+# weighted to classic Israeli music and the established stage scene,
+# with some newer names too.
+
+# === Top-level event categories (Question 1 of the questionnaire) ===
+# Reflects what actually appears in scraped data + common Israeli categories.
+event_categories:
+  - {key: theater,    label: "הצגות / תיאטרון"}
+  - {key: music,      label: "מוזיקה / קונצרטים"}
+  - {key: standup,    label: "סטנדאפ / בידור"}
+  - {key: musicals,   label: "מחזות זמר"}
+  - {key: dance,      label: "מחול"}
+  - {key: tribute,    label: "ערבי מחווה ולהקות מחווה"}
+  - {key: parties,    label: "מסיבות / ערבי ריקודים"}
+  - {key: lectures,   label: "הרצאות / מפגשים"}
+  - {key: literature, label: "ספרות / שירה"}
+  - {key: movies,     label: "סרטים / קולנוע"}
+  - {key: festivals,  label: "פסטיבלים / מיוחדים"}
+  - {key: kids,       label: "ילדים ומשפחה"}
+  - {key: family,     label: "בידור משפחתי / חוויות"}
+
+# === Music sub-genres (Question 2 — only if "music" selected) ===
+music_subgenres:
+  - "מוזיקה ישראלית קלאסית (אריק איינשטיין, שלום חנוך, מתי כספי)"
+  - "מוזיקה ישראלית עכשווית (שלמי שבן, ברי סחרוף)"
+  - "ים-תיכוני / מזרחית"
+  - "רוק / פופ"
+  - "ג'אז"
+  - "מוזיקה עולמית"
+  - "מחווה ללהקות מצליחות (Tribute bands)"
+
+# === Israeli music artists — what Dad would actually recognize ===
+# Grouped roughly by era; UI shows them mixed.
+music_artists:
+  # Classic / 70s-90s heavyweights
+  - אריק איינשטיין
+  - שלום חנוך
+  - יהודה פוליקר
+  - מתי כספי
+  - דוד ברוזה
+  - חוה אלברשטיין
+  - יוסי בנאי
+  - נורית גלרון
+  - ברי סחרוף
+  - שלמה ארצי
+  - אהוד בנאי
+  - מאיר בנאי
+  - אביתר בנאי
+  - יהונתן גפן
+  - אריק לביא
+  - יהורם גאון
+  - גידי גוב
+  - דני סנדרסון
+  - דני רובס
+  - שלמה גרוניך
+  - חני נחמיאס
+  - רמי קליינשטיין
+  - אביבה אבידן
+
+  # 90s-2000s
+  - ריטה
+  - אחינועם ניני
+  - אביב גפן
+  - משינה
+  - תיסלם
+  - יוני בלוך
+  - שלמי שבן
+  - אסף אבידן
+  - נינט טייב
+  - עברי לידר
+  - אלון עדר
+  - מיכה שטרית
+  - יזהר אשדות
+  - סטלה רהט
+
+  # Mediterranean / Mizrahi (mainstream-classic for an older audience)
+  - איל גולן
+  - שרית חדד
+  - משה פרץ
+  - שימי תבורי
+  - אבי ביטר
+  - מרגלית צנעני
+  - זוהר ארגוב
+  - עופר לוי
+  - חיים משה
+  - מירי מסיקה
+  - מוקי
+
+  # Modern / Idan Raichel circle
+  - עידן רייכל
+  - עידן עמדי
+  - עידן חביב
+
+  # Israeli rock / alternative legends
+  - בני אמדורסקי
+  - אסף אמדורסקי
+  - יעל קראוס
+  - הגבעטרון
+
+# === Israeli theater actors ===
+theater_actors:
+  # Veteran / iconic
+  - גילה אלמגור
+  - יוסי פולק
+  - יעקב בודו
+  - רבקה מיכאלי
+  - תיקי דיין
+  - מנחם פרי
+  - תיקווה מור
+  - סנדרה שדה
+  - נעמי פולני
+  - עליזה רוזן
+  - דבורה קידר
+  - אסי לוי
+  - איציק חזקיה
+  - יוסי גרבר
+  - נתן כוגן
+  - רחל אטאס
+  - מירה אוונה
+  - שלמה בר-אבא
+  - אלברט אילוז
+  - רמה מסינגר
+  - שלמה ארצי
+
+  # Mid-career / contemporary
+  - ליאור אשכנזי
+  - ששון גבאי
+  - אביגיל הררי
+  - מיכאל מושונוב
+  - יואב לוי
+  - אורנה רוטברג
+  - אגם רודברג
+  - עינת ויצמן
+  - אמיר בשן
+  - עינת ברנר
+  - מיכל בת אדם
+  - אביב אלוש
+  - אלון אבוטבול
+  - יובל סגל
+  - דב נבון
+  - עמוס תמם
+  - עדי גילת
+  - מוני מושונוב
+  - איתי טיראן
+  - תמר קינן
+  - עפרי ביטרמן
+
+# === Theater directors ===
+theater_directors:
+  - חנן שניר
+  - אילן רונן
+  - הילל מיטלפונקט
+  - יבגני אריה
+  - גדליה בסר
+  - עומרי ניצן
+  - עידו בורנשטיין
+  - עירד רובינשטיין
+  - אלון אופיר
+  - מיכה לבינסון
+  - איציק וינגרטן
+  - משה קפטן
+  - רוני ברודצקי
+  - אילאיל סמל
+  - אודי בן משה
+  - שיר גולדברג
+  - אלדד גוהר גרויסמן
+  - אורי פסטר
+  - דדי ברון
+
+# === Standup comedians ===
+standup_comedians:
+  - אדיר מילר
+  - שחר חזון
+  - ערן זרחוביץ'
+  - שלי בן משה
+  - דודו טסה
+  - אלי יצפן
+  - ישראל קטורזה
+  - אסי כהן
+  - ארז טל
+  - חן באומן
+  - רותם וייסברג
+  - אורן זול
+  - יובל סמו
+  - דוד דאור
+  - יוסי מרשק
+  - דותן רביד
+  - דניאל כהן
+  - אלדד שטרית
+  - ליאור דובדבני
+  - רשף לוי
+  - תום ירדן
+  - שמואל וילוז'ני
+
+# === Hard exclusions (default options for "what NOT to see") ===
+default_exclusions:
+  - "מוזיקה קלאסית / סימפונית"
+  - "אופרה"
+  - "בלט"
+  - "ילדים"
+  - "תיאטרון לילדים"
+  - "הצגות לפעוטות"

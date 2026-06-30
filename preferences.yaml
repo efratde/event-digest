@@ -1,0 +1,26 @@
+# Personal taste preferences for Dad — populate manually for now.
+# Shows that match get a ❤ badge in the digest.
+# In v2 we'll add a feedback UI (likes/dislikes from clicking).
+
+loved_performers: []
+  # - גילה אלמגור
+  # - חנן יובל
+
+loved_directors: []
+  # - חנן שניר
+
+loved_artists: []      # for music acts
+  # - שלמה ארצי
+  # - ריטה
+
+loved_genres: []
+  # - מוזיקה ישראלית
+  # - תיאטרון
+
+# Things to flag as DISLIKED (will hide them or push to bottom)
+disliked_performers: []
+disliked_artists: []
+disliked_genres: []
+  # - אופרה
+  # - בלט
+  # - מוזיקה קלאסית

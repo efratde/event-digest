@@ -1,0 +1,284 @@
+"""
+Scraper for Zappa Club Tel Aviv (זאפה תל אביב — מתחם מידטאון).
+
+The Zappa chain runs a single ticketing site (powered by Eventim/Akamai) that
+lists every Zappa branch in Israel. We target the Tel Aviv venue specifically.
+
+Listing page (paginated via ?pnum=N):
+  https://www.zappa-club.co.il/city/<תל-אביב-249>/venue/<זאפה-תל-אביב-25734>/
+
+Each `article.listing-item` carries:
+  - h2.event-listing-city                  → show / artist title
+  - time[datetime] (ISO string with TZ)    → performance datetime
+  - data-event-id                          → site-specific event id
+  - a[href*="/event/..."]                  → event detail URL
+
+The Akamai WAF blocks /event/* and /artist/* fetches with 403, so we extract
+everything we need directly from the listing pages — no detail-page calls.
+Posters and long descriptions are therefore not available; we leave those
+fields empty rather than fabricate them.
+
+Multiple performances of the same show (e.g. a 6-night residency) appear as
+separate articles. We collapse them by title so the digest shows one Show
+object with many performance datetimes.
+"""
+
+from __future__ import annotations
+
+import re
+from datetime import datetime
+from typing import Iterable
+from urllib.parse import urljoin
+
+import httpx
+from bs4 import BeautifulSoup
+
+from ..models import Show
+from .base import Scraper
+
+
+BASE = "https://www.zappa-club.co.il"
+LISTING_URL = (
+    "https://www.zappa-club.co.il/"
+    "city/תל-אביב-249/venue/זאפה-תל-אביב-25734/"
+)
+MAX_PAGES = 10  # safety cap
+
+# Akamai on this site rejects the default httpx UA & TLS fingerprint with
+# HTTP/2 INTERNAL_ERROR. The header set below survived experimentation with
+# the live site; we keep them all to look like a real Safari/Chrome request.
+BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+        "Version/17.0 Safari/605.1.15"
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "image/webp,*/*;q=0.8"
+    ),
+    "Accept-Language": "he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+ISO_TZ_RE = re.compile(r"([+\-]\d{2}):?(\d{2})$")
+
+
+class ZappaTlvScraper(Scraper):
+    source_id = "zappa_tlv"
+    source_name = "זאפה תל אביב"
+    venue = "זאפה תל אביב"
+    city = "תל אביב"
+
+    def __init__(self, timeout: float = 30.0):
+        # Bypass the base client and roll our own with browser-like headers
+        # plus follow_redirects + http2 disabled (Akamai resets HTTP/2 streams
+        # for non-browser fingerprints on this host).
+        super().__init__(timeout=timeout)
+        self.client.close()
+        self.client = httpx.Client(
+            headers=BROWSER_HEADERS,
+            follow_redirects=True,
+            timeout=timeout,
+            http2=False,
+        )
+
+    def fetch_shows(self) -> Iterable[Show]:
+        # title -> aggregated data
+        groups: dict[str, dict] = {}
+
+        for page_num in range(1, MAX_PAGES + 1):
+            url = LISTING_URL if page_num == 1 else f"{LISTING_URL}?pnum={page_num}"
+            try:
+                r = self.get(url)
+            except Exception as e:
+                self.log.warning("Zappa TLV page %d failed: %s", page_num, e)
+                break
+
+            soup = BeautifulSoup(r.text, "lxml")
+            arts = soup.select("article.listing-item")
+            self.log.info("Zappa TLV page %d: %d cards", page_num, len(arts))
+            if not arts:
+                break
+
+            for art in arts:
+                self._collect_card(art, groups)
+
+            # Stop if no "next" pagination link
+            next_link = soup.select_one(".pagination a[rel=next]")
+            if not next_link:
+                # Some Eventim themes use the last pager link as next; check
+                # whether a pnum greater than current exists.
+                pages = [
+                    self._extract_pnum(a.get("href", ""))
+                    for a in soup.select(".pagination a")
+                ]
+                pages = [p for p in pages if p is not None]
+                if not pages or max(pages) <= page_num:
+                    break
+
+        for data in groups.values():
+            yield self._make_show(data)
+
+    # -- internals -------------------------------------------------------
+    def _collect_card(self, art, groups: dict[str, dict]) -> None:
+        title_el = art.select_one("h2.event-listing-city")
+        if not title_el:
+            return
+        title = title_el.get_text(" ", strip=True)
+        if not title:
+            return
+
+        # URL — first /event/ link
+        link_el = art.select_one('a[href*="/event/"]')
+        href = link_el.get("href", "").strip() if link_el else ""
+        if not href:
+            # Fall back to onclick handler
+            click_el = art.select_one("[onclick*='/event/']")
+            if click_el:
+                m = re.search(r"location\.href='([^']+)'", click_el.get("onclick", ""))
+                if m:
+                    href = m.group(1)
+        url = urljoin(BASE, href) if href else ""
+
+        # Tel-Aviv-only filter — the URL slug always carries the venue name.
+        # Belt-and-suspenders against the page accidentally including a
+        # cross-promo card from another branch.
+        if href and not self._is_tel_aviv(href):
+            return
+
+        # Datetime
+        time_el = art.select_one("time[datetime]")
+        dt = self._parse_dt(time_el.get("datetime", "")) if time_el else None
+        if dt is None:
+            return
+
+        # Event id (used for stable_id when we have a single performance)
+        event_id_el = art.select_one("[data-event-id]")
+        event_id = event_id_el.get("data-event-id", "").strip() if event_id_el else ""
+
+        # Poster — Zappa uses Eventim CDN paths like
+        #   /obj/media/IL-eventim/teaser/evo/artwork/2026/<slug>-artwork.jpg
+        # These appear in the card HTML as background-image styles or img src.
+        poster = self._extract_poster(art)
+
+        # Group by canonical title so multi-night runs collapse to one Show.
+        key = self._title_key(title)
+        bucket = groups.setdefault(
+            key,
+            {
+                "title": title,
+                "performances": [],
+                "urls": [],
+                "event_ids": [],
+                "posters": [],
+            },
+        )
+        bucket["performances"].append(dt)
+        if url:
+            bucket["urls"].append(url)
+        if event_id:
+            bucket["event_ids"].append(event_id)
+        if poster:
+            bucket["posters"].append(poster)
+
+    @staticmethod
+    def _extract_poster(art) -> str:
+        """Pull a per-event image URL out of a Zappa listing card.
+
+        Tries (in order): img[src], img[data-src], inline background-image,
+        any /obj/media/IL-eventim/teaser/... URL anywhere in the card HTML.
+        Skips logos and the static venue gallery.
+        """
+        # Direct <img> tags
+        for img in art.find_all("img"):
+            for attr in ("src", "data-src", "data-original"):
+                src = img.get(attr) or ""
+                if src and "/teaser/" in src and "venue" not in src:
+                    return urljoin(BASE, src)
+        # Inline style background-image
+        for el in art.find_all(style=True):
+            m = re.search(r'background-image:\s*url\(["\']?([^"\')]+)["\']?\)', el.get("style", ""))
+            if m and "/teaser/" in m.group(1) and "venue" not in m.group(1):
+                return urljoin(BASE, m.group(1))
+        # Last resort: any teaser URL in the card's raw HTML
+        m = re.search(r'(/obj/media/IL-eventim/teaser/[^"\'\s>]+\.(?:jpg|jpeg|png|webp))', str(art))
+        if m and "venue" not in m.group(1):
+            return urljoin(BASE, m.group(1))
+        return ""
+
+    def _make_show(self, data: dict) -> Show:
+        performances = sorted(set(data["performances"]))
+        urls = data["urls"]
+        event_ids = data["event_ids"]
+
+        # Use earliest performance's URL/event id as canonical
+        url = urls[0] if urls else ""
+        if event_ids:
+            # Combine multiple ids deterministically when there's a residency
+            source_id = "-".join(sorted(set(event_ids)))
+        else:
+            source_id = self._title_key(data["title"])
+
+        return Show(
+            source=self.source_id,
+            source_id=source_id,
+            url=url,
+            title=data["title"],
+            venue=self.venue,
+            city=self.city,
+            performances=performances,
+            description="",
+            performers=[],
+            director="",
+            duration_minutes=None,
+            genre="מוזיקה",
+            poster_url=(data.get("posters") or [""])[0],
+        )
+
+    @staticmethod
+    def _parse_dt(raw: str) -> datetime | None:
+        """Parse '2026-05-05T21:30:00.000+03:00' (with or without ms / colon)."""
+        if not raw:
+            return None
+        s = raw.strip()
+        # Strip milliseconds if present (Python's fromisoformat hates ".000")
+        s = re.sub(r"\.\d+", "", s)
+        # Normalise '+0300' -> '+03:00'
+        m = re.search(r"([+\-]\d{2})(\d{2})$", s)
+        if m and ":" not in s[m.start():]:
+            s = s[: m.start()] + f"{m.group(1)}:{m.group(2)}"
+        try:
+            dt = datetime.fromisoformat(s)
+        except ValueError:
+            return None
+        # Drop timezone — the rest of the codebase uses naive datetimes.
+        if dt.tzinfo is not None:
+            dt = dt.replace(tzinfo=None)
+        return dt
+
+    @staticmethod
+    def _title_key(title: str) -> str:
+        """Normalise title for grouping multi-night residencies."""
+        # Lowercase ASCII portions, collapse whitespace, strip punctuation
+        t = re.sub(r"\s+", " ", title).strip()
+        t = re.sub(r"[\"'״׳`]", "", t)
+        return t.lower()
+
+    @staticmethod
+    def _is_tel_aviv(href: str) -> bool:
+        h = href.lower()
+        # The site sometimes URL-encodes; check both raw and decoded forms.
+        from urllib.parse import unquote
+        decoded = unquote(h)
+        markers = ["זאפה-תל-אביב", "תל-אביב", "tel-aviv", "tlv"]
+        return any(m in decoded for m in markers)
+
+    @staticmethod
+    def _extract_pnum(href: str) -> int | None:
+        m = re.search(r"[?&]pnum=(\d+)", href)
+        return int(m.group(1)) if m else None

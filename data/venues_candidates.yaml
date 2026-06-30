@@ -1,0 +1,318 @@
+# Comprehensive list of venues within ~45-min drive of central Tel Aviv.
+# (demo home location; configured in config.yaml home_address)
+#
+# Status legend:
+#   active   — already scraped in v1
+#   planned  — selected for v2 build-out
+#   maybe    — likely outside 45-min window or low priority; revisit
+#   blocked  — known to be heavily bot-protected (Akamai/Cloudflare)
+#
+# Geocoded distance is measured at runtime against the home address.
+
+candidates:
+
+  # ---------------- Tel Aviv (≤15 min) ----------------
+  - id: habima
+    name: "תיאטרון הבימה"
+    city: "תל אביב"
+    geocode_query: "כיכר הבימה, תל אביב"
+    type: theater
+    website: "https://www.habima.co.il/"
+    status: active
+    priority: 1
+
+  - id: cameri
+    name: "תיאטרון הקאמרי"
+    city: "תל אביב"
+    geocode_query: "המשכן לאמנויות הבמה, תל אביב"
+    type: theater
+    website: "https://www.cameri.co.il/"
+    status: active
+    priority: 1
+
+  - id: lessin
+    name: "בית ליסין"
+    city: "תל אביב"
+    geocode_query: "בית ליסין, תל אביב"
+    type: theater
+    website: "https://www.lessin.co.il/"
+    status: active
+    priority: 1
+
+  - id: tzavta
+    name: "צוותא"
+    city: "תל אביב"
+    geocode_query: "צוותא, תל אביב"
+    type: cultural_center
+    website: "https://www.tzavta.co.il/"
+    status: active
+    priority: 1
+
+  - id: zappa_tlv
+    name: "זאפה תל אביב"
+    city: "תל אביב"
+    geocode_query: "זאפה תל אביב"
+    type: music_club
+    website: "https://www.zappa-club.co.il/"
+    status: active
+    priority: 1
+
+  - id: gesher
+    name: "תיאטרון גשר"
+    city: "יפו"
+    geocode_query: "נחלת בנימין 28, תל אביב יפו"   # Gesher Theater address
+    type: theater
+    website: "https://www.gesher-theatre.co.il/"
+    status: planned
+    priority: 1
+
+  - id: hasimta
+    name: "תיאטרון הסמטה"
+    city: "יפו"
+    geocode_query: "תיאטרון הסמטה, יפו"
+    type: theater
+    website: "https://www.hasimta.com/"
+    status: planned
+    priority: 2
+
+  - id: tmuna
+    name: "תיאטרון תמונע"
+    city: "תל אביב"
+    geocode_query: "סונצ'ינו 8, תל אביב"   # Tmuna address
+    type: theater
+    website: "https://www.t-tmuna.co.il/"
+    status: planned
+    priority: 2
+
+  - id: yoram_loewenstein
+    name: "סטודיו יורם לוינשטיין"
+    city: "תל אביב"
+    geocode_query: "יסוד המעלה 17, תל אביב"   # Yoram Loewenstein Studio address
+    type: theater
+    website: "https://yoramloewenstein.co.il/"
+    status: planned
+    priority: 3
+
+  - id: heichal_tlv
+    name: "היכל התרבות תל אביב (ברונפמן)"
+    city: "תל אביב"
+    geocode_query: "היכל התרבות, תל אביב"
+    type: concert_hall
+    website: "https://www.hatarbut.co.il/"
+    status: planned
+    priority: 1
+
+  - id: suzanne_dellal
+    name: "מרכז סוזן דלל"
+    city: "תל אביב"
+    geocode_query: "מרכז סוזן דלל, תל אביב"
+    type: dance_venue
+    website: "https://suzannedellal.org.il/"
+    status: planned
+    priority: 2
+
+  - id: barby
+    name: "מועדון בארבי"
+    city: "תל אביב"
+    geocode_query: "קיבוץ גלויות 52, תל אביב"   # Barby club
+    type: music_club
+    website: "https://barby.co.il/"
+    status: planned
+    priority: 2
+
+  - id: reading3
+    name: "ריידינג 3"
+    city: "תל אביב"
+    geocode_query: "Reading 3, Tel Aviv"
+    type: music_club
+    website: "https://www.reading3.co.il/"
+    status: planned
+    priority: 3
+
+  - id: hangar11
+    name: "האנגר 11"
+    city: "תל אביב"
+    geocode_query: "Hangar 11, נמל תל אביב"
+    type: music_club
+    website: "https://hangar11.co.il/"
+    status: planned
+    priority: 3
+
+  - id: cinematheque_tlv
+    name: "סינמטק תל אביב"
+    city: "תל אביב"
+    geocode_query: "סינמטק תל אביב"
+    type: cultural_center
+    website: "https://www.cinema.co.il/"
+    status: maybe
+    priority: 3
+
+  # ---------------- Greater Tel Aviv (15-30 min) ----------------
+  - id: heichal_givatayim
+    name: "היכל התרבות גבעתיים"
+    city: "גבעתיים"
+    geocode_query: "תיאטרון גבעתיים"
+    type: concert_hall
+    website: "https://www.tg.co.il/"
+    status: planned
+    priority: 2
+
+  - id: heichal_ramat_gan
+    name: "היכל התרבות רמת גן"
+    city: "רמת גן"
+    geocode_query: "ביאליק 78, רמת גן"   # Heichal Ramat Gan address
+    type: concert_hall
+    website: "https://www.rg.muni.il/heichal-tarbut"
+    status: planned
+    priority: 3
+
+  - id: zappa_herzliya
+    name: "זאפה הרצליה"
+    city: "הרצליה"
+    geocode_query: "זאפה הרצליה"
+    type: music_club
+    website: "https://www.zappa-club.co.il/"
+    status: planned
+    priority: 2
+
+  - id: heichal_herzliya
+    name: "היכל התרבות הרצליה"
+    city: "הרצליה"
+    geocode_query: "הבנים 34, הרצליה"   # Heichal Herzliya address
+    type: concert_hall
+    website: "https://www.heichaltarbut.co.il/"
+    status: planned
+    priority: 3
+
+  - id: heichal_holon
+    name: "היכל התרבות חולון"
+    city: "חולון"
+    geocode_query: "קוגל 58, חולון"   # Heichal Holon address
+    type: concert_hall
+    website: "https://www.holontarbut.org.il/"
+    status: planned
+    priority: 3
+
+  - id: heichal_bat_yam
+    name: "היכל התרבות בת ים"
+    city: "בת ים"
+    geocode_query: "היכל התרבות בת ים"
+    type: concert_hall
+    status: maybe
+    priority: 3
+
+  # ---------------- 30-45 min ----------------
+  - id: heichal_petah_tikva
+    name: "היכל התרבות פתח תקווה"
+    city: "פתח תקווה"
+    geocode_query: "היכל התרבות פתח תקווה"
+    type: concert_hall
+    website: "https://www.htpt.co.il/"
+    status: planned
+    priority: 2
+
+  - id: heichal_raanana
+    name: "היכל התרבות רעננה"
+    city: "רעננה"
+    geocode_query: "אחוזה 147, רעננה"   # Heichal Ra'anana address
+    type: concert_hall
+    website: "https://www.raanana-cc.co.il/"
+    status: planned
+    priority: 2
+
+  - id: heichal_kfar_saba
+    name: "היכל התרבות כפר סבא"
+    city: "כפר סבא"
+    geocode_query: "היכל התרבות כפר סבא"
+    type: concert_hall
+    status: maybe
+    priority: 3
+
+  - id: heichal_rishon
+    name: "היכל התרבות ראשון לציון"
+    city: "ראשון לציון"
+    geocode_query: "היכל התרבות ראשון לציון"
+    type: concert_hall
+    website: "https://www.rishon-le-zion.co.il/heichal/"
+    status: planned
+    priority: 2
+
+  - id: heichal_rehovot
+    name: "היכל התרבות רחובות"
+    city: "רחובות"
+    geocode_query: "היכל התרבות רחובות"
+    type: concert_hall
+    status: maybe
+    priority: 3
+
+  - id: heichal_netanya
+    name: "היכל התרבות נתניה"
+    city: "נתניה"
+    geocode_query: "רזיאל 4, נתניה"   # Heichal Netanya address
+    type: concert_hall
+    status: maybe
+    priority: 3
+
+  # ---------------- Borderline / outside 45min ----------------
+  - id: khan_jerusalem
+    name: "תיאטרון החאן ירושלים"
+    city: "ירושלים"
+    geocode_query: "תיאטרון החאן, ירושלים"
+    type: theater
+    website: "https://www.khan.co.il/"
+    status: maybe
+    priority: 4
+    notes: "Probably outside 45min unless light traffic"
+
+  - id: jerusalem_theater
+    name: "תיאטרון ירושלים"
+    city: "ירושלים"
+    geocode_query: "תיאטרון ירושלים"
+    type: theater
+    status: maybe
+    priority: 4
+    notes: "Probably outside 45min"
+
+  - id: caesarea_amphi
+    name: "אמפי קיסריה"
+    city: "קיסריה"
+    geocode_query: "Caesarea Amphitheater"   # OSM has it under English
+    type: amphitheater
+    website: "https://www.caesarea-amphi.co.il/"
+    status: planned
+    priority: 1
+    notes: "~50-60 min — borderline but explicitly requested by user. Important summer venue."
+
+  - id: shuni_amphi
+    name: "אמפי שוני"
+    city: "בנימינה"
+    geocode_query: "פארק שוני, בנימינה"
+    type: amphitheater
+    status: planned
+    priority: 1
+    notes: "~55-65 min — borderline but explicitly requested by user. Summer outdoor concerts."
+
+  # ---------------- Aggregators (would unlock 80%+ in one site if cracked) ----------------
+  - id: leaan
+    name: "Leaan (לאן)"
+    type: aggregator
+    website: "https://www.leaan.co.il/"
+    status: blocked
+    priority: 1
+    notes: "JS-heavy SPA, requires Playwright."
+
+  - id: eventim_il
+    name: "Eventim Israel"
+    type: aggregator
+    website: "https://www.eventim.co.il/"
+    status: blocked
+    priority: 1
+    notes: "Akamai bot protection, requires Playwright + maybe residential proxy."
+
+  - id: bimot
+    name: "בימות (bimot.co.il)"
+    type: aggregator
+    website: "https://tickets.bimot.co.il/"
+    status: blocked
+    priority: 2
+    notes: "Anti-bot protection, unverified detail-page accessibility."

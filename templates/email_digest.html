@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="utf-8"><title>{{ subject }}</title></head>
+<body style="margin:0;padding:20px 8px;background:#ece9df;font-family:'Heebo',Arial,sans-serif;color:#1a1a1a;line-height:1.5;text-align:right;direction:rtl">
+<table cellpadding="0" cellspacing="0" border="0" align="center" dir="rtl" style="max-width:680px;width:100%;border-collapse:collapse;text-align:right;direction:rtl">
+
+  <!-- ========== HEADER WITH BIG CTA ========== -->
+  <tr><td>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:linear-gradient(135deg,#c4392f 0%,#7d2520 100%);border-radius:14px 14px 0 0">
+      <tr><td style="padding:26px 26px 8px;color:white;text-align:right">
+        <div style="font-size:13px;opacity:0.85;margin-bottom:4px">{{ greeting }}</div>
+        <h1 style="margin:0;font-size:26px;font-weight:700">🎭 הופעות לאבא</h1>
+        <div style="font-size:13px;opacity:0.9;margin-top:4px">{{ today_he }}</div>
+      </td></tr>
+      <tr><td style="padding:14px 26px 24px;text-align:right">
+        <a href="{{ public_url }}" style="background:white;color:#7d2520;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+          🎟 פתח את הדף המלא ({{ total_count }} הופעות) ←
+        </a>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- ========== STATS STRIP (weather + count) ========== -->
+  <tr><td style="background:white;padding:14px 26px;border-bottom:1px solid #eee5d8;text-align:right">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+      <tr>
+        {% if weather %}
+        <td valign="middle" width="50%" style="padding-inline-end:12px;border-inline-end:1px solid #eee5d8">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="font-size:30px;line-height:1;padding-inline-end:10px">{{ weather.emoji }}</td>
+            <td>
+              <div style="font-size:11px;color:#888">תל אביב היום</div>
+              <div style="font-size:15px;font-weight:600">{{ weather.high_c }}° / {{ weather.low_c }}° · {{ weather.description }}</div>
+            </td>
+          </tr></table>
+        </td>
+        {% endif %}
+        <td valign="middle" width="50%" style="padding-inline-start:14px">
+          <div style="font-size:11px;color:#888">חדש היום</div>
+          <div style="font-size:15px;font-weight:600">🆕 {{ new_count }} {% if new_count == 1 %}הופעה{% else %}הופעות{% endif %} שנכנסו</div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- ========== TWO-COLUMN: TV REC + TODAY-IN-HISTORY ========== -->
+  <tr><td style="background:white;padding:0 8px;text-align:right">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+      <tr valign="top">
+        {% if tv_rec %}
+        <td width="50%" style="padding:18px;border-inline-end:1px solid #eee5d8;text-align:right">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#999;margin-bottom:6px">📺 המלצה לסדרה</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:3px">{{ tv_rec.title }}</div>
+          <div style="font-size:11px;color:#888;margin-bottom:8px">{{ tv_rec.platform }} · {{ tv_rec.year }} · {{ tv_rec.genre }}</div>
+          <div style="font-size:13px;color:#333">{{ tv_rec.blurb }}</div>
+        </td>
+        {% endif %}
+        {% if today_event %}
+        <td width="50%" style="padding:18px;text-align:right">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#999;margin-bottom:6px">📅 היום לפני {{ today_event.years_ago }} שנים</div>
+          <div style="font-size:13px;color:#333">{{ today_event.text }}</div>
+          {% if today_event.link %}<div style="margin-top:8px"><a href="{{ today_event.link }}" style="color:#c4392f;text-decoration:none;font-size:12px;font-weight:500">{{ today_event.link_label or 'קרא עוד' }} ←</a></div>{% endif %}
+        </td>
+        {% else %}
+        <td width="50%" style="padding:18px;text-align:right">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#999;margin-bottom:6px">💡 הידעת?</div>
+          <div style="font-size:13px;color:#333">{{ fact.text }}</div>
+          {% if fact.link %}<div style="margin-top:8px"><a href="{{ fact.link }}" style="color:#c4392f;text-decoration:none;font-size:12px;font-weight:500">{{ fact.link_label or 'קרא עוד' }} ←</a></div>{% endif %}
+        </td>
+        {% endif %}
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- ========== FUN ITEM (Hebrew quip / observation) ========== -->
+  {% if fun_item %}
+  <tr><td style="background:#fef9ed;padding:16px 26px;border-top:1px solid #eee5d8;border-bottom:1px solid #eee5d8;text-align:right">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#a07810;margin-bottom:6px">{{ fun_item.emoji }} מצחיק / מוזר / מפתיע</div>
+    <div style="font-size:14px;color:#5a4410">{{ fun_item.text }}</div>
+  </td></tr>
+  {% endif %}
+
+  <!-- ========== NEW SHOWS LIST (max 10) ========== -->
+  <tr><td style="background:white;padding:24px 26px 8px;text-align:right">
+    <h2 style="margin:0 0 4px 0;font-size:18px;font-weight:600">
+      🆕 חדש היום — {{ new_count }} {% if new_count == 1 %}הופעה{% else %}הופעות{% endif %}
+    </h2>
+    <div style="font-size:12px;color:#888;margin-bottom:6px">
+      {% if shows|length < new_count %}מציג {{ shows|length }} מתוך {{ new_count }} — את כולן בדף הראשי{% else %}{% endif %}
+    </div>
+  </td></tr>
+
+  {% for s in shows %}
+  <tr><td style="background:white;padding:0 26px;text-align:right">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #f0eee8">
+      <tr valign="top">
+        {% if s.poster_url %}
+        <td width="92" style="padding:12px 0 12px 12px">
+          <a href="{{ s.url }}"><img src="{{ s.poster_url }}" alt="" width="80" height="110" style="width:80px;height:110px;object-fit:cover;border-radius:6px;display:block;border:0" referrerpolicy="no-referrer"></a>
+        </td>
+        {% endif %}
+        <td style="padding:12px 0;text-align:right">
+          <div style="font-size:15px;font-weight:600;line-height:1.3;margin-bottom:3px"><a href="{{ s.url }}" style="color:#1a1a1a;text-decoration:none">{{ s.title }}</a></div>
+          <div style="color:#666;font-size:12px;margin-bottom:5px">{{ s.venue }} · 📅 {{ s.when_he }}{% if s.perf_count > 1 %} (עוד {{ s.perf_count - 1 }}){% endif %}</div>
+          {% if s.description %}<div style="color:#444;font-size:12px;line-height:1.4">{{ s.description }}…</div>{% endif %}
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  {% endfor %}
+
+  <!-- ========== FOOTER CTA ========== -->
+  <tr><td style="background:white;padding:24px 26px 28px;border-top:2px solid #f0eee8;text-align:center;border-radius:0 0 14px 14px">
+    {% if shows|length < new_count %}
+    <div style="font-size:13px;color:#666;margin-bottom:14px">+ {{ new_count - shows|length }} הופעות נוספות בדף הראשי</div>
+    {% endif %}
+    <a href="{{ public_url }}" style="background:#c4392f;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:16px;display:inline-block">
+      🎟 פתח את הדף המלא ←
+    </a>
+    <div style="margin-top:14px;color:#999;font-size:11px;line-height:1.5">בדף הראשי: סינונים אישיים · לוח שנה · שאלון להתאמת המלצות</div>
+  </td></tr>
+
+</table>
+<div style="max-width:680px;margin:14px auto 0;text-align:center;color:#aaa;font-size:11px">
+  הצינור רץ אוטומטית פעמיים ביום · ההעדפות נשמרות בדפדפן בנפרד לכל מי שפותח
+</div>
+</body>
+</html>

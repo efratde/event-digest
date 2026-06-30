@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local-only state — generated fresh each pipeline run
+data/*.db
+output/
+
+# Per-machine secrets (Gmail App Password, dad's email, etc.) — never commit
+.env
+*.env
+secrets.yaml
+secrets.*
+
+# Wrangler local cache
+.wrangler/
+
+# OS junk
+.DS_Store
