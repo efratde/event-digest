@@ -1,5 +1,5 @@
 """
-Scraper for Reading 3 (רדינג 3) — open-air music venue at Tel Aviv port.
+Scraper for Reading 3 — open-air music venue at Tel Aviv port.
 
 The venue's marketing site at https://www.reading3.co.il/ splits into two
 sub-sites; the one we want is the shows listing:
@@ -24,7 +24,7 @@ Reading 3 is operated by Eventim, but the venue's own page is easier to
 parse than the Eventim catalog (which would require filtering across all
 Israeli venues). We keep Eventim as a mental fallback only.
 
-Genre is hard-coded "מוזיקה" (the venue books concerts exclusively).
+Genre is hard-coded "Music" (the venue books concerts exclusively).
 Each booking is a single night — no residencies have been observed — but
 we still group by canonical title in case two performances of the same
 artist appear in the listing window.
@@ -74,9 +74,9 @@ BG_IMG_RE = re.compile(
 
 class Reading3Scraper(Scraper):
     source_id = "reading3"
-    source_name = "רדינג 3"
-    venue = "רדינג 3"
-    city = "תל אביב"
+    source_name = "Reading 3"
+    venue = "Reading 3"
+    city = "Tel Aviv"
 
     def __init__(self, timeout: float = 30.0):
         super().__init__(timeout=timeout)
@@ -185,7 +185,7 @@ class Reading3Scraper(Scraper):
             performers=[],
             director="",
             duration_minutes=None,
-            genre="מוזיקה",
+            genre="Music",
             poster_url=posters[0] if posters else "",
         )
 
@@ -214,5 +214,5 @@ class Reading3Scraper(Scraper):
     def _title_key(title: str) -> str:
         """Normalise title for grouping multi-night entries."""
         t = re.sub(r"\s+", " ", title).strip()
-        t = re.sub(r"[\"'״׳`]", "", t)
+        t = re.sub(r"[\"'`]", "", t)
         return t.lower()

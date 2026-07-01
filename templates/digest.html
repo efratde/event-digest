@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="he">
+<html dir="ltr" lang="en">
 <head>
 <meta charset="utf-8">
-<title>הופעות לאבא — {{ today_he }}</title>
+<title>Event Digest — {{ today_he }}</title>
 <style>
   :root {
     --bg: #0e1014;
@@ -232,8 +232,43 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-faint);
-    font-size: 36px;
+    color: rgba(255,255,255,0.9);
+    font-size: 44px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.14), transparent 55%),
+      linear-gradient(135deg, #232935 0%, #12151c 100%);
+  }
+  /* Genre-keyed gradient placeholders — no external images fetched. */
+  .card.g-theater .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+      linear-gradient(135deg, var(--g-theater) 0%, #16283f 85%);
+  }
+  .card.g-music .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+      linear-gradient(135deg, var(--g-music) 0%, #2a1a38 85%);
+  }
+  .card.g-comedy .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.18), transparent 55%),
+      linear-gradient(135deg, var(--g-comedy) 0%, #3a2606 85%);
+  }
+  .card.g-dance .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+      linear-gradient(135deg, var(--g-dance) 0%, #123322 85%);
+  }
+  .card.g-party .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.18), transparent 55%),
+      linear-gradient(135deg, var(--g-party) 0%, #3a1c12 85%);
+  }
+  .card.g-other .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.12), transparent 55%),
+      linear-gradient(135deg, #4a515f 0%, #1a1e26 85%);
   }
 
   /* Genre + freshness badges — top-LEFT visually (RTL inset-inline-end), larger */
@@ -784,110 +819,110 @@
 <body>
 
 <header class="top">
-  <h1>🎭 הופעות לאבא</h1>
+  <h1>🎭 Event Digest</h1>
   <div class="subtitle">{{ today_he }}</div>
-  <div class="stats" id="stats">{{ cards|length }} הופעות</div>
+  <div class="stats" id="stats">{{ cards|length }} shows</div>
   <div class="legend">
-    <span><span class="swatch g-theater"></span> תיאטרון</span>
-    <span><span class="swatch g-music"></span> מוזיקה</span>
-    <span><span class="swatch g-comedy"></span> סטנדאפ</span>
-    <span><span class="swatch g-dance"></span> מחול</span>
-    <span><span class="swatch g-other"></span> אחר</span>
+    <span><span class="swatch g-theater"></span> Theater</span>
+    <span><span class="swatch g-music"></span> Music</span>
+    <span><span class="swatch g-comedy"></span> Standup</span>
+    <span><span class="swatch g-dance"></span> Dance</span>
+    <span><span class="swatch g-other"></span> Other</span>
   </div>
   <div class="top-actions">
-    <button class="top-action-btn" id="open-prefs">⚙️ ההעדפות שלי</button>
-    <button class="top-action-btn" id="open-quiz">📝 שאלון טעם מהיר</button>
+    <button class="top-action-btn" id="open-prefs">⚙️ My preferences</button>
+    <button class="top-action-btn" id="open-quiz">📝 Quick taste quiz</button>
   </div>
 </header>
 
 <div class="view-tabs">
-  <button class="view-tab active" data-view="cards">🎴 כרטיסיות</button>
-  <button class="view-tab" data-view="calendar">📅 לוח שנה</button>
+  <button class="view-tab active" data-view="cards">🎴 Cards</button>
+  <button class="view-tab" data-view="calendar">📅 Calendar</button>
 </div>
 
 <div class="filters">
   <div class="filter-group">
-    <label>מיון:</label>
+    <label>Sort:</label>
     <select id="sort">
-      <option value="match">התאמה לטעם</option>
-      <option value="next_perf">הופעה קרובה ראשונה</option>
-      <option value="opened_desc">חדש ביותר במכירה</option>
-      <option value="alpha">א-ב</option>
-      <option value="distance">מרחק מהבית</option>
-      <option value="run_short">ריצה קצרה (טריות/נחטפות)</option>
+      <option value="match">Taste match</option>
+      <option value="next_perf">Soonest show first</option>
+      <option value="opened_desc">Newest on sale</option>
+      <option value="alpha">A–Z</option>
+      <option value="distance">Distance from home</option>
+      <option value="run_short">Short run (fresh / selling out)</option>
     </select>
   </div>
   <div class="filter-group">
-    <label>אולם:</label>
+    <label>Venue:</label>
     <select id="venue-filter">
-      <option value="">הכל</option>
-      <optgroup label="הצג רק">
-        {% for v in facets.venues %}<option value="only:{{ v }}">רק {{ v }}</option>{% endfor %}
+      <option value="">All</option>
+      <optgroup label="Show only">
+        {% for v in facets.venues %}<option value="only:{{ v }}">Only {{ v }}</option>{% endfor %}
       </optgroup>
-      <optgroup label="הסתר">
-        {% for v in facets.venues %}<option value="not:{{ v }}">ללא {{ v }}</option>{% endfor %}
+      <optgroup label="Hide">
+        {% for v in facets.venues %}<option value="not:{{ v }}">Without {{ v }}</option>{% endfor %}
       </optgroup>
     </select>
   </div>
   <div class="filter-group">
-    <label>ז׳אנר:</label>
+    <label>Genre:</label>
     <select id="genre-filter">
-      <option value="">הכל</option>
-      <optgroup label="הצג רק">
-        {% for g in facets.genres %}<option value="only:{{ g.class }}">רק {{ g.label }}</option>{% endfor %}
+      <option value="">All</option>
+      <optgroup label="Show only">
+        {% for g in facets.genres %}<option value="only:{{ g.class }}">Only {{ g.label }}</option>{% endfor %}
       </optgroup>
-      <optgroup label="הסתר">
-        {% for g in facets.genres %}<option value="not:{{ g.class }}">ללא {{ g.label }}</option>{% endfor %}
+      <optgroup label="Hide">
+        {% for g in facets.genres %}<option value="not:{{ g.class }}">Without {{ g.label }}</option>{% endfor %}
       </optgroup>
     </select>
   </div>
   {% if facets.sub_genres %}
   <div class="filter-group">
-    <label>תת-ז׳אנר:</label>
+    <label>Sub-genre:</label>
     <select id="sub-genre-filter">
-      <option value="">הכל</option>
-      <optgroup label="הצג רק">
-        {% for sg in facets.sub_genres %}<option value="only:{{ sg }}">רק {{ sg }}</option>{% endfor %}
+      <option value="">All</option>
+      <optgroup label="Show only">
+        {% for sg in facets.sub_genres %}<option value="only:{{ sg }}">Only {{ sg }}</option>{% endfor %}
       </optgroup>
-      <optgroup label="הסתר">
-        {% for sg in facets.sub_genres %}<option value="not:{{ sg }}">ללא {{ sg }}</option>{% endfor %}
+      <optgroup label="Hide">
+        {% for sg in facets.sub_genres %}<option value="not:{{ sg }}">Without {{ sg }}</option>{% endfor %}
       </optgroup>
     </select>
   </div>
   {% endif %}
   <div class="filter-group">
-    <label>חלון זמן:</label>
+    <label>Time window:</label>
     <select id="window-filter">
-      <option value="all">הכל</option>
-      <option value="7">השבוע</option>
-      <option value="30">החודש</option>
-      <option value="90">3 חודשים</option>
+      <option value="all">All</option>
+      <option value="7">This week</option>
+      <option value="30">This month</option>
+      <option value="90">3 months</option>
     </select>
   </div>
   <div class="filter-group">
-    <label>מרחק עד:</label>
+    <label>Distance up to:</label>
     <select id="distance-filter">
-      <option value="">כל מרחק</option>
-      <option value="15">15 דק׳</option>
-      <option value="30">30 דק׳</option>
-      <option value="60">60 דק׳</option>
+      <option value="">Any distance</option>
+      <option value="15">15 min</option>
+      <option value="30">30 min</option>
+      <option value="60">60 min</option>
     </select>
   </div>
   <div class="filter-group">
-    <input type="text" id="text-filter" placeholder="חיפוש חופשי…">
+    <input type="text" id="text-filter" placeholder="Free search…">
   </div>
-  <button class="filter-toggle" id="loved-only">📌 רק מועדפים</button>
-  <button class="filter-toggle dismissed-toggle" id="show-dismissed">הצג מוסתרים <span id="dismissed-count"></span></button>
+  <button class="filter-toggle" id="loved-only">📌 Favorites only</button>
+  <button class="filter-toggle dismissed-toggle" id="show-dismissed">Show hidden <span id="dismissed-count"></span></button>
   <div class="filter-spacer"></div>
-  <button class="filter-link" id="reset-filters">איפוס</button>
+  <button class="filter-link" id="reset-filters">Reset</button>
 </div>
 
 <div id="view-cards" class="view active">
 
-<h2 class="section-heading" id="pinned-heading" hidden>📌 מועדפים</h2>
+<h2 class="section-heading" id="pinned-heading" hidden>📌 Favorites</h2>
 <div class="grid" id="pinned-grid" hidden></div>
 
-<h2 class="section-heading" id="main-heading">כל ההופעות</h2>
+<h2 class="section-heading" id="main-heading">All shows</h2>
 <div class="grid" id="main-grid">
   {% for s in cards %}
   <article
@@ -911,19 +946,19 @@
     data-search="{{ s.title }} {{ s.description }} {{ s.performers|join(' ') }} {{ s.director }} {{ s.venue }}"
   >
     <div class="card-actions">
-      <button class="card-action pin" title="נעיצה" data-action="pin">📌</button>
-      <button class="card-action close" title="הסתרה" data-action="dismiss">✕</button>
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
     </div>
 
     {% if s.poster_url %}
     <div class="poster"><img src="{{ s.poster_url }}" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
     {% else %}
-    <div class="poster empty">🎭</div>
+    <div class="poster empty">{% if s.genre_class == 'g-music' %}🎵{% elif s.genre_class == 'g-comedy' %}🎤{% elif s.genre_class == 'g-dance' %}💃{% elif s.genre_class == 'g-party' %}🎉{% elif s.genre_class == 'g-other' %}🎪{% else %}🎭{% endif %}</div>
     {% endif %}
 
     <div class="poster-overlay">
-      {% if s.freshness == 'fresh' %}<span class="ovbadge fresh">🆕 חדש</span>{% endif %}
-      {% if s.freshness == 'warm' %}<span class="ovbadge warm">🟡 טרי</span>{% endif %}
+      {% if s.freshness == 'fresh' %}<span class="ovbadge fresh">🆕 New</span>{% endif %}
+      {% if s.freshness == 'warm' %}<span class="ovbadge warm">🟡 Recent</span>{% endif %}
       {% if s.sub_genre %}<span class="ovbadge">{{ s.sub_genre }}</span>{% elif s.genre %}<span class="ovbadge">{{ s.genre }}</span>{% endif %}
     </div>
 
@@ -932,7 +967,7 @@
 
       <div class="venue-line">
         <span>{{ s.venue }}</span>
-        {% if s.travel_minutes %}<span class="travel">· ~{{ s.travel_minutes }} דק׳ נסיעה</span>{% endif %}
+        {% if s.travel_minutes %}<span class="travel">· ~{{ s.travel_minutes }} min drive</span>{% endif %}
       </div>
 
       <div class="meta-line">
@@ -945,10 +980,10 @@
       {% if s.signal_date_he and s.freshness != 'old' %}
       <div class="meta-line">
         <span class="meta-chip">{{ s.signal_label }}: {{ s.signal_date_he }}</span>
-        {% if s.duration_minutes %}<span class="meta-chip">⏱ {{ s.duration_minutes }} דק׳</span>{% endif %}
+        {% if s.duration_minutes %}<span class="meta-chip">⏱ {{ s.duration_minutes }} min</span>{% endif %}
       </div>
       {% elif s.duration_minutes %}
-      <div class="meta-line"><span class="meta-chip">⏱ {{ s.duration_minutes }} דק׳</span></div>
+      <div class="meta-line"><span class="meta-chip">⏱ {{ s.duration_minutes }} min</span></div>
       {% endif %}
 
       {% if s.description %}<div class="desc">{{ s.description }}</div>{% endif %}
@@ -973,14 +1008,14 @@
         {% endfor %}
         {% if s.upcoming|length > 3 %}<span class="more"> +{{ s.upcoming|length - 3 }}</span>{% endif %}
         <span class="spread">
-          {% if s.spread.this_month %}{{ s.spread.this_month }} בחודש זה{% endif %}{% if s.spread.this_month and s.spread.next_month %} · {% endif %}{% if s.spread.next_month %}{{ s.spread.next_month }} בחודש הבא{% endif %}
-          {% if s.perf_delta and s.perf_delta < 0 %} · 📉 ירדנו ב-{{ s.perf_delta|abs }}{% endif %}
+          {% if s.spread.this_month %}{{ s.spread.this_month }} this month{% endif %}{% if s.spread.this_month and s.spread.next_month %} · {% endif %}{% if s.spread.next_month %}{{ s.spread.next_month }} next month{% endif %}
+          {% if s.perf_delta and s.perf_delta < 0 %} · 📉 down by {{ s.perf_delta|abs }}{% endif %}
         </span>
       </div>
       {% endif %}
 
       <div class="cta-row">
-        <a class="cta" href="{{ s.url }}" target="_blank" rel="noopener">לעמוד הקנייה ←</a>
+        <a class="cta" href="{{ s.url }}" target="_blank" rel="noopener">Go to ticket page →</a>
       </div>
 
       {% if s.enrichment %}
@@ -995,7 +1030,7 @@
   {% endfor %}
 </div>
 
-<div class="empty" id="no-results" hidden>אין הופעות שעונות לסינון הנוכחי</div>
+<div class="empty" id="no-results" hidden>No shows match the current filter</div>
 </div><!-- /#view-cards -->
 
 <div id="view-calendar" class="view">
@@ -1003,13 +1038,13 @@
     <div id="cal-status" style="color:var(--text-dim);font-size:12px;margin:0 0 10px 4px"></div>
     <div class="calendar">
       <!-- Day headers — Sunday first (Israeli convention) -->
-      <div class="cal-day-header">א׳</div>
-      <div class="cal-day-header">ב׳</div>
-      <div class="cal-day-header">ג׳</div>
-      <div class="cal-day-header">ד׳</div>
-      <div class="cal-day-header">ה׳</div>
-      <div class="cal-day-header">ו׳</div>
-      <div class="cal-day-header">ש׳</div>
+      <div class="cal-day-header">Sun</div>
+      <div class="cal-day-header">Mon</div>
+      <div class="cal-day-header">Tue</div>
+      <div class="cal-day-header">Wed</div>
+      <div class="cal-day-header">Thu</div>
+      <div class="cal-day-header">Fri</div>
+      <div class="cal-day-header">Sat</div>
 
       {% for week in calendar_weeks %}
         {% for day in week %}
@@ -1032,50 +1067,50 @@
 <div class="modal-overlay" id="prefs-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2>⚙️ ההעדפות שלי</h2>
+      <h2>⚙️ My preferences</h2>
       <button class="modal-close" data-close="prefs-modal">×</button>
     </div>
     <div class="modal-body">
       <p style="color:var(--text-dim); font-size:13px; margin-top:0">
-        סמן את האמנים, השחקנים, הבמאים והז׳אנרים שאתה אוהב — והופעות איתם יקבלו עדיפות גבוהה. השינויים נשמרים אוטומטית.
+        Mark the artists, actors, directors, and genres you love — and shows featuring them will get higher priority. Your changes are saved automatically.
       </p>
 
       <div class="pref-section" data-key="loved_artists">
-        <h3>🎵 אמנים אהובים (זמרים, מבצעים)</h3>
+        <h3>🎵 Favorite artists (singers, performers)</h3>
         <div class="pref-chips"></div>
         <div class="pref-input-row">
-          <input type="text" placeholder="שם אמן…">
-          <button class="pref-add">+ הוסף</button>
+          <input type="text" placeholder="Artist name…">
+          <button class="pref-add">+ Add</button>
         </div>
         <div class="pref-suggestions" data-suggestions-from="artists"></div>
       </div>
 
       <div class="pref-section" data-key="loved_performers">
-        <h3>🎭 שחקנים אהובים</h3>
+        <h3>🎭 Favorite actors</h3>
         <div class="pref-chips"></div>
         <div class="pref-input-row">
-          <input type="text" placeholder="שם שחקן…">
-          <button class="pref-add">+ הוסף</button>
+          <input type="text" placeholder="Actor name…">
+          <button class="pref-add">+ Add</button>
         </div>
         <div class="pref-suggestions" data-suggestions-from="performers"></div>
       </div>
 
       <div class="pref-section" data-key="loved_directors">
-        <h3>🎬 במאים אהובים</h3>
+        <h3>🎬 Favorite directors</h3>
         <div class="pref-chips"></div>
         <div class="pref-input-row">
-          <input type="text" placeholder="שם במאי…">
-          <button class="pref-add">+ הוסף</button>
+          <input type="text" placeholder="Director name…">
+          <button class="pref-add">+ Add</button>
         </div>
         <div class="pref-suggestions" data-suggestions-from="directors"></div>
       </div>
 
       <div class="pref-section" data-key="loved_genres">
-        <h3>🏷️ ז׳אנרים אהובים</h3>
+        <h3>🏷️ Favorite genres</h3>
         <div class="pref-chips"></div>
         <div class="pref-input-row">
-          <input type="text" placeholder="שם ז׳אנר…">
-          <button class="pref-add">+ הוסף</button>
+          <input type="text" placeholder="Genre name…">
+          <button class="pref-add">+ Add</button>
         </div>
         <div class="pref-suggestions" data-suggestions-from="genres"></div>
       </div>
@@ -1083,27 +1118,27 @@
       <hr style="border:none;border-top:1px solid var(--border); margin:24px 0">
 
       <div class="pref-section" data-key="disliked_genres">
-        <h3>👎 ז׳אנרים שלא בשבילך (יוסתרו לגמרי)</h3>
+        <h3>👎 Genres not for you (fully hidden)</h3>
         <div class="pref-chips"></div>
         <div class="pref-input-row">
-          <input type="text" placeholder="ז׳אנר להחרגה…">
-          <button class="pref-add">+ הוסף</button>
+          <input type="text" placeholder="Genre to exclude…">
+          <button class="pref-add">+ Add</button>
         </div>
         <div class="pref-suggestions" data-suggestions-from="genres"></div>
       </div>
 
       <div class="pref-section" data-key="disliked_performers">
-        <h3>👎 שחקנים/אמנים שלא בעניין</h3>
+        <h3>👎 Actors/artists you're not into</h3>
         <div class="pref-chips"></div>
         <div class="pref-input-row">
-          <input type="text" placeholder="שם להחרגה…">
-          <button class="pref-add">+ הוסף</button>
+          <input type="text" placeholder="Name to exclude…">
+          <button class="pref-add">+ Add</button>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button id="reset-all-state" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:6px 12px;cursor:pointer;font-family:inherit;font-size:12px">🗑 אפס את הכל (העדפות + מועדפים + מוסתרים)</button>
-      <button class="quiz-nav primary" data-close="prefs-modal" style="border-radius:6px;border:none;padding:7px 16px;cursor:pointer;color:white;background:var(--accent);font-family:inherit;font-size:13px">סגור</button>
+      <button id="reset-all-state" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:6px 12px;cursor:pointer;font-family:inherit;font-size:12px">🗑 Reset everything (preferences + favorites + hidden)</button>
+      <button class="quiz-nav primary" data-close="prefs-modal" style="border-radius:6px;border:none;padding:7px 16px;cursor:pointer;color:white;background:var(--accent);font-family:inherit;font-size:13px">Close</button>
     </div>
   </div>
 </div>
@@ -1112,7 +1147,7 @@
 <div class="modal-overlay" id="quiz-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2>📝 שאלון טעם מהיר</h2>
+      <h2>📝 Quick taste quiz</h2>
       <button class="modal-close" data-close="quiz-modal">×</button>
     </div>
     <div class="modal-body">
@@ -1121,17 +1156,17 @@
       <div class="quiz-options" id="quiz-options"></div>
     </div>
     <div class="modal-footer">
-      <button id="quiz-skip" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;font-family:inherit">דלג על השאלון</button>
+      <button id="quiz-skip" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;font-family:inherit">Skip the quiz</button>
       <div class="quiz-nav">
-        <button id="quiz-prev">חזור</button>
-        <button id="quiz-next" class="primary">המשך</button>
+        <button id="quiz-prev">Back</button>
+        <button id="quiz-next" class="primary">Continue</button>
       </div>
     </div>
   </div>
 </div>
 
 <footer>
-  נוצר {{ generated_at }} • {{ cards|length }} הופעות במעקב • מקורות: {{ sources_used|join(' · ') }}
+  Generated {{ generated_at }} • {{ cards|length }} shows tracked • Sources: {{ sources_used|join(' · ') }}
 </footer>
 
 <!-- Server-provided seed data (consumed by JS below) -->
@@ -1236,7 +1271,7 @@
     const title = (card.querySelector('h3 a')?.textContent || '').trim();
     const description = (card.querySelector('.desc')?.textContent || '').trim();
     // Combined haystack for substring lookups — title often has decorations
-    // like "שלום חנוך - מופע להקה" or "אהוד בנאי | שירים חדשים".
+    // like "Shalom Hanoch - band show" or "Ehud Banai | new songs".
     const haystack = `${title} ${description} ${performers.join(' ')} ${director}`;
 
     // Explicit preference matches
@@ -1244,8 +1279,8 @@
       if (prefs.loved_performers.includes(p)) score += 30;
       if (prefs.loved_artists.includes(p)) score += 30;
     }
-    // Substring matching for artist names (catches "שלום חנוך - מופע להקה" when
-    // the loved name is just "שלום חנוך"). Also catches the artist name
+    // Substring matching for artist names (catches "Shalom Hanoch - band show" when
+    // the loved name is just "Shalom Hanoch"). Also catches the artist name
     // appearing in the description.
     for (const a of prefs.loved_artists) {
       if (a && haystack.includes(a) && !performers.includes(a) && a !== title) {
@@ -1302,12 +1337,12 @@
       if (!badge) return;
       if (score >= 60) {
         badge.hidden = false;
-        badge.innerHTML = `🌟 <strong>מומלצת חזק לאבא</strong> · ציון ${score}`;
+        badge.innerHTML = `🌟 <strong>Strongly recommended for you</strong> · score ${score}`;
         badge.classList.add('high');
         c.classList.add('match-strong');
       } else if (score >= 25) {
         badge.hidden = false;
-        badge.innerHTML = `⭐ <strong>מותאם לטעם</strong> · ${score}`;
+        badge.innerHTML = `⭐ <strong>Matches your taste</strong> · ${score}`;
         badge.classList.remove('high');
         c.classList.add('match-mid');
       } else {
@@ -1442,7 +1477,7 @@
     noResults.hidden = (visibleMain + visiblePinned) > 0;
 
     const totalShown = visibleMain + visiblePinned;
-    stats.textContent = `מציג ${totalShown} מתוך ${allCards.length} הופעות`;
+    stats.textContent = `Showing ${totalShown} of ${allCards.length} shows`;
 
     const dismissedTotal = Object.keys(state.dismissed).length;
     dismissedCountSpan.textContent = dismissedTotal ? `(${dismissedTotal})` : '';
@@ -1474,21 +1509,21 @@
         const extra = Math.max(0, survivors.length - MAX_PER_DAY);
         if (overflowEl) {
           overflowEl.hidden = extra === 0;
-          overflowEl.textContent = extra ? `+${extra} עוד` : '';
+          overflowEl.textContent = extra ? `+${extra} more` : '';
         }
       } else {
         survivors.forEach(ev => ev.classList.remove('hidden-by-overflow'));
         if (overflowEl) {
           overflowEl.hidden = false;
-          overflowEl.textContent = '× הצג פחות';
+          overflowEl.textContent = '× Show less';
         }
       }
     });
     const calStatus = document.getElementById('cal-status');
     if (calStatus) {
       calStatus.textContent = calVisible === calTotal
-        ? `📅 מציג את כל ${calTotal} האירועים בחודשיים הקרובים`
-        : `📅 ${calVisible} מתוך ${calTotal} אירועים תואמים לסינון. ${calTotal - calVisible} מוסתרים`;
+        ? `📅 Showing all ${calTotal} events in the next two months`
+        : `📅 ${calVisible} of ${calTotal} events match the filter. ${calTotal - calVisible} hidden`;
     }
     document.querySelectorAll('.cal-day').forEach(day => {
       const visibleEvents = day.querySelectorAll('.cal-event:not(.hidden-by-filter)').length;
@@ -1513,14 +1548,14 @@
           return (a.dataset.nextPerf || 'zzzz').localeCompare(b.dataset.nextPerf || 'zzzz');
         case 'alpha':
           return (a.querySelector('h3').textContent || '').localeCompare(
-            (b.querySelector('h3').textContent || ''), 'he');
+            (b.querySelector('h3').textContent || ''), 'en');
         case 'opened_desc': {
           // Cards without an opened date go to the bottom
           const ad = a.dataset.opened || '', bd = b.dataset.opened || '';
           if (ad === bd) return 0;
           if (!ad) return 1;
           if (!bd) return -1;
-          return bd.localeCompare(ad, 'he');
+          return bd.localeCompare(ad, 'en');
         }
         case 'distance': {
           const ad = parseInt(a.dataset.distance || '999', 10);
@@ -1709,7 +1744,7 @@
       items.forEach(item => {
         const chip = document.createElement('span');
         chip.className = 'pref-chip' + (isDislike ? ' dislike' : '');
-        chip.innerHTML = `<span>${item}</span><button title="הסר">×</button>`;
+        chip.innerHTML = `<span>${item}</span><button title="Remove">×</button>`;
         chip.querySelector('button').addEventListener('click', () => {
           state.prefs[key] = state.prefs[key].filter(x => x !== item);
           saveState();
@@ -1771,7 +1806,7 @@
     prefsModal.classList.add('open');
   });
   document.getElementById('reset-all-state').addEventListener('click', () => {
-    if (!confirm('לאפס את כל ההעדפות, המועדפים וההסתרות? הפעולה לא ניתנת לביטול.')) return;
+    if (!confirm('Reset all preferences, favorites, and hidden items? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
   });
@@ -1797,8 +1832,8 @@
     {
       key: '_event_categories',  // not directly stored, drives conditionals
       kind: 'multi',
-      question: 'אילו סוגי אירועים אתה הולך אליהם?',
-      hint: 'בחר את כל מה שמעניין אותך',
+      question: 'What kinds of events do you go to?',
+      hint: 'Select everything that interests you',
       options: (C.event_categories || []).map(c => c.label),
       // Map labels back to keys for conditional checks
       _categoryMap: Object.fromEntries((C.event_categories || []).map(c => [c.label, c.key])),
@@ -1806,60 +1841,60 @@
     {
       key: 'loved_genres',
       kind: 'multi',
-      question: 'איזה סגנונות מוזיקה אתה אוהב?',
-      hint: 'אם בחרת מוזיקה למעלה',
+      question: 'What music styles do you like?',
+      hint: 'If you chose music above',
       options: C.music_subgenres || [],
-      condition: ans => (ans._event_categories || []).some(l => /מוזיקה|קונצרטים|מסיבות|מחווה/.test(l)),
+      condition: ans => (ans._event_categories || []).some(l => /Music|Concerts|Parties|Tribute/i.test(l)),
     },
     {
       key: 'loved_artists',
       kind: 'multi',
-      question: 'אילו זמרים/אמנים מוזיקה אתה אוהב?',
-      hint: 'בחר מהרשימה או הוסף בעצמך. אנחנו נדע לחפש אותם בכל ההופעות.',
+      question: 'Which singers/musicians do you like?',
+      hint: 'Pick from the list or add your own. We\'ll know to look for them across all the shows.',
       options: C.music_artists || [],
       allowFreeText: true,
-      placeholder: 'הוסף שם של אמן (למשל: שלמה ארצי)…',
-      condition: ans => (ans._event_categories || []).some(l => /מוזיקה|קונצרטים|מסיבות|מחווה/.test(l)),
+      placeholder: 'Add an artist name (e.g. Shlomo Artzi)…',
+      condition: ans => (ans._event_categories || []).some(l => /Music|Concerts|Parties|Tribute/i.test(l)),
     },
     {
       key: 'loved_performers',
       kind: 'multi',
-      question: 'אילו שחקני תיאטרון מעניינים אותך?',
-      hint: 'בחר מהרשימה או הוסף שמות נוספים',
+      question: 'Which theater actors interest you?',
+      hint: 'Pick from the list or add more names',
       options: C.theater_actors || [],
       allowFreeText: true,
-      placeholder: 'הוסף שם של שחקן…',
-      condition: ans => (ans._event_categories || []).some(l => /תיאטרון|הצגות|מחזות זמר/.test(l)),
+      placeholder: 'Add an actor name…',
+      condition: ans => (ans._event_categories || []).some(l => /Theater|Plays|Musicals/i.test(l)),
     },
     {
       key: 'loved_directors',
       kind: 'multi',
-      question: 'יש במאים שאתה אוהב במיוחד?',
-      hint: 'אופציונלי — אפשר לדלג',
+      question: 'Any directors you especially love?',
+      hint: 'Optional — you can skip',
       options: C.theater_directors || [],
       allowFreeText: true,
-      placeholder: 'הוסף שם של במאי…',
-      condition: ans => (ans._event_categories || []).some(l => /תיאטרון|הצגות|מחזות זמר/.test(l)),
+      placeholder: 'Add a director name…',
+      condition: ans => (ans._event_categories || []).some(l => /Theater|Plays|Musicals/i.test(l)),
     },
     {
       key: 'loved_performers',  // standup goes into same bucket as actors
       kind: 'multi',
-      question: 'אילו סטנדאפיסטים אתה אוהב?',
-      hint: 'בחר מהרשימה או הוסף',
+      question: 'Which stand-up comedians do you like?',
+      hint: 'Pick from the list or add your own',
       options: C.standup_comedians || [],
       allowFreeText: true,
-      placeholder: 'הוסף שם של סטנדאפיסט…',
-      condition: ans => (ans._event_categories || []).some(l => /סטנדאפ|בידור/.test(l)),
+      placeholder: 'Add a comedian name…',
+      condition: ans => (ans._event_categories || []).some(l => /Stand-?up|Comedy|Entertainment/i.test(l)),
       mergeMode: 'append',  // don't overwrite the actors selection
     },
     {
       key: 'disliked_genres',
       kind: 'multi',
-      question: 'מה לא לראות בכלל? (יוסתר לחלוטין)',
-      hint: 'אופציונלי',
-      options: C.default_exclusions || ['מוזיקה קלאסית','בלט','אופרה','ילדים'],
+      question: 'What do you never want to see? (fully hidden)',
+      hint: 'Optional',
+      options: C.default_exclusions || ['Classical music','Ballet','Opera','Children'],
       allowFreeText: true,
-      placeholder: 'הוסף עוד…',
+      placeholder: 'Add more…',
     },
   ];
   const quizModal = document.getElementById('quiz-modal');
@@ -1883,7 +1918,7 @@
     const visible = activeQuestions();
     if (quizIdx >= visible.length) quizIdx = Math.max(0, visible.length - 1);
     const q = visible[quizIdx];
-    quizProgress.innerHTML = `שאלה ${quizIdx + 1} מתוך ${visible.length}` +
+    quizProgress.innerHTML = `Question ${quizIdx + 1} of ${visible.length}` +
       (q.hint ? ` <span style="color:var(--text-faint)">· ${q.hint}</span>` : '');
     quizQuestion.textContent = q.question;
     quizOptions.innerHTML = '';
@@ -1893,7 +1928,7 @@
     if (q.options.length === 0) {
       const note = document.createElement('div');
       note.style.cssText = 'color:var(--text-faint);font-size:13px;font-style:italic;padding:12px 0';
-      note.textContent = 'אין כרגע אופציות לבחירה — אפשר להמשיך הלאה.';
+      note.textContent = 'No options to choose right now — you can continue.';
       quizOptions.appendChild(note);
     }
     q.options.forEach(opt => {
@@ -1915,7 +1950,7 @@
       wrap.className = 'pref-input-row';
       wrap.style.marginTop = '10px';
       wrap.style.width = '100%';
-      wrap.innerHTML = `<input type="text" placeholder="${q.placeholder || 'הוסף…'}"><button class="pref-add">+ הוסף</button>`;
+      wrap.innerHTML = `<input type="text" placeholder="${q.placeholder || 'Add…'}"><button class="pref-add">+ Add</button>`;
       const inp = wrap.querySelector('input');
       const btn = wrap.querySelector('button');
       function addFree() {
@@ -1931,7 +1966,7 @@
       quizOptions.appendChild(wrap);
     }
     quizPrev.disabled = quizIdx === 0;
-    quizNext.textContent = quizIdx === visible.length - 1 ? 'סיום ✓' : 'הבא';
+    quizNext.textContent = quizIdx === visible.length - 1 ? 'Finish ✓' : 'Next';
   }
 
   function commitQuiz() {

@@ -1,126 +1,126 @@
-# Configuration for Dad's daily ticket digest
+# Configuration for the daily ticket digest
 
 recipient:
-  name: "אבא"
-  home_address: "דיזנגוף סנטר, תל אביב"  # generic public landmark — demo origin for drive-time
-  home_city: "תל אביב"
+  name: "Demo User"
+  home_address: "Dizengoff Center, Tel Aviv"  # public landmark, geocoded by OSM - demo origin only
+  home_city: "Tel Aviv"
   max_travel_minutes: 60
 
 preferences:
   # Genres to INCLUDE (anything not listed is excluded by default after we add classification)
   include_genres:
-    - "תיאטרון"
-    - "סטנדאפ"
-    - "מוזיקה ישראלית"
-    - "מחזות זמר"
-    - "פסטיבלים"
-    - "מוזיקה רוק/פופ"
-    - "ג'אז"
-    - "מזרחית"
+    - "Theatre"
+    - "Stand-up"
+    - "Israeli Music"
+    - "Musicals"
+    - "Festivals"
+    - "Rock/Pop Music"
+    - "Jazz"
+    - "Mizrahi"
   # Explicit excludes (override include if ambiguous)
   exclude_genres:
-    - "מוזיקה קלאסית"
-    - "בלט"
-    - "אופרה"
-    - "ילדים"
+    - "Classical Music"
+    - "Ballet"
+    - "Opera"
+    - "Children"
   # Front-center seat preference (used in v2 for actual seat detection)
   preferred_seats:
     rows: [1, 2, 3, 4, 5]
-    section: "מרכז"
+    section: "Center"
 
 # Sources to scrape, with rough drive-time from Tel Aviv (minutes)
 sources:
   - id: habima
-    name: "תיאטרון הבימה"
-    city: "תל אביב"
-    geocode_query: "כיכר הבימה, תל אביב"   # OSM doesn't index "Habima Theater" by name
+    name: "Habima Theatre"
+    city: "Tel Aviv"
+    geocode_query: "Habima Square, Tel Aviv"   # OSM doesn't index "Habima Theater" by name
     enabled: true
   - id: cameri
-    name: "תיאטרון הקאמרי"
-    city: "תל אביב"
-    geocode_query: "המשכן לאמנויות הבמה, תל אביב"  # the Cameri at the Performing Arts Center
+    name: "Cameri Theatre"
+    city: "Tel Aviv"
+    geocode_query: "Tel Aviv Performing Arts Center, Tel Aviv"  # the Cameri at the Performing Arts Center
     enabled: true
   - id: lessin
-    name: "בית ליסין"
-    city: "תל אביב"
-    geocode_query: "בית ליסין, תל אביב"
+    name: "Lessin Theatre"
+    city: "Tel Aviv"
+    geocode_query: "Lessin Theatre, Tel Aviv"
     enabled: true
   - id: tzavta
-    name: "צוותא"
-    city: "תל אביב"
-    geocode_query: "צוותא, תל אביב"
+    name: "Tzavta"
+    city: "Tel Aviv"
+    geocode_query: "Tzavta, Tel Aviv"
     enabled: true
   - id: zappa_tlv
-    name: "זאפה תל אביב"
-    city: "תל אביב"
-    geocode_query: "זאפה תל אביב"
+    name: "Zappa Tel Aviv"
+    city: "Tel Aviv"
+    geocode_query: "Zappa Tel Aviv"
     enabled: true
   - id: zappa_herzliya
-    name: "זאפה הרצליה"
-    city: "הרצליה"
-    geocode_query: "זאפה הרצליה"
+    name: "Zappa Herzliya"
+    city: "Herzliya"
+    geocode_query: "Zappa Herzliya"
     enabled: true
   - id: shuni
-    name: "אמפי שוני"
-    city: "בנימינה"
-    geocode_query: "פארק שוני, בנימינה"
+    name: "Shuni Amphitheatre"
+    city: "Binyamina"
+    geocode_query: "Shuni Park, Binyamina"
     enabled: true
   - id: heichal_tlv
-    name: "היכל התרבות תל אביב (ברונפמן)"
-    city: "תל אביב"
-    geocode_query: "היכל התרבות, תל אביב"
+    name: "Tel Aviv Culture Palace (Bronfman)"
+    city: "Tel Aviv"
+    geocode_query: "Tel Aviv Culture Palace, Tel Aviv"
     enabled: true
   - id: caesarea
-    name: "אמפי קיסריה"
-    city: "קיסריה"
+    name: "Caesarea Amphitheatre"
+    city: "Caesarea"
     geocode_query: "Caesarea Amphitheater"
     enabled: true
   - id: gesher
-    name: "תיאטרון גשר"
-    city: "יפו"
-    geocode_query: "נחלת בנימין 28, תל אביב יפו"
+    name: "Gesher Theatre"
+    city: "Jaffa"
+    geocode_query: "Nachalat Binyamin 28, Tel Aviv-Jaffa"
     enabled: true
   - id: barby
-    name: "מועדון בארבי"
-    city: "תל אביב"
-    geocode_query: "קיבוץ גלויות 52, תל אביב"
+    name: "Barby Club"
+    city: "Tel Aviv"
+    geocode_query: "Kibbutz Galuyot 52, Tel Aviv"
     enabled: true
   - id: suzanne_dellal
-    name: "מרכז סוזן דלל"
-    city: "תל אביב"
-    geocode_query: "מרכז סוזן דלל, תל אביב"
+    name: "Suzanne Dellal Center"
+    city: "Tel Aviv"
+    geocode_query: "Suzanne Dellal Center, Tel Aviv"
     enabled: true
   - id: heichal_givatayim
-    name: "היכל התרבות גבעתיים"
-    city: "גבעתיים"
-    geocode_query: "תיאטרון גבעתיים"
+    name: "Givatayim Culture Hall"
+    city: "Givatayim"
+    geocode_query: "Givatayim Theatre"
     enabled: true
   - id: reading3
-    name: "ריידינג 3"
-    city: "תל אביב"
+    name: "Reading 3"
+    city: "Tel Aviv"
     geocode_query: "Reading 3, Tel Aviv"
     enabled: true
   - id: tmuna
-    name: "תיאטרון תמונע"
-    city: "תל אביב"
-    geocode_query: "סונצ'ינו 8, תל אביב"
+    name: "Tmuna Theatre"
+    city: "Tel Aviv"
+    geocode_query: "Soncino 8, Tel Aviv"
     enabled: true
   - id: yoram_loewenstein
-    name: "סטודיו יורם לוינשטיין"
-    city: "תל אביב"
-    geocode_query: "יסוד המעלה 17, תל אביב"
+    name: "Yoram Loewenstein Studio"
+    city: "Tel Aviv"
+    geocode_query: "Yesod HaMa'ala 17, Tel Aviv"
     enabled: true
   - id: hasimta
-    name: "תיאטרון הסמטה"
-    city: "יפו"
-    geocode_query: "מזל אריה 8, יפו"
+    name: "HaSimta Theatre"
+    city: "Jaffa"
+    geocode_query: "Mazal Arie 8, Jaffa"
     enabled: true
 
 # How many days back is "fresh"
 freshness:
-  fresh_days: 7   # First-seen within last N days = "🆕 חדש"
-  warm_days: 21  # First-seen within last N days = "טרי-יחסית"
-  # older = "ותיק"
+  fresh_days: 7   # First-seen within last N days = "🆕 New"
+  warm_days: 21  # First-seen within last N days = "Relatively fresh"
+  # older = "Established"
 
 # Output
 output:

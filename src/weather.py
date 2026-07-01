@@ -17,29 +17,29 @@ log = logging.getLogger("weather")
 TLV_LAT = 32.0853
 TLV_LON = 34.7818
 
-# Open-Meteo WMO weather code to Hebrew description + emoji
+# Open-Meteo WMO weather code to English description + emoji
 WEATHER_CODES = {
-    0: ("שמיים בהירים", "☀️"),
-    1: ("בעיקר בהיר", "🌤"),
-    2: ("מעונן חלקית", "⛅"),
-    3: ("מעונן", "☁️"),
-    45: ("ערפל", "🌫"),
-    48: ("ערפל קפוא", "🌫"),
-    51: ("טפטוף קל", "🌦"),
-    53: ("טפטוף", "🌦"),
-    55: ("טפטוף חזק", "🌦"),
-    61: ("גשם קל", "🌧"),
-    63: ("גשם", "🌧"),
-    65: ("גשם חזק", "🌧"),
-    71: ("שלג קל", "🌨"),
-    73: ("שלג", "🌨"),
-    75: ("שלג חזק", "❄️"),
-    80: ("ממטרים", "🌦"),
-    81: ("ממטרים", "🌧"),
-    82: ("ממטרים עזים", "⛈"),
-    95: ("סופת רעמים", "⛈"),
-    96: ("סופת רעמים עם ברד", "⛈"),
-    99: ("סופת רעמים עזה", "⛈"),
+    0: ("Clear sky", "☀️"),
+    1: ("Mostly clear", "🌤"),
+    2: ("Partly cloudy", "⛅"),
+    3: ("Overcast", "☁️"),
+    45: ("Fog", "🌫"),
+    48: ("Freezing fog", "🌫"),
+    51: ("Light drizzle", "🌦"),
+    53: ("Drizzle", "🌦"),
+    55: ("Heavy drizzle", "🌦"),
+    61: ("Light rain", "🌧"),
+    63: ("Rain", "🌧"),
+    65: ("Heavy rain", "🌧"),
+    71: ("Light snow", "🌨"),
+    73: ("Snow", "🌨"),
+    75: ("Heavy snow", "❄️"),
+    80: ("Showers", "🌦"),
+    81: ("Showers", "🌧"),
+    82: ("Heavy showers", "⛈"),
+    95: ("Thunderstorm", "⛈"),
+    96: ("Thunderstorm with hail", "⛈"),
+    99: ("Severe thunderstorm", "⛈"),
 }
 
 
@@ -73,7 +73,7 @@ def fetch_tlv_today() -> Optional[TodayWeather]:
         if not (codes and highs and lows):
             return None
         code = int(codes[0])
-        desc, emoji = WEATHER_CODES.get(code, ("מזג אוויר נעים", "🌤"))
+        desc, emoji = WEATHER_CODES.get(code, ("Pleasant weather", "🌤"))
         return TodayWeather(
             description=desc,
             high_c=int(round(highs[0])),

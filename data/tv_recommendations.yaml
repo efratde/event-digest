@@ -1,171 +1,171 @@
-# המלצות לסדרות וסרטים — חדשים בלבד (2023-2026).
-# מותאם לקהל בוגר שאוהב תרבות ויודע סטנדרטים.
-# בלי קלאסיקות שכל אחד כבר ראה (Mad Men, Breaking Bad, Succession וכו').
+# Recommendations for series and films — new only (2023-2026).
+# Tailored for a mature audience that loves culture and knows the standards.
+# No classics everyone has already seen (Mad Men, Breaking Bad, Succession, etc.).
 
 shows:
-  # ----- ישראלי חדש -----
-  - title: "אבק לכלכת"
-    platform: "כאן 11 / VOD"
+  # ----- New Israeli -----
+  - title: "Dandelion Dust"
+    platform: "Kan 11 / VOD"
     year: 2023
-    genre: "דרמה תקופתית"
-    blurb: "סדרה שמתרחשת ב-1948 במחנות מעצר של עולים אחרי השואה בקפריסין. צילום עוצר נשימה, סיפור על ההיסטוריה הנשכחת. רן דנקנר ויעל אבקסיס."
+    genre: "Period drama"
+    blurb: "A series set in 1948 in the detention camps for post-Holocaust immigrants in Cyprus. Breathtaking cinematography, a story about forgotten history. Ran Danker and Yael Abecassis."
 
-  - title: "המנהל"
-    platform: "כאן 11"
+  - title: "The Principal"
+    platform: "Kan 11"
     year: 2024
-    genre: "דרמה משרדית"
-    blurb: "מנהל בית-ספר תיכון מנסה לאזן בין הילדים, ההורים, המשרד והחיים האישיים. כתובה בעדינות עם צחוק מצמרר."
+    genre: "Workplace drama"
+    blurb: "A high-school principal tries to balance the kids, the parents, the ministry and his personal life. Written with subtlety and chilling laughter."
 
-  - title: "טוטם"
+  - title: "Totem"
     platform: "yes Studios / yes VOD"
     year: 2025
-    genre: "מותחן פסיכולוגי"
-    blurb: "פסיכותרפיסטית בכפר חרדי שמטפלת בילדה שלא מדברת. אוהד קנולר ושרה אדלר. סדרה מהפכנית — לא ראית כזה דבר בתיאטרון הישראלי."
+    genre: "Psychological thriller"
+    blurb: "A psychotherapist in an ultra-Orthodox village treats a girl who won't speak. Ohad Knoller and Sarah Adler. A groundbreaking series — you've never seen anything like it in Israeli screen drama."
 
-  - title: "מאיר"
+  - title: "Meir"
     platform: "yes / HOT"
     year: 2023
-    genre: "ביוגרפיה"
-    blurb: "סדרה דוקו-בדיונית על מאיר אריאל. ראיונות עם הזמר הזקן בעצמו לפני מותו ב-1999, משולב עם בדיון של חייו הצעירים. נדיר ומיוחד."
+    genre: "Biography"
+    blurb: "A docu-fiction series about Meir Ariel. Interviews with the aging singer himself before his death in 1999, interwoven with a dramatization of his younger years. Rare and special."
 
-  - title: "אסבסטוס"
+  - title: "Asbestos"
     platform: "yes / HOT"
     year: 2023
-    genre: "מותחן חברתי"
-    blurb: "מנהלת בית חולים יוצאת למלחמה נגד תאגיד תרופות מוּשׂחת. דגנית רימון בתפקיד אחד החזקים שעשתה. אקטואלי מאוד."
+    genre: "Social thriller"
+    blurb: "A hospital director goes to war against a corrupt pharmaceutical corporation. Dganit Rimon in one of the strongest roles she has ever played. Extremely topical."
 
-  # ----- בינלאומי 2024-2025 -----
+  # ----- International 2024-2025 -----
   - title: "Severance"
     platform: "Apple TV+"
-    year: "2022 / עונה 2 ב-2025"
-    genre: "מותחן מדע בדיוני"
-    blurb: "עובדים בתאגיד שמסכימים להפריד את זיכרון העבודה מהבית באמצעות שתל מוחי. עונה 2 (2025) קלעה גבוה — מתחילים לראות את התעלומה הגדולה. אם לא ראית את העונה הראשונה, הזמן."
+    year: "2022 / season 2 in 2025"
+    genre: "Science-fiction thriller"
+    blurb: "Employees at a corporation agree to separate their work memories from their home lives via a brain implant. Season 2 (2025) aimed high — you start to see the big mystery. If you haven't seen the first season, now's the time."
 
   - title: "Slow Horses"
     platform: "Apple TV+"
-    year: "עונה 4 ב-2024, עונה 5 ב-2025"
-    genre: "מותחן ריגול בריטי"
-    blurb: "סוכני MI5 שגלו ל'אורווה איטית'. גארי אולדמן בתפקיד הקודר שלו. עונה 5 (2025) מהירה ומבריקה. המתח כתוב כל-כך טוב, שזה כמעט אמנות."
+    year: "season 4 in 2024, season 5 in 2025"
+    genre: "British spy thriller"
+    blurb: "MI5 agents exiled to 'Slough House'. Gary Oldman in his gloomy element. Season 5 (2025) is fast and brilliant. The tension is written so well it's almost an art form."
 
   - title: "Adolescence"
     platform: "Netflix"
     year: 2025
-    genre: "דרמה משפחתית"
-    blurb: "מיני-סדרה בריטית של 4 פרקים — כל פרק טייק אחד ארוך ללא חיתוך. נער בן 13 נחשד ברצח. סטיבן גרהאם. הזעיקה את הפרלמנט הבריטי לדיון על רשתות חברתיות וילדים."
+    genre: "Family drama"
+    blurb: "A four-part British miniseries — each episode a single long take with no cuts. A 13-year-old boy is suspected of murder. Stephen Graham. It prompted the British Parliament to debate social media and children."
 
   - title: "Shōgun"
     platform: "Disney+"
     year: 2024
-    genre: "דרמה היסטורית"
-    blurb: "עיבוד חדש לרומן ההיסטורי על יפן של המאה ה-17 דרך עיני מלח אנגלי. הסדרה הכי עטורה בפרסים של 2024 — זכתה ב-18 פרסי אמי, יותר ממכל סדרה אחרת בעונה אחת."
+    genre: "Historical drama"
+    blurb: "A new adaptation of the historical novel about 17th-century Japan through the eyes of an English sailor. The most awarded series of 2024 — it won 18 Emmys, more than any other series in a single season."
 
   - title: "The Studio"
     platform: "Apple TV+"
     year: 2025
-    genre: "קומדיה תעשייתית"
-    blurb: "סת רוגן כראש סטודיו הוליוודי שמנסה לשרוד עידן הסטרימינג. סטירה אכזרית על תעשיית הקולנוע, עם הופעות אורח של רבים מהשחקנים הגדולים — שמשחקים את עצמם."
+    genre: "Industry comedy"
+    blurb: "Seth Rogen as the head of a Hollywood studio trying to survive the streaming era. A brutal satire of the film industry, with cameos from many of the biggest actors — playing themselves."
 
   - title: "Black Doves"
     platform: "Netflix"
     year: 2024
-    genre: "מותחן ריגול"
-    blurb: "קירה נייטלי כסוכנת בריטית סודית שמתחזה לאשת פוליטיקאי בלונדון. כשבעלה נרצח, הקבוצה שלה נשלחת להגן עליה. שש פרקים, מהירים."
+    genre: "Spy thriller"
+    blurb: "Keira Knightley as a secret British agent posing as a politician's wife in London. When her husband is murdered, her group is sent to protect her. Six episodes, fast-paced."
 
   - title: "Day of the Jackal"
     platform: "Sky / Peacock"
     year: 2024
-    genre: "מותחן בינלאומי"
-    blurb: "עיבוד מודרני לסרט הקלאסי. אדי רדמיין כמתנקש, לאשנה ליין כסוכנת MI6 הרודפת אחריו. 10 פרקים של מתח חי באירופה."
+    genre: "International thriller"
+    blurb: "A modern adaptation of the classic film. Eddie Redmayne as the assassin, Lashana Lynch as the MI6 agent chasing him. 10 episodes of live-wire tension across Europe."
 
   - title: "Ripley"
     platform: "Netflix"
     year: 2024
-    genre: "מותחן פסיכולוגי"
-    blurb: "עיבוד מחודש של 'הכישרון של מר ריפלי' (1999). אנדרו סקוט מבריק, צולם בשחור-לבן, מהמם ויזואלית. סטיב זייליאן (סופרא נובה, גנגסטר) ביים."
+    genre: "Psychological thriller"
+    blurb: "A fresh adaptation of 'The Talented Mr. Ripley' (1999). Andrew Scott is brilliant, shot in black and white, visually stunning. Directed by Steven Zaillian (Schindler's List, The Night Of)."
 
   - title: "Disclaimer"
     platform: "Apple TV+"
     year: 2024
-    genre: "מותחן ספרותי"
-    blurb: "אלפונסו קוארון (גראביטי, רומא) מתפנה לטלוויזיה. קייט בלאנשט וקווין קליין בסיפור על סופרת שמגלה ספר חדש שמטיף לה ביצירה. צולם כמו סרט."
+    genre: "Literary thriller"
+    blurb: "Alfonso Cuarón (Gravity, Roma) turns to television. Cate Blanchett and Kevin Kline in a story about an author who discovers a new book that indicts her through its fiction. Shot like a film."
 
   - title: "Presumed Innocent"
     platform: "Apple TV+"
     year: 2024
-    genre: "מותחן משפטי"
-    blurb: "עיבוד חדש של סרט 1990. ג'ייק ג'ילנהול כעורך-דין שנאשם ברצח. דייוויד E. קלי כותב. שינוי הסוף לחלוטין מהמקור — אפילו אם ראית את הסרט הישן."
+    genre: "Legal thriller"
+    blurb: "A new adaptation of the 1990 film. Jake Gyllenhaal as a lawyer accused of murder. Written by David E. Kelley. The ending is completely changed from the original — even if you've seen the old film."
 
   - title: "The Diplomat"
     platform: "Netflix"
-    year: "עונה 1 ב-2023, עונה 2 ב-2024"
-    genre: "מותחן פוליטי"
-    blurb: "קרי ראסל כשגרירת ארה\"ב חדשה בלונדון מנסה למנוע מלחמה. כתבה על ידי דברה כהן (House of Cards, The West Wing). חכם, מהיר, ומפתיע."
+    year: "season 1 in 2023, season 2 in 2024"
+    genre: "Political thriller"
+    blurb: "Keri Russell as a new U.S. ambassador in London trying to prevent a war. Written by Debora Cahn (House of Cards, The West Wing). Smart, fast, and surprising."
 
   - title: "Hacks"
     platform: "Max / yes"
-    year: "עונה 4 ב-2025"
-    genre: "קומדיה דרמה"
-    blurb: "ג'ין סמארט כקומיקאית לאס וגאסית בדור השלישי שצוות איתה כותבת בת 26. דיאלוגים שהם ברוטליים-מצחיקים. זכתה אמי לטובת קומדיה 3 שנים ברציפות."
+    year: "season 4 in 2025"
+    genre: "Comedy drama"
+    blurb: "Jean Smart as a third-generation Las Vegas comedian paired with a 26-year-old writer. Dialogue that's brutally funny. Won the Emmy for comedy three years running."
 
   - title: "Bad Sisters"
     platform: "Apple TV+"
-    year: "עונה 1 ב-2022, עונה 2 ב-2024"
-    genre: "מותחן משפחתי"
-    blurb: "5 אחיות אירניות שמתכננות לרצוח את הגיס המתעלל. שארון הורגן (Catastrophe). קומי ועוצמתי באותו זמן."
+    year: "season 1 in 2022, season 2 in 2024"
+    genre: "Family thriller"
+    blurb: "Five Irish sisters plotting to murder their abusive brother-in-law. Sharon Horgan (Catastrophe). Comic and powerful at the same time."
 
-  # ----- דוקו חדש -----
+  # ----- New documentary -----
   - title: "Beckham"
     platform: "Netflix"
     year: 2023
-    genre: "דוקו ביוגרפי"
-    blurb: "ביוגרפיה רב-פרקית על דייוויד בקהאם. ראיונות פרטיים, ארכיון לא ידוע. גם אם אתה לא אוהב כדורגל — סיפור על הצלחה, נישואים, וטראומה בריטית."
+    genre: "Biographical documentary"
+    blurb: "A multi-part biography of David Beckham. Private interviews, unseen archive footage. Even if you don't like football — a story about success, marriage, and British trauma."
 
   - title: "Quiet on Set"
     platform: "Investigation Discovery"
     year: 2024
-    genre: "דוקו חוקר"
-    blurb: "חשיפה על הצד האפל של תכניות הילדים של ניקלודיאון בשנות 90-2000. הזעיקה תגובה ציבורית עזה ושינתה את התעשייה."
+    genre: "Investigative documentary"
+    blurb: "An exposé of the dark side of Nickelodeon's children's programming in the 1990s-2000s. It sparked a fierce public response and changed the industry."
 
-  # ----- סרטי קולנוע חדשים -----
-  - title: "Anatomy of a Fall (אנטומיה של נפילה)"
+  # ----- New feature films -----
+  - title: "Anatomy of a Fall"
     platform: "Netflix"
     year: 2023
-    genre: "מותחן משפטי"
-    blurb: "סרט צרפתי שזכה בפאלמה דה'אור 2023. סופרת מואשמת ברצח בעלה. סנדרה הולר. דרמה משפטית מוקפדת ללא דם."
+    genre: "Legal thriller"
+    blurb: "A French film that won the 2023 Palme d'Or. An author is accused of murdering her husband. Sandra Hüller. A meticulous courtroom drama with no gore."
 
   - title: "Past Lives"
     platform: "yes / Apple TV"
     year: 2023
-    genre: "דרמה רומנטית"
-    blurb: "שני חברי ילדות מקוריאה נפגשים אחרי 25 שנה בניו יורק. סרט כל-כך עדין שזה כואב — מועמד לאוסקר, אחד הסרטים החשובים של 2023."
+    genre: "Romantic drama"
+    blurb: "Two childhood friends from Korea reunite after 25 years in New York. A film so delicate it hurts — an Oscar nominee, one of the most important films of 2023."
 
   - title: "The Zone of Interest"
     platform: "Netflix / yes"
     year: 2023
-    genre: "דרמה היסטורית"
-    blurb: "מנהל אושוויץ ומשפחתו בבית פרטי בצמוד למחנה. ג'ונתן גלייזר. אחד הסרטים החזקים שנעשו על השואה בעשור האחרון. זכה אוסקר לסרט בינלאומי 2024."
+    genre: "Historical drama"
+    blurb: "The commandant of Auschwitz and his family in a private house right next to the camp. Jonathan Glazer. One of the most powerful films made about the Holocaust in the last decade. Won the 2024 Oscar for International Feature."
 
   - title: "Conclave"
-    platform: "קולנוע / VOD בקרוב"
+    platform: "Cinema / VOD soon"
     year: 2024
-    genre: "מותחן ותיקאני"
-    blurb: "ראלף פיינס בתפקיד החי שלו. מי יבחר אפיפיור הבא? סרט שקט, מתוח, מפתיע, וצילום של זיכרון."
+    genre: "Vatican thriller"
+    blurb: "Ralph Fiennes in the role of his life. Who will be chosen as the next pope? A quiet, tense, surprising film, shot to be remembered."
 
   - title: "All of Us Strangers"
     platform: "Disney+"
     year: 2023
-    genre: "דרמה רומנטית"
-    blurb: "אנדרו סקוט (Sherlock, Fleabag) כתסריטאי לונדוני בודד שפוגש שכן צעיר ואת הוריו המתים. סרט יוצא דופן על אובדן."
+    genre: "Romantic drama"
+    blurb: "Andrew Scott (Sherlock, Fleabag) as a lonely London screenwriter who meets a young neighbor and his dead parents. An extraordinary film about loss."
 
-  # ----- מצויינות שאולי החמיץ -----
+  # ----- Excellence you may have missed -----
   - title: "The Bear"
     platform: "Disney+"
-    year: "עונה 1 ב-2022 / עונה 4 ב-2025"
-    genre: "דרמה קומית"
-    blurb: "שף-כוכב יורש מסעדת סנדוויצים של אחיו המת בשיקאגו. קצב מטורף, אסון רגשי, מצחיק עד דמעות. זוכת אמי 4 שנים ברציפות."
+    year: "season 1 in 2022 / season 4 in 2025"
+    genre: "Comedy drama"
+    blurb: "A star chef inherits his late brother's sandwich shop in Chicago. Insane pace, emotional disaster, funny to the point of tears. Emmy winner four years running."
 
   - title: "Pachinko"
     platform: "Apple TV+"
-    year: "עונה 1 ב-2022 / עונה 2 ב-2024"
-    genre: "סאגה משפחתית"
-    blurb: "ארבעה דורות של משפחה קוריאנית — מתחילת המאה ה-20 עד היום. צילום מהמם, סיפור עצום. אם לא ראית את העונה הראשונה — שווה את כל היום."
+    year: "season 1 in 2022 / season 2 in 2024"
+    genre: "Family saga"
+    blurb: "Four generations of a Korean family — from the early 20th century to today. Stunning cinematography, an immense story. If you haven't seen the first season — it's worth a whole day."

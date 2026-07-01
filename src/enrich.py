@@ -16,11 +16,11 @@ from .models import Show
 
 # Genres we treat as "music / live concert" (Spotify makes sense)
 MUSIC_GENRES = {
-    "מוזיקה", "מוזיקה ישראלית", "ג'אז", "מזרחית",
-    "מוזיקה רוק/פופ", "פופ", "רוק", "ים-תיכוני",
+    "Music", "Israeli Music", "Jazz", "Mizrahi",
+    "Rock/Pop Music", "Pop", "Rock", "Mediterranean",
 }
 # Genres we treat as "stage production" (trailers/reviews make sense)
-STAGE_GENRES = {"תיאטרון", "מחזות זמר", "סטנדאפ", "מחול"}
+STAGE_GENRES = {"Theater", "Musicals", "Stand-up", "Dance"}
 
 MUSIC_SOURCES = {"zappa_tlv", "zappa_hrz", "zappa_jlm", "barby", "reading3", "hangar11"}
 STAGE_SOURCES = {"habima", "cameri", "lessin", "tzavta", "gesher", "khan", "haifa_theater"}
@@ -62,7 +62,7 @@ def google_search_url(query: str) -> str:
     return f"https://www.google.com/search?q={quote_plus(query)}&hl=he"
 
 
-def google_maps_directions_url(destination: str, origin: str = "תל אביב") -> str:
+def google_maps_directions_url(destination: str, origin: str = "Tel Aviv") -> str:
     return (
         "https://www.google.com/maps/dir/?api=1"
         f"&origin={quote_plus(origin)}&destination={quote_plus(destination)}"
@@ -70,10 +70,10 @@ def google_maps_directions_url(destination: str, origin: str = "תל אביב") 
 
 
 # -- Composite enrichment ----------------------------------------------------
-def enrichment_for(show: Show, *, home_origin: str = "תל אביב") -> list[dict]:
+def enrichment_for(show: Show, *, home_origin: str = "Tel Aviv") -> list[dict]:
     """
     Return a short list of {label, url, icon} dicts — at most 4 buttons per
-    show, with full Hebrew text labels (icons alone are too cryptic for the
+    show, with full text labels (icons alone are too cryptic for the
     target user). Links open searches, no API calls.
     """
     out: list[dict] = []
@@ -86,44 +86,44 @@ def enrichment_for(show: Show, *, home_origin: str = "תל אביב") -> list[di
 
     if is_music(show):
         out.append({
-            "label": "ספוטיפיי",
+            "label": "Spotify",
             "icon": "🎵",
             "url": spotify_search_url(talent),
         })
         out.append({
-            "label": "קליפים",
+            "label": "Music Videos",
             "icon": "📺",
-            "url": youtube_search_url(f"{talent} להיט"),
+            "url": youtube_search_url(f"{talent} hit song"),
         })
         out.append({
-            "label": "ויקיפדיה",
+            "label": "Wikipedia",
             "icon": "📖",
             "url": wikipedia_search_url(talent),
         })
     elif is_stage(show):
         out.append({
-            "label": "טריילר",
+            "label": "Trailer",
             "icon": "📺",
-            "url": youtube_search_url(f"{title} טריילר"),
+            "url": youtube_search_url(f"{title} trailer"),
         })
         out.append({
-            "label": "ביקורות",
+            "label": "Reviews",
             "icon": "📰",
-            "url": google_news_search_url(f'"{title}" ביקורת'),
+            "url": google_news_search_url(f'"{title}" review'),
         })
         out.append({
-            "label": "ויקיפדיה",
+            "label": "Wikipedia",
             "icon": "📖",
             "url": wikipedia_search_url(title if not show.performers else talent),
         })
     else:
         out.append({
-            "label": "חיפוש",
+            "label": "Search",
             "icon": "🔎",
             "url": google_search_url(title),
         })
         out.append({
-            "label": "ביקורות",
+            "label": "Reviews",
             "icon": "📰",
             "url": google_news_search_url(f'"{title}"'),
         })
@@ -131,7 +131,7 @@ def enrichment_for(show: Show, *, home_origin: str = "תל אביב") -> list[di
     # Always: navigation
     venue_q = f"{show.venue}, {show.city}" if show.city else show.venue
     out.append({
-        "label": "ניווט",
+        "label": "Directions",
         "icon": "🗺",
         "url": google_maps_directions_url(venue_q, home_origin),
     })

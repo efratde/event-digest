@@ -86,15 +86,15 @@ Run these steps in order. Stop and report if any step fails.
 ### 4. Send a Gmail notification
   Use the Gmail send_message tool (NOT a draft):
     To: dad-tickets@example.com
-    Subject: 🎭 הופעות לאבא — <today's Hebrew date, e.g. "יום שני, 4 במאי 2026">
+    Subject: 🎭 Shows for Dad — <today's date, e.g. "Monday, 4 May 2026">
     Body (HTML, RTL):
       <div dir="rtl" style="font-family: Heebo, Arial, sans-serif; font-size: 15px; line-height: 1.5">
-        <p>הדייג'סט היומי מוכן 🎭</p>
-        <p><a href="https://dad-tickets.pages.dev/" style="color:#c4392f;font-weight:600">לחץ כאן לפתיחת הדף</a></p>
+        <p>Your daily digest is ready 🎭</p>
+        <p><a href="https://dad-tickets.pages.dev/" style="color:#c4392f;font-weight:600">Click here to open the page</a></p>
         <p style="color:#888;font-size:13px;margin-top:24px">
-          רץ אוטומטית פעמיים ביום (07:00 ו-16:00 ישראל).<br>
-          ההעדפות (פינים, הסתרות, אהובים) נשמרות בדפדפן בלבד —
-          תוכל לערוך אותן באייקון ⚙️ בראש הדף.
+          Runs automatically twice a day (07:00 and 16:00 Israel time).<br>
+          Your preferences (pins, hides, favorites) are saved in the browser only —
+          you can edit them via the ⚙️ icon at the top of the page.
         </p>
       </div>
 

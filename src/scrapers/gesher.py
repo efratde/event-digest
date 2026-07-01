@@ -1,5 +1,5 @@
 """
-Scraper for Gesher Theater — תיאטרון גשר (Jaffa).
+Scraper for Gesher Theater — Gesher Theatre (Jaffa).
 
 The repertoire listing lives at
     https://www.gesher-theatre.co.il/he/repertoire/a/main/
@@ -15,11 +15,11 @@ Detail-page selectors (custom non-WordPress CMS):
   - .mainBody > div:first-of-type       → free-form description (<p> tags)
   - .leftShowsContainer ul.subtitle-mode li
                                         → one <li> per performance with
-        ├── span.dayOfTheWeek           → e.g. "יום רביעי"
+        ├── span.dayOfTheWeek           → e.g. "Wednesday"
         ├── span.fullDate               → DD/MM/YYYY
         ├── span.DateTime               → HH:MM
         └── div.purchaseLink a          → ticket link
-  - .showTeam (multiple)                → "יוצרים" (creators) and "שחקנים" (cast)
+  - .showTeam (multiple)                → "Creators" (creators) and "Cast" (cast)
   - meta[property="og:image"]           → poster (often malformed — see below)
 
 Poster note: og:image on Gesher pages is sometimes built incorrectly as
@@ -44,6 +44,8 @@ from ..models import Show
 from .base import Scraper
 
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
+
 BASE = "https://www.gesher-theatre.co.il"
 LISTING_URLS = [
     f"{BASE}/he/repertoire/a/main/",
@@ -62,9 +64,9 @@ CDN_RECOVER_RE = re.compile(r"https?://1407132350\.rsc\.cdn77\.org/[^\"'> ]+")
 
 class GesherScraper(Scraper):
     source_id = "gesher"
-    source_name = "תיאטרון גשר"
-    venue = "תיאטרון גשר"
-    city = "יפו"
+    source_name = "Gesher Theatre"
+    venue = "Gesher Theatre"
+    city = "Jaffa"
 
     def fetch_shows(self) -> Iterable[Show]:
         urls = self._collect_show_urls()
@@ -127,10 +129,10 @@ class GesherScraper(Scraper):
         if not title:
             og = soup.select_one('meta[property="og:title"]')
             if og:
-                # og:title is "הצגה לילדים - <Title> - תיאטרון גשר, ..."
+                # og:title is "Children's show - <Title> - Gesher Theatre, ..."
                 content = (og.get("content") or "").strip()
-                # Pull the chunk between the first " - " and " - תיאטרון גשר"
-                m = re.search(r"-\s*(.+?)\s*-\s*תיאטרון גשר", content)
+                # Pull the chunk between the first " - " and " - Gesher Theatre"
+                m = re.search(r"-\s*(.+?)\s*-\s*Gesher Theatre", content)
                 if m:
                     title = m.group(1).strip()
         if not title:
@@ -169,7 +171,7 @@ class GesherScraper(Scraper):
             performers=performers,
             director=director,
             duration_minutes=duration_minutes,
-            genre="תיאטרון",
+            genre="Theatre",
             poster_url=poster_url,
             tickets_opened_on=None,
         )
@@ -202,15 +204,15 @@ class GesherScraper(Scraper):
 
     @staticmethod
     def _pick_director(creators: dict[str, str]) -> str:
-        """Find a creator role that contains 'בימוי' / 'במאי' / 'במאית'."""
+        """Find a creator role that contains 'directing' / 'director' / 'director (f.)'."""
         keys = list(creators.keys())
         # Exact-ish match first
-        for exact in ("בימוי", "במאי", "במאית"):
+        for exact in ("directing", "director", "director (f.)"):
             if exact in creators:
                 return creators[exact]
-        # Substring match (handles 'בימוי ועיבוד', 'בימוי משותף')
+        # Substring match (handles 'directing and adaptation', 'co-directing')
         for k in keys:
-            if any(word in k for word in ("בימוי", "במאי", "במאית")):
+            if any(word in k for word in ("directing", "director", "director (f.)")):
                 return creators[k]
         return ""
 
@@ -220,7 +222,7 @@ class GesherScraper(Scraper):
         """Parse .showTeam blocks. Each <li> usually has '<role>:' + <strong>name</strong>.
 
         Sometimes Gesher splits a multi-person role across <li>s: the first <li>
-        carries the role label with no <strong> ('בימוי ועיבוד:'), and the next
+        carries the role label with no <strong> ('directing and adaptation:'), and the next
         few <li>s carry only the <strong> names. We track the last seen role so
         those orphan names attach to it.
 
@@ -249,13 +251,13 @@ class GesherScraper(Scraper):
                     last_role = role_candidate
 
                 if not strongs:
-                    # Pure role-label row (e.g. 'בימוי ועיבוד:' on its own) — skip
+                    # Pure role-label row (e.g. 'directing and adaptation:' on its own) — skip
                     continue
 
                 role = last_role
                 value = ", ".join(strongs)
 
-                if block_kind.startswith("יוצרים"):
+                if block_kind.startswith("Creators"):
                     if role:
                         if role in creators:
                             # Append additional creators under the same role
@@ -266,7 +268,7 @@ class GesherScraper(Scraper):
                             creators[role] = existing
                         else:
                             creators[role] = value
-                elif block_kind.startswith("שחקנים"):
+                elif block_kind.startswith("Cast"):
                     for name in strongs:
                         for piece in re.split(r"\s*,\s*", name):
                             piece = piece.strip(" .,-")
@@ -281,20 +283,20 @@ class GesherScraper(Scraper):
     def _extract_duration(text: str) -> int | None:
         if not text:
             return None
-        m = re.search(r"(?:משך|אורך)\s+ההצגה\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text)
+        m = re.search(r"(?:duration|length)\s+of the show\s*[:：]?\s*(?:approx\.?\s*)?(\d{2,3})\s*min", text)
         if m:
             return int(m.group(1))
-        m = re.search(r"(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        m = re.search(r"(\d)\s*h(?:our|ours)\s*(?:and\s*(\d{1,2})\s*min)?", text)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0
             return hours * 60 + mins
-        word_hours = {"שעה": 1, "כשעה": 1, "שעתיים": 2, "כשעתיים": 2}
+        word_hours = {"hour": 1, "about an hour": 1, "two hours": 2, "about two hours": 2}
         word_mins = {
-            "וחצי": 30, "ורבע": 15, "ושלושת רבעי": 45,
-            "ועשר": 10, "ועשרים": 20, "וחמישים": 50, "וארבעים": 40, "ושלושים": 30,
+            "and a half": 30, "and a quarter": 15, "and three quarters": 45,
+            "and ten": 10, "and twenty": 20, "and fifty": 50, "and forty": 40, "and thirty": 30,
         }
-        m = re.search(r"(?:משך|אורך)\s+ההצגה\s*[:：]?\s*([^\n,.]{0,80})", text)
+        m = re.search(r"(?:duration|length)\s+of the show\s*[:：]?\s*([^\n,.]{0,80})", text)
         if m:
             phrase = m.group(1)
             hours = 0

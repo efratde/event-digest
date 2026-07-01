@@ -10,198 +10,198 @@
 # === Top-level event categories (Question 1 of the questionnaire) ===
 # Reflects what actually appears in scraped data + common Israeli categories.
 event_categories:
-  - {key: theater,    label: "הצגות / תיאטרון"}
-  - {key: music,      label: "מוזיקה / קונצרטים"}
-  - {key: standup,    label: "סטנדאפ / בידור"}
-  - {key: musicals,   label: "מחזות זמר"}
-  - {key: dance,      label: "מחול"}
-  - {key: tribute,    label: "ערבי מחווה ולהקות מחווה"}
-  - {key: parties,    label: "מסיבות / ערבי ריקודים"}
-  - {key: lectures,   label: "הרצאות / מפגשים"}
-  - {key: literature, label: "ספרות / שירה"}
-  - {key: movies,     label: "סרטים / קולנוע"}
-  - {key: festivals,  label: "פסטיבלים / מיוחדים"}
-  - {key: kids,       label: "ילדים ומשפחה"}
-  - {key: family,     label: "בידור משפחתי / חוויות"}
+  - {key: theater,    label: "Plays / Theater"}
+  - {key: music,      label: "Music / Concerts"}
+  - {key: standup,    label: "Standup / Entertainment"}
+  - {key: musicals,   label: "Musicals"}
+  - {key: dance,      label: "Dance"}
+  - {key: tribute,    label: "Tribute nights and tribute bands"}
+  - {key: parties,    label: "Parties / Dance nights"}
+  - {key: lectures,   label: "Lectures / Meetups"}
+  - {key: literature, label: "Literature / Poetry"}
+  - {key: movies,     label: "Films / Cinema"}
+  - {key: festivals,  label: "Festivals / Specials"}
+  - {key: kids,       label: "Kids and family"}
+  - {key: family,     label: "Family entertainment / Experiences"}
 
 # === Music sub-genres (Question 2 — only if "music" selected) ===
 music_subgenres:
-  - "מוזיקה ישראלית קלאסית (אריק איינשטיין, שלום חנוך, מתי כספי)"
-  - "מוזיקה ישראלית עכשווית (שלמי שבן, ברי סחרוף)"
-  - "ים-תיכוני / מזרחית"
-  - "רוק / פופ"
-  - "ג'אז"
-  - "מוזיקה עולמית"
-  - "מחווה ללהקות מצליחות (Tribute bands)"
+  - "Classic Israeli music (Arik Einstein, Shalom Hanoch, Matti Caspi)"
+  - "Contemporary Israeli music (Shlomi Shaban, Berry Sakharof)"
+  - "Mediterranean / Mizrahi"
+  - "Rock / Pop"
+  - "Jazz"
+  - "World music"
+  - "Tribute to hit bands (Tribute bands)"
 
 # === Israeli music artists — what Dad would actually recognize ===
 # Grouped roughly by era; UI shows them mixed.
 music_artists:
   # Classic / 70s-90s heavyweights
-  - אריק איינשטיין
-  - שלום חנוך
-  - יהודה פוליקר
-  - מתי כספי
-  - דוד ברוזה
-  - חוה אלברשטיין
-  - יוסי בנאי
-  - נורית גלרון
-  - ברי סחרוף
-  - שלמה ארצי
-  - אהוד בנאי
-  - מאיר בנאי
-  - אביתר בנאי
-  - יהונתן גפן
-  - אריק לביא
-  - יהורם גאון
-  - גידי גוב
-  - דני סנדרסון
-  - דני רובס
-  - שלמה גרוניך
-  - חני נחמיאס
-  - רמי קליינשטיין
-  - אביבה אבידן
+  - Arik Einstein
+  - Shalom Hanoch
+  - Yehuda Poliker
+  - Matti Caspi
+  - David Broza
+  - Chava Alberstein
+  - Yossi Banai
+  - Nurit Galron
+  - Berry Sakharof
+  - Shlomo Artzi
+  - Ehud Banai
+  - Meir Banai
+  - Evyatar Banai
+  - Yonatan Geffen
+  - Arik Lavie
+  - Yehoram Gaon
+  - Gidi Gov
+  - Danny Sanderson
+  - Danny Robas
+  - Shlomo Gronich
+  - Hani Nahmias
+  - Rami Kleinstein
+  - Aviva Avidan
 
   # 90s-2000s
-  - ריטה
-  - אחינועם ניני
-  - אביב גפן
-  - משינה
-  - תיסלם
-  - יוני בלוך
-  - שלמי שבן
-  - אסף אבידן
-  - נינט טייב
-  - עברי לידר
-  - אלון עדר
-  - מיכה שטרית
-  - יזהר אשדות
-  - סטלה רהט
+  - Rita
+  - Achinoam Nini
+  - Aviv Geffen
+  - Mashina
+  - Tislam
+  - Yoni Bloch
+  - Shlomi Shaban
+  - Asaf Avidan
+  - Ninet Tayeb
+  - Ivri Lider
+  - Alon Eder
+  - Micha Shitrit
+  - Yizhar Ashdot
+  - Stella Rahat
 
   # Mediterranean / Mizrahi (mainstream-classic for an older audience)
-  - איל גולן
-  - שרית חדד
-  - משה פרץ
-  - שימי תבורי
-  - אבי ביטר
-  - מרגלית צנעני
-  - זוהר ארגוב
-  - עופר לוי
-  - חיים משה
-  - מירי מסיקה
-  - מוקי
+  - Eyal Golan
+  - Sarit Hadad
+  - Moshe Peretz
+  - Shimi Tavori
+  - Avi Biter
+  - Margalit Tzan'ani
+  - Zohar Argov
+  - Ofer Levi
+  - Haim Moshe
+  - Miri Mesika
+  - Muki
 
   # Modern / Idan Raichel circle
-  - עידן רייכל
-  - עידן עמדי
-  - עידן חביב
+  - Idan Raichel
+  - Idan Amedi
+  - Idan Haviv
 
   # Israeli rock / alternative legends
-  - בני אמדורסקי
-  - אסף אמדורסקי
-  - יעל קראוס
-  - הגבעטרון
+  - Benny Amdursky
+  - Assaf Amdursky
+  - Yael Kraus
+  - HaGevatron
 
 # === Israeli theater actors ===
 theater_actors:
   # Veteran / iconic
-  - גילה אלמגור
-  - יוסי פולק
-  - יעקב בודו
-  - רבקה מיכאלי
-  - תיקי דיין
-  - מנחם פרי
-  - תיקווה מור
-  - סנדרה שדה
-  - נעמי פולני
-  - עליזה רוזן
-  - דבורה קידר
-  - אסי לוי
-  - איציק חזקיה
-  - יוסי גרבר
-  - נתן כוגן
-  - רחל אטאס
-  - מירה אוונה
-  - שלמה בר-אבא
-  - אלברט אילוז
-  - רמה מסינגר
-  - שלמה ארצי
+  - Gila Almagor
+  - Yossi Pollak
+  - Yaakov Bodo
+  - Rivka Michaeli
+  - Tiki Dayan
+  - Menachem Peri
+  - Tikva Mor
+  - Sandra Sade
+  - Naomi Polani
+  - Aliza Rosen
+  - Devora Keidar
+  - Assi Levy
+  - Itzik Hizkiya
+  - Yossi Graber
+  - Natan Kogan
+  - Rachel Atas
+  - Mira Avana
+  - Shlomo Bar-Aba
+  - Albert Iluz
+  - Rama Messinger
+  - Shlomo Artzi
 
   # Mid-career / contemporary
-  - ליאור אשכנזי
-  - ששון גבאי
-  - אביגיל הררי
-  - מיכאל מושונוב
-  - יואב לוי
-  - אורנה רוטברג
-  - אגם רודברג
-  - עינת ויצמן
-  - אמיר בשן
-  - עינת ברנר
-  - מיכל בת אדם
-  - אביב אלוש
-  - אלון אבוטבול
-  - יובל סגל
-  - דב נבון
-  - עמוס תמם
-  - עדי גילת
-  - מוני מושונוב
-  - איתי טיראן
-  - תמר קינן
-  - עפרי ביטרמן
+  - Lior Ashkenazi
+  - Sasson Gabai
+  - Avigail Harari
+  - Michael Moshonov
+  - Yoav Levi
+  - Orna Rotberg
+  - Agam Rodberg
+  - Einat Weizman
+  - Amir Bashan
+  - Einat Brenner
+  - Michal Bat-Adam
+  - Aviv Alush
+  - Alon Aboutboul
+  - Yuval Segal
+  - Dov Navon
+  - Amos Tamam
+  - Adi Gilat
+  - Moni Moshonov
+  - Itay Tiran
+  - Tamar Keenan
+  - Ofri Biterman
 
 # === Theater directors ===
 theater_directors:
-  - חנן שניר
-  - אילן רונן
-  - הילל מיטלפונקט
-  - יבגני אריה
-  - גדליה בסר
-  - עומרי ניצן
-  - עידו בורנשטיין
-  - עירד רובינשטיין
-  - אלון אופיר
-  - מיכה לבינסון
-  - איציק וינגרטן
-  - משה קפטן
-  - רוני ברודצקי
-  - אילאיל סמל
-  - אודי בן משה
-  - שיר גולדברג
-  - אלדד גוהר גרויסמן
-  - אורי פסטר
-  - דדי ברון
+  - Hanan Snir
+  - Ilan Ronen
+  - Hillel Mittelpunkt
+  - Yevgeny Arye
+  - Gedalia Besser
+  - Omri Nitzan
+  - Ido Bornstein
+  - Irad Rubinstein
+  - Alon Ophir
+  - Micha Lewinsohn
+  - Itzik Weingarten
+  - Moshe Kepten
+  - Roni Brodetsky
+  - Ilil Semel
+  - Udi Ben Moshe
+  - Shir Goldberg
+  - Eldad Gohar Groisman
+  - Uri Paster
+  - Dedi Baron
 
 # === Standup comedians ===
 standup_comedians:
-  - אדיר מילר
-  - שחר חזון
-  - ערן זרחוביץ'
-  - שלי בן משה
-  - דודו טסה
-  - אלי יצפן
-  - ישראל קטורזה
-  - אסי כהן
-  - ארז טל
-  - חן באומן
-  - רותם וייסברג
-  - אורן זול
-  - יובל סמו
-  - דוד דאור
-  - יוסי מרשק
-  - דותן רביד
-  - דניאל כהן
-  - אלדד שטרית
-  - ליאור דובדבני
-  - רשף לוי
-  - תום ירדן
-  - שמואל וילוז'ני
+  - Adir Miller
+  - Shahar Hason
+  - Eran Zarhovitch
+  - Shelly Ben-Moshe
+  - Dudu Tassa
+  - Eli Yatzpan
+  - Israel Katorza
+  - Assi Cohen
+  - Erez Tal
+  - Chen Bauman
+  - Rotem Weissberg
+  - Oren Zol
+  - Yuval Semo
+  - David D'Or
+  - Yossi Marshak
+  - Dotan Ravid
+  - Daniel Cohen
+  - Eldad Shitrit
+  - Lior Duvdevani
+  - Reshef Levy
+  - Tom Yarden
+  - Shmuel Vilozny
 
 # === Hard exclusions (default options for "what NOT to see") ===
 default_exclusions:
-  - "מוזיקה קלאסית / סימפונית"
-  - "אופרה"
-  - "בלט"
-  - "ילדים"
-  - "תיאטרון לילדים"
-  - "הצגות לפעוטות"
+  - "Classical / symphonic music"
+  - "Opera"
+  - "Ballet"
+  - "Kids"
+  - "Children's theater"
+  - "Shows for toddlers"

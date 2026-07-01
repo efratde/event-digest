@@ -1,20 +1,20 @@
 """
-Scraper for Beit Lessin — תיאטרון בית ליסין (Tel Aviv).
+Scraper for Beit Lessin — Lessin Theatre (Tel Aviv).
 
-The Hebrew listing page (https://www.lessin.co.il/הצגות/) hosts a swiper of
+The Hebrew listing page (https://www.lessin.co.il/%D7%94%D7%A6%D7%92%D7%95%D7%AA/) hosts a swiper of
 the current/upcoming productions; the secondary archive at
 https://www.lessin.co.il/shows/ paginates through the full repertoire.
 We collect show URLs from both, then visit each detail page.
 
 Detail pages use a custom (non-Elementor) WordPress theme. Useful selectors:
   - .show_title h1               → show title
-  - .show_title .text            → byline (מאת, תרגום, בימוי) — short summary
-  - .show_expert .content        → free-form description (and "משך ההצגה")
+  - .show_title .text            → byline (by, translation, directed by) — short summary
+  - .show_expert .content        → free-form description (and "show duration")
   - .details_row                 → structured key/value credit rows. Each has
-        ├── .detail              → label (מאת / בימוי / תרגום / משתתפים …)
+        ├── .detail              → label (by / directed by / translation / cast …)
         └── .dtail_answer        → value (one or more <a class="talent">)
   - .mainshow_list .mulrow       → one row per performance
-        ├── .mu1.list (first)    → day-of-week letter (ש/א/ב…)
+        ├── .mu1.list (first)    → day-of-week letter (Sa/Su/Mo…)
         ├── .mu1.list (second)   → DD.MM
         ├── .mu2.list            → HH:MM
         └── .mu3.list a[href]    → ticket link → lessin.pres.global/eWeb/event/{id}
@@ -24,6 +24,8 @@ Detail pages use a custom (non-Elementor) WordPress theme. Useful selectors:
 Dates appear in DD.MM format (no year). We use the "if past, bump to next
 year" logic from Habima.
 """
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 from __future__ import annotations
 
@@ -48,9 +50,9 @@ TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 
 class LessinScraper(Scraper):
     source_id = "lessin"
-    source_name = "תיאטרון בית ליסין"
-    venue = "בית ליסין"
-    city = "תל אביב"
+    source_name = "Lessin Theatre"
+    venue = "Lessin Theatre"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         urls = self._collect_show_urls()
@@ -70,7 +72,7 @@ class LessinScraper(Scraper):
     def _collect_show_urls(self) -> list[str]:
         urls: set[str] = set()
 
-        # Hebrew "הצגות" landing page (swiper of current shows + many links)
+        # Hebrew "shows" landing page (swiper of current shows + many links)
         try:
             r = self.get(HEBREW_LISTING_URL)
             urls.update(self._extract_show_urls(r.text))
@@ -156,20 +158,20 @@ class LessinScraper(Scraper):
             if og:
                 description = (og.get("content") or "").strip()[:600]
 
-        # Structured credit rows ("בימוי", "משתתפים", "מאת", ...)
+        # Structured credit rows ("directed by", "cast", "by", ...)
         credits = self._parse_credit_rows(soup)
-        director = credits.get("בימוי", "") or credits.get("במאי", "") or credits.get("במאית", "")
+        director = credits.get("directed by", "") or credits.get("director", "") or credits.get("directing", "")
         performers = self._split_performers(
-            credits.get("משתתפים")
-            or credits.get("בכיכוב")
-            or credits.get("שחקנים")
+            credits.get("cast")
+            or credits.get("starring")
+            or credits.get("actors")
             or ""
         )
         # Fallback: pull credits from the short byline under the title
         if not director:
             byline = soup.select_one(".show_title .text")
             if byline:
-                director = self._extract_field(byline.get_text("\n", strip=True), ["בימוי", "במאי"])
+                director = self._extract_field(byline.get_text("\n", strip=True), ["directed by", "director"])
         if not performers and full_desc_text:
             performers = self._extract_performers(full_desc_text)
 
@@ -215,7 +217,7 @@ class LessinScraper(Scraper):
             performers=performers,
             director=director,
             duration_minutes=duration_minutes,
-            genre="תיאטרון",
+            genre="theatre",
             poster_url=poster_url,
             tickets_opened_on=tickets_opened_on,
         )
@@ -302,7 +304,7 @@ class LessinScraper(Scraper):
     def _split_performers(raw: str) -> list[str]:
         if not raw:
             return []
-        parts = re.split(r"[,•·]|\s+ו(?=\S)", raw)
+        parts = re.split(r"[,•·]|\s+and\s+", raw)
         parts = [p.strip(" .,-") for p in parts if p.strip()]
         parts = [p for p in parts if 1 < len(p) < 80]
         return parts[:8]
@@ -353,12 +355,12 @@ class LessinScraper(Scraper):
     def _extract_performers(text: str) -> list[str]:
         if not text:
             return []
-        for label in ["משתתפים", "בכיכוב", "שחקנים", "מבצעים", "השחקנים"]:
+        for label in ["cast", "starring", "actors", "performers", "the actors"]:
             m = re.search(rf"{re.escape(label)}\s*[:：]\s*([^\n]+)", text)
             if not m:
                 continue
             raw = m.group(1).strip()
-            parts = re.split(r"[,•·]|\s+ו(?=\S)", raw)
+            parts = re.split(r"[,•·]|\s+and\s+", raw)
             parts = [p.strip(" .,-") for p in parts if p.strip()]
             parts = [p for p in parts if 1 < len(p) < 80]
             if parts:
@@ -369,24 +371,24 @@ class LessinScraper(Scraper):
     def _extract_duration(text: str) -> int | None:
         if not text:
             return None
-        # "משך ההצגה: כ-90 דקות"
-        m = re.search(r"(?:משך|אורך)\s+ההצגה\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text)
+        # "Show duration: approx. 90 minutes"
+        m = re.search(r"(?:show\s+duration|running\s+time)\s*[:：]?\s*(?:approx\.?\s*)?(\d{2,3})\s*min", text, re.IGNORECASE)
         if m:
             return int(m.group(1))
-        # "משך ההצגה: כשעה ו-50 דקות" / "שעה וחצי" / "שעתיים"
-        # First try numeric: "X שעות ו-Y דקות"
-        m = re.search(r"(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        # "Show duration: about an hour and 50 minutes" / "an hour and a half" / "two hours"
+        # First try numeric: "X hours and Y minutes"
+        m = re.search(r"(\d)\s*hours?\s*(?:(?:and\s+)?(\d{1,2})\s*min)?", text, re.IGNORECASE)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0
             return hours * 60 + mins
         # Word-based hours
-        word_hours = {"שעה": 1, "כשעה": 1, "שעתיים": 2, "כשעתיים": 2}
+        word_hours = {"one hour": 1, "about an hour": 1, "two hours": 2, "about two hours": 2}
         word_mins = {
-            "וחצי": 30, "ורבע": 15, "ושלושת רבעי": 45,
-            "ועשר": 10, "ועשרים": 20, "וחמישים": 50, "וארבעים": 40, "ושלושים": 30,
+            "and a half": 30, "and a quarter": 15, "and three quarters": 45,
+            "and ten": 10, "and twenty": 20, "and fifty": 50, "and forty": 40, "and thirty": 30,
         }
-        m = re.search(r"משך ההצגה\s*[:：]?\s*([^\n,.]{0,80})", text)
+        m = re.search(r"(?:show\s+duration|running\s+time)\s*[:：]?\s*([^\n,.]{0,80})", text, re.IGNORECASE)
         if m:
             phrase = m.group(1)
             hours = 0

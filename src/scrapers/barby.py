@@ -1,5 +1,5 @@
 """
-Scraper for Barby Club (מועדון בארבי), south Tel Aviv — Israel's iconic
+Scraper for Barby Club, south Tel Aviv — Israel's iconic
 rock / Israeli-music venue.
 
 The site at https://barby.co.il/ is a React SPA that renders nothing useful
@@ -23,12 +23,12 @@ Posters are served from a CDN:
 
 Front-end ticket page: https://barby.co.il/show/<showId>
 
-Multi-night residencies (e.g. אביתר בנאי runs five nights in a row) appear
+Multi-night residencies (e.g. Evyatar Banai runs five nights in a row) appear
 as separate rows with identical showName. We collapse them by canonical
 title key — same pattern as Zappa.
 
-Genre is hard-coded "מוזיקה" (the venue books exclusively concerts).
-Venue/city are constant: "מועדון בארבי" / "תל אביב".
+Genre is hard-coded "Music" (the venue books exclusively concerts).
+Venue/city are constant: "Barby Club" / "Tel Aviv".
 """
 
 from __future__ import annotations
@@ -42,6 +42,7 @@ import httpx
 from ..models import Show
 from .base import Scraper
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 API_LISTING = "https://barby.co.il/api/shows/find"
 SHOW_PAGE_BASE = "https://barby.co.il/show/"
@@ -68,17 +69,17 @@ DATE_FMT = "%d/%m/%Y"
 TIME_FMT = "%H:%M"
 
 # A single placeholder/test row that the API has been serving with the bogus
-# date 31/12/2027 and the title "מייל שירות הלקוחות" ("customer service
-# email"). Anything dated >= a couple of years out with a meta-ish title
-# is safe to drop; we filter only that exact row to avoid false positives.
-TEST_ROW_TITLE_RE = re.compile(r"מייל\s*שירות\s*הלקוחות")
+# date 31/12/2027 and the title "customer service email". Anything dated
+# >= a couple of years out with a meta-ish title is safe to drop; we filter
+# only that exact row to avoid false positives.
+TEST_ROW_TITLE_RE = re.compile(r"customer\s*service\s*email")
 
 
 class BarbyScraper(Scraper):
     source_id = "barby"
-    source_name = "מועדון בארבי"
-    venue = "מועדון בארבי"
-    city = "תל אביב"
+    source_name = "Barby Club"
+    venue = "Barby Club"
+    city = "Tel Aviv"
 
     def __init__(self, timeout: float = 30.0):
         super().__init__(timeout=timeout)
@@ -180,7 +181,7 @@ class BarbyScraper(Scraper):
             performers=[],
             director="",
             duration_minutes=None,
-            genre="מוזיקה",
+            genre="Music",
             poster_url=posters[0] if posters else "",
         )
 
@@ -208,5 +209,5 @@ class BarbyScraper(Scraper):
     def _title_key(title: str) -> str:
         """Normalise title for grouping multi-night residencies."""
         t = re.sub(r"\s+", " ", title).strip()
-        t = re.sub(r"[\"'״׳`]", "", t)
+        t = re.sub(r"[\"'`]", "", t)
         return t.lower()

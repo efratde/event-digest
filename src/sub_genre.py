@@ -2,8 +2,8 @@
 Sub-genre classification.
 
 For music: Wikidata lookup → MusicBrainz fallback. Returns a normalized
-Hebrew label (רוק / פופ / מזרחית / ים-תיכוני / ג'אז / פולק / ראפ /
-אלקטרוני / מטאל / אינדי / מסורתית).
+English label (Rock / Pop / Mizrahi / Mediterranean / Jazz / Folk / Rap /
+Electronic / Metal / Indie / Traditional).
 
 For theater: regex on title + description.
 
@@ -23,84 +23,84 @@ import httpx
 
 log = logging.getLogger("sub_genre")
 
-USER_AGENT = "DadTicketsDigest/1.0 (dad-tickets@example.com)"
+USER_AGENT = "EventDigest/1.0 (event-digest@example.com)"
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 MUSICBRAINZ_API = "https://musicbrainz.org/ws/2/artist"
 
-# Wikidata Q-id → normalized Hebrew sub-genre.
+# Wikidata Q-id → normalized English sub-genre.
 # Curated list of the most common genres for Israeli artists.
 WIKIDATA_GENRE_MAP: dict[str, str] = {
     # Rock family
-    "Q11399": "רוק",            # rock music
-    "Q11366": "רוק אלטרנטיבי",   # alternative rock
-    "Q7749": "רוק",              # rock and roll
-    "Q11409": "רוק",             # hard rock
-    "Q1296": "רוק",              # rock (broad)
-    "Q133641": "רוק פרוגרסיבי",  # progressive rock
-    "Q11401": "מטאל",            # heavy metal music
-    "Q188032": "פאנק",           # punk rock
+    "Q11399": "Rock",               # rock music
+    "Q11366": "Alternative Rock",   # alternative rock
+    "Q7749": "Rock",                # rock and roll
+    "Q11409": "Rock",               # hard rock
+    "Q1296": "Rock",                # rock (broad)
+    "Q133641": "Progressive Rock",  # progressive rock
+    "Q11401": "Metal",              # heavy metal music
+    "Q188032": "Punk",              # punk rock
     # Pop family
-    "Q37073": "פופ",             # pop music
-    "Q484641": "פופ-רוק",        # pop rock
-    "Q484473": "פופ-רוק",        # synth-pop (close enough)
+    "Q37073": "Pop",                # pop music
+    "Q484641": "Pop Rock",          # pop rock
+    "Q484473": "Pop Rock",          # synth-pop (close enough)
     # Mediterranean / Mizrahi (Israeli specific)
-    "Q2738544": "מזרחית",        # mizrahi music
-    "Q482789": "ים-תיכוני",      # Mediterranean music
+    "Q2738544": "Mizrahi",          # mizrahi music
+    "Q482789": "Mediterranean",     # Mediterranean music
     # Jazz
-    "Q8341": "ג'אז",             # jazz
-    "Q21401": "ג'אז",            # jazz fusion
+    "Q8341": "Jazz",                # jazz
+    "Q21401": "Jazz",               # jazz fusion
     # Folk / world
-    "Q188450": "פולק",           # folk music
-    "Q189909": "פולק",           # world music
-    "Q282472": "פולק",           # folk rock
+    "Q188450": "Folk",              # folk music
+    "Q189909": "Folk",              # world music
+    "Q282472": "Folk",              # folk rock
     # Hip-hop / rap
-    "Q11401": "ראפ",             # (note: same Q-id as metal in some sources, distinguished by context)
-    "Q11470": "ראפ",             # rap
-    "Q11366": "רוק אלטרנטיבי",   # alternative rock
-    "Q9759": "ראפ",              # hip hop music
+    "Q11401": "Rap",                # (note: same Q-id as metal in some sources, distinguished by context)
+    "Q11470": "Rap",                # rap
+    "Q11366": "Alternative Rock",   # alternative rock
+    "Q9759": "Rap",                 # hip hop music
     # Electronic
-    "Q9778": "אלקטרוני",         # electronic music
-    "Q183564": "אלקטרוני",       # techno
-    "Q179805": "אלקטרוני",       # house music
+    "Q9778": "Electronic",          # electronic music
+    "Q183564": "Electronic",        # techno
+    "Q179805": "Electronic",        # house music
     # Children's
-    "Q188044": "ילדים",          # children's music
-    # Classical (we filter these out per Dad's preferences)
-    "Q9730": "קלאסי",            # classical music
-    "Q9794": "ראפ",              # rap (alternate)
+    "Q188044": "Children's",        # children's music
+    # Classical (we filter these out per the user's preferences)
+    "Q9730": "Classical",           # classical music
+    "Q9794": "Rap",                 # rap (alternate)
     # Country / blues
-    "Q42874": "בלוז",            # blues
-    "Q83270": "קאנטרי",          # country
+    "Q42874": "Blues",              # blues
+    "Q83270": "Country",            # country
     # Reggae
-    "Q11202": "רגאיי",           # reggae
-    # Singer-songwriter genre is broad — map to "מסורתית" / "פולק" depending on context
-    "Q179310": "פולק",           # singer-songwriter
+    "Q11202": "Reggae",             # reggae
+    # Singer-songwriter genre is broad — map to "Traditional" / "Folk" depending on context
+    "Q179310": "Folk",              # singer-songwriter
     # Funk / soul
-    "Q186356": "פאנק",           # funk
-    "Q11400": "סול",             # soul music
-    "Q186946": "R&B",            # rhythm and blues
+    "Q186356": "Funk",              # funk
+    "Q11400": "Soul",               # soul music
+    "Q186946": "R&B",               # rhythm and blues
 }
 
 ## Tribute / cover show patterns — detected BEFORE Wikidata so that
 ## "Pink Floyd Echoes Show" doesn't get classified as actual Pink Floyd rock.
 TRIBUTE_PATTERN = re.compile(
-    r"מחווה ל|מופע מחווה|הצדעה ל|מופע הצדעה|מחווה ל"  # Hebrew
-    r"|tribute|celebrating|in memory of|הופעת מחווה",
+    r"tribute to|tribute show|salute to|salute show|tribute concert"
+    r"|tribute|celebrating|in memory of",
     re.IGNORECASE,
 )
 
 # Theater regex patterns: text → normalized sub-genre.
 # Order matters: more specific first.
 THEATER_PATTERNS: list[tuple[re.Pattern, str]] = [
-    (re.compile(r"מחזמר|מיוזיקל"), "מחזמר"),
-    (re.compile(r"סאטיר"),          "סאטירה"),
-    (re.compile(r"מונודרמה|מופע יחיד|one[ -]?man[ -]?show"), "מונודרמה"),
-    (re.compile(r"קומדיה"),         "קומדיה"),
-    (re.compile(r"טרגדיה|טרגי"),    "טרגדיה"),
-    (re.compile(r"מותחן|מסתורין"), "מותחן"),
-    (re.compile(r"דרמה"),           "דרמה"),
-    (re.compile(r"פרינג'"),         "פרינג'"),
-    (re.compile(r"תיאטרון פיזי"),   "תיאטרון פיזי"),
-    (re.compile(r"תיאטרון תיעודי"), "תיעודי"),
+    (re.compile(r"musical"), "Musical"),
+    (re.compile(r"satir"),          "Satire"),
+    (re.compile(r"monodrama|solo show|one[ -]?man[ -]?show|one[ -]?person[ -]?show"), "Monodrama"),
+    (re.compile(r"comedy"),         "Comedy"),
+    (re.compile(r"tragedy|tragic"), "Tragedy"),
+    (re.compile(r"thriller|mystery"), "Thriller"),
+    (re.compile(r"drama"),          "Drama"),
+    (re.compile(r"fringe"),         "Fringe"),
+    (re.compile(r"physical theat(?:er|re)"),   "Physical Theater"),
+    (re.compile(r"documentary theat(?:er|re)"), "Documentary"),
 ]
 
 
@@ -172,60 +172,60 @@ def _classify_music_via_wikidata(name: str) -> Optional[str]:
 
 
 # ---------- MusicBrainz fallback ----------
-# MusicBrainz tag → Hebrew genre. Comprehensive map of legitimate music genres.
+# MusicBrainz tag → English genre. Comprehensive map of legitimate music genres.
 # Anything NOT in this map is treated as "not a genre" and skipped.
 MB_TAG_TO_HEBREW = {
     # Rock family
-    "rock": "רוק", "rock and roll": "רוק", "classic rock": "רוק",
-    "hard rock": "רוק", "soft rock": "רוק", "indie rock": "אינדי",
-    "indie": "אינדי", "alternative rock": "רוק אלטרנטיבי",
-    "alternative": "רוק אלטרנטיבי", "alt rock": "רוק אלטרנטיבי",
-    "progressive rock": "רוק פרוגרסיבי", "psychedelic rock": "רוק פסיכדלי",
-    "garage rock": "רוק", "stoner rock": "רוק",
+    "rock": "Rock", "rock and roll": "Rock", "classic rock": "Rock",
+    "hard rock": "Rock", "soft rock": "Rock", "indie rock": "Indie",
+    "indie": "Indie", "alternative rock": "Alternative Rock",
+    "alternative": "Alternative Rock", "alt rock": "Alternative Rock",
+    "progressive rock": "Progressive Rock", "psychedelic rock": "Psychedelic Rock",
+    "garage rock": "Rock", "stoner rock": "Rock",
     # Pop
-    "pop": "פופ", "pop rock": "פופ-רוק", "synth-pop": "פופ אלקטרוני",
-    "synthpop": "פופ אלקטרוני", "art pop": "פופ", "indie pop": "פופ אינדי",
-    "europop": "פופ", "dance pop": "פופ",
+    "pop": "Pop", "pop rock": "Pop Rock", "synth-pop": "Electro-Pop",
+    "synthpop": "Electro-Pop", "art pop": "Pop", "indie pop": "Indie Pop",
+    "europop": "Pop", "dance pop": "Pop",
     # Mizrahi / Mediterranean
-    "mizrahi": "מזרחית", "mediterranean": "ים-תיכוני",
-    "muzika mizrahit": "מזרחית",
+    "mizrahi": "Mizrahi", "mediterranean": "Mediterranean",
+    "muzika mizrahit": "Mizrahi",
     # Jazz
-    "jazz": "ג'אז", "smooth jazz": "ג'אז", "jazz fusion": "ג'אז",
-    "bebop": "ג'אז", "swing": "ג'אז", "afro-cuban jazz": "ג'אז",
+    "jazz": "Jazz", "smooth jazz": "Jazz", "jazz fusion": "Jazz",
+    "bebop": "Jazz", "swing": "Jazz", "afro-cuban jazz": "Jazz",
     # Folk
-    "folk": "פולק", "folk rock": "פולק", "world": "פולק",
-    "world music": "פולק", "ethnic": "פולק", "singer-songwriter": "פולק",
+    "folk": "Folk", "folk rock": "Folk", "world": "Folk",
+    "world music": "Folk", "ethnic": "Folk", "singer-songwriter": "Folk",
     # Hip-hop / rap
-    "hip hop": "ראפ", "hip-hop": "ראפ", "rap": "ראפ", "trap": "ראפ",
-    "cloud rap": "ראפ",
+    "hip hop": "Rap", "hip-hop": "Rap", "rap": "Rap", "trap": "Rap",
+    "cloud rap": "Rap",
     # Metal
-    "metal": "מטאל", "heavy metal": "מטאל", "thrash metal": "מטאל",
-    "death metal": "מטאל", "black metal": "מטאל", "doom metal": "מטאל",
+    "metal": "Metal", "heavy metal": "Metal", "thrash metal": "Metal",
+    "death metal": "Metal", "black metal": "Metal", "doom metal": "Metal",
     # Punk
-    "punk": "פאנק", "punk rock": "פאנק", "noisecore": "פאנק",
+    "punk": "Punk", "punk rock": "Punk", "noisecore": "Punk",
     # Electronic
-    "electronic": "אלקטרוני", "techno": "אלקטרוני", "house": "אלקטרוני",
-    "trance": "אלקטרוני", "edm": "אלקטרוני", "dubstep": "אלקטרוני",
-    "drum and bass": "אלקטרוני", "ambient": "אלקטרוני",
-    "electronic rock": "רוק אלקטרוני", "acid house": "אלקטרוני",
-    "eurodance": "אלקטרוני",
+    "electronic": "Electronic", "techno": "Electronic", "house": "Electronic",
+    "trance": "Electronic", "edm": "Electronic", "dubstep": "Electronic",
+    "drum and bass": "Electronic", "ambient": "Electronic",
+    "electronic rock": "Electronic Rock", "acid house": "Electronic",
+    "eurodance": "Electronic",
     # Funk / soul / R&B
-    "funk": "פאנק", "soul": "סול", "neo soul": "סול",
-    "r&b": "R&B", "rhythm and blues": "R&B", "blue-eyed soul": "סול",
+    "funk": "Funk", "soul": "Soul", "neo soul": "Soul",
+    "r&b": "R&B", "rhythm and blues": "R&B", "blue-eyed soul": "Soul",
     # Blues / country / reggae
-    "blues": "בלוז", "blues rock": "בלוז רוק",
-    "country": "קאנטרי", "country rock": "קאנטרי",
-    "reggae": "רגאיי", "ska": "רגאיי",
+    "blues": "Blues", "blues rock": "Blues Rock",
+    "country": "Country", "country rock": "Country",
+    "reggae": "Reggae", "ska": "Reggae",
     # Classical (we generally hide these)
-    "classical": "קלאסי", "opera": "אופרה", "symphony": "קלאסי",
-    "baroque": "קלאסי", "chamber music": "קלאסי",
-    "cinematic classical": "קלאסי",
+    "classical": "Classical", "opera": "Opera", "symphony": "Classical",
+    "baroque": "Classical", "chamber music": "Classical",
+    "cinematic classical": "Classical",
     # Israeli / Jewish specifics
-    "israeli": "ישראלי", "hebrew rock": "רוק ישראלי",
-    "klezmer": "כליזמר", "chazzanut": "חזנות", "jewish": "מסורתי-יהודי",
-    "orthodox pop": "פופ דתי",
+    "israeli": "Israeli", "hebrew rock": "Israeli Rock",
+    "klezmer": "Klezmer", "chazzanut": "Cantorial", "jewish": "Jewish Traditional",
+    "orthodox pop": "Religious Pop",
     # Children's
-    "children's music": "ילדים", "kids": "ילדים",
+    "children's music": "Children's", "kids": "Children's",
 }
 
 # Tags that are NOT genres — skip these even if they're the top tag.
@@ -240,7 +240,7 @@ MB_NON_GENRE_TAGS = {
 
 
 def _classify_music_via_musicbrainz(name: str) -> Optional[str]:
-    """Look up artist in MusicBrainz, return top *real* genre tag in Hebrew."""
+    """Look up artist in MusicBrainz, return top *real* genre tag in English."""
     if not name:
         return None
     try:
@@ -287,9 +287,9 @@ def classify(show) -> Optional[str]:
     theater_sources = {"habima", "cameri", "lessin", "tzavta", "gesher",
                        "tmuna", "hasimta", "yoram_loewenstein"}
 
-    is_music = (genre in {"מוזיקה", "מוסיקה", "מוזיקה ישראלית"}
+    is_music = (genre in {"Music", "Israeli Music"}
                 or show.source in music_sources)
-    is_theater = (genre in {"תיאטרון", "מחזות זמר"}
+    is_theater = (genre in {"Theater", "Musicals"}
                   or show.source in theater_sources)
 
     if is_music:
@@ -297,17 +297,17 @@ def classify(show) -> Optional[str]:
         # classify "Pink Floyd Tribute Show" as actual Pink Floyd rock.
         haystack = f"{show.title} {show.description or ''}"
         if TRIBUTE_PATTERN.search(haystack):
-            return "מופעי מחווה"
+            return "Tribute Shows"
 
         # The "talent" we look up: prefer first performer, else title (concerts often title=artist)
         name = (show.performers[0] if show.performers else show.title).strip()
         # Strip common suffixes that pollute the search
-        # e.g. "שלום חנוך - מופע להקה" → "שלום חנוך"
+        # e.g. "Shalom Hanoch - Band Show" → "Shalom Hanoch"
         for sep in [" - ", " | ", " · ", "—", "–"]:
             if sep in name:
                 name = name.split(sep)[0].strip()
-        # Strip leading numbers like "15 שנות" common in tribute shows
-        name = re.sub(r"^\d+\s+שנות\s+", "", name)
+        # Strip leading numbers like "15 Years of" common in tribute shows
+        name = re.sub(r"^\d+\s+years\s+of\s+", "", name, flags=re.IGNORECASE)
         result = _classify_music_via_wikidata(name)
         if result:
             return result

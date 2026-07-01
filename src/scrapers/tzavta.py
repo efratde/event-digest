@@ -12,13 +12,15 @@ Each event detail page (e.g. https://www.tzavta.co.il/event/3878) contains:
   - .show_title_txt             → subtitle / tagline
   - .show_pict_block img        → poster
   - .show_content_insert        → multi-paragraph description with credits
-                                  ("מאת:", "בימוי:", "משחק:" inside <strong>)
+                                  ("By:", "Directed by:", "Cast:" inside <strong>)
 
 Genre is mapped from the venue's category pages (/category/{id}); we build the
 URL→genre map once per scrape and look each show up.
 """
 
 from __future__ import annotations
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 import re
 from datetime import datetime, timedelta
@@ -41,22 +43,22 @@ TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 SHORT_DATE_RE = re.compile(r"(\d{1,2})\.(\d{1,2})\b")
 
 CATEGORIES: list[tuple[str, str]] = [
-    ("1", "תיאטרון"),
-    ("2", "מוזיקה"),
-    ("4", "סטנדאפ"),
-    ("5", "הורים וילדים"),
-    ("9", "מיוחדים"),
-    ("7", "צוותא 2"),
-    ("10", "אופרה"),
-    ("17", "פסטיבל תיאטרון קצר"),
+    ("1", "Theatre"),
+    ("2", "Music"),
+    ("4", "Stand-up"),
+    ("5", "Parents and Kids"),
+    ("9", "Specials"),
+    ("7", "Tzavta 2"),
+    ("10", "Opera"),
+    ("17", "Short Theatre Festival"),
 ]
 
 
 class TzavtaScraper(Scraper):
     source_id = "tzavta"
-    source_name = "צוותא"
-    venue = "צוותא"
-    city = "תל אביב"
+    source_name = "Tzavta"
+    venue = "Tzavta"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         # Build URL → genre map from category pages (best-effort)
@@ -170,13 +172,13 @@ class TzavtaScraper(Scraper):
             paras: list[str] = []
             for p in desc_el.find_all("p"):
                 txt = p.get_text(" ", strip=True)
-                # Skip credit lines (start with a strong label like "מאת:")
+                # Skip credit lines (start with a strong label like "By:")
                 if not txt:
                     continue
                 if len(txt) < 30:
                     continue
                 # Heuristic: credit lines are short or start with a label
-                if re.match(r"^(מאת|בימוי|משחק|כוריאוגרפיה|מוזיקה|תרגום|תפאורה|תלבושות|תאורה|הפקה|מבצעים|משתתפים|בכיכוב)\s*[:：]", txt):
+                if re.match(r"^(By|Directed by|Cast|Choreography|Music|Translation|Set|Costumes|Lighting|Production|Performers|Participants|Starring)\s*[:：]", txt):
                     continue
                 paras.append(txt)
                 if len(paras) >= 2:
@@ -185,11 +187,11 @@ class TzavtaScraper(Scraper):
         if not description and subtitle:
             description = subtitle[:600]
 
-        # Performers — try "משחק", "מבצעים", "משתתפים", "בכיכובם"
+        # Performers — try "Cast", "Performers", "Participants", "Starring"
         performers = self._extract_performers(soup)
 
-        # Director — "בימוי" / "במאי"
-        director = self._extract_field(soup, ["בימוי", "במאי"])
+        # Director — "Directed by" / "Director"
+        director = self._extract_field(soup, ["Directed by", "Director"])
 
         # Duration
         duration_minutes = self._extract_duration(soup)
@@ -248,16 +250,16 @@ class TzavtaScraper(Scraper):
                 if m:
                     val = m.group(1).strip()
                     # Stop at the next label if present
-                    val = re.split(r"\s+(?:מאת|בימוי|משחק|כוריאוגרפיה|תרגום|תפאורה|תלבושות|תאורה|הפקה)\s*[:：]", val)[0]
+                    val = re.split(r"\s+(?:By|Directed by|Cast|Choreography|Translation|Set|Costumes|Lighting|Production)\s*[:：]", val)[0]
                     return val.strip(" .")[:200]
         return ""
 
     @classmethod
     def _extract_performers(cls, soup) -> list[str]:
-        for label in ["משחק", "מבצעים", "משתתפים", "בכיכובם", "שחקנים", "בכיכוב"]:
+        for label in ["Cast", "Performers", "Participants", "Starring", "Actors", "Featuring"]:
             raw = cls._extract_field(soup, [label])
             if raw:
-                parts = re.split(r"[,•·]|\s+ו(?=\S)", raw)
+                parts = re.split(r"[,•·]|\s+and\s+", raw)
                 parts = [p.strip(" .") for p in parts if p.strip()]
                 if parts:
                     return parts[:8]
@@ -266,15 +268,15 @@ class TzavtaScraper(Scraper):
     @staticmethod
     def _extract_duration(soup) -> int | None:
         text = soup.get_text(" ", strip=True)
-        m = re.search(r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text)
+        m = re.search(r"Duration\s+(?:of\s+the\s+show|of\s+the\s+performance)\s*[:：]?\s*(?:approx\.?\s*)?(\d{2,3})\s*min", text)
         if m:
             return int(m.group(1))
-        m = re.search(r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*(?:כ-?\s*)?(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        m = re.search(r"Duration\s+(?:of\s+the\s+show|of\s+the\s+performance)\s*[:：]?\s*(?:approx\.?\s*)?(\d)\s*hours?\s*(?:and\s*(\d{1,2})\s*min)?", text)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0
             return hours * 60 + mins
-        m = re.search(r"(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        m = re.search(r"(\d)\s*hours?\s*(?:and\s*(\d{1,2})\s*min)?", text)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0

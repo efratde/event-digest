@@ -1,8 +1,8 @@
 """
-Scraper for Heichal Hatarbut Givatayim — תיאטרון גבעתיים (also known as
-"היכל התרבות גבעתיים" or "תיאטרון גבעתיים על שם יצחק ירון"). It's the main
-culture hall in the city of Givatayim and programs theater, music, stand-up,
-and the occasional family/lecture content.
+Scraper for Heichal Hatarbut Givatayim — Givatayim Theatre (also known as
+"Givatayim Culture Hall" or "Givatayim Theatre named after Yitzhak Yaron").
+It's the main culture hall in the city of Givatayim and programs theater,
+music, stand-up, and the occasional family/lecture content.
 
 The visitor-facing site is https://t-g.co.il/ — a WordPress install that
 exposes its events as a custom post type at:
@@ -35,9 +35,9 @@ for "tickets opened on"). The detail page is mostly Elementor boilerplate so
 we don't extract anything else from it.
 
 Classical filter: this venue programs some classical/opera/ballet content
-(e.g. סולני האופרה, תזמורת ירושלים, סימפונט רעננה). The user has explicitly
-excluded those genres — we drop a show if its title OR any of its genre/tag
-taxonomy names match the classical-keyword regex.
+(e.g. Opera Soloists, Jerusalem Orchestra, Raanana Symphonette). The user has
+explicitly excluded those genres — we drop a show if its title OR any of its
+genre/tag taxonomy names match the classical-keyword regex.
 """
 
 from __future__ import annotations
@@ -53,6 +53,8 @@ from bs4 import BeautifulSoup
 from ..models import Show
 from .base import Scraper
 
+# NOTE: source-site text-matching literals were translated from the original
+# Hebrew for this English demo.
 
 BASE = "https://t-g.co.il"
 EVENTS_API = f"{BASE}/wp-json/wp/v2/events?per_page=100"
@@ -65,34 +67,33 @@ TAX_ENDPOINTS = {
 
 TIME_RE = re.compile(r"(\d{1,2})\s*[:\.]\s*(\d{2})")
 
-# Classical / opera / ballet exclusion. Dad has explicitly excluded these
+# Classical / opera / ballet exclusion. The user has explicitly excluded these
 # genres. We match on the show title AND on resolved taxonomy names so a
-# show tagged "סולני האופרה" gets dropped even if the title doesn't say so.
+# show tagged "Opera Soloists" gets dropped even if the title doesn't say so.
 CLASSICAL_PATTERNS = [
-    r"סימפונ",          # סימפונית, סימפונט
-    r"פילהרמונ",
-    r"אופרה",
-    r"בלט",
-    r"קלאסי",
-    r"קונצ['׳]?רט",
-    r"סונט",
-    r"קוורטט",
-    r"רביעיי?ה",
-    r"חמישיי?ה",
-    r"תזמורת",
-    r"בארוק",
-    r"קאמרי(?!ת)",      # avoid matching "תיאטרון הקאמרי"
-    r"ברנשטיין",
-    r"בטהובן|מוצרט|באך|שופן|ברהמס|מאהלר",
+    r"symphon",          # symphony, symphonette
+    r"philharmon",
+    r"opera",
+    r"ballet",
+    r"classic",
+    r"concert",
+    r"sonata",
+    r"quartet",
+    r"quintet",
+    r"orchestra",
+    r"baroque",
+    r"chamber",          # classical "chamber" music, not the Cameri Theatre
+    r"bernstein",
+    r"beethoven|mozart|bach|chopin|brahms|mahler",
 ]
 CLASSICAL_RE = re.compile("|".join(CLASSICAL_PATTERNS))
 
 
 class HeichalGivatayimScraper(Scraper):
     source_id = "heichal_givatayim"
-    source_name = "היכל התרבות גבעתיים"
-    venue = "היכל התרבות גבעתיים"
-    city = "גבעתיים"
+    source_name = "Givatayim Culture Hall"
+    venue = "Givatayim Culture Hall"
+    city = "Givatayim"
 
     def fetch_shows(self) -> Iterable[Show]:
         # 1. Resolve taxonomies once.
@@ -224,7 +225,7 @@ class HeichalGivatayimScraper(Scraper):
         sub_hall = ""
         # Filter out venues that look like geo or generic markers
         for v in venue_names:
-            if v in {"ת\"א", "אירוע"}:
+            if v in {"Tel Aviv", "Event"}:
                 continue
             sub_hall = v
             break
@@ -320,21 +321,22 @@ class HeichalGivatayimScraper(Scraper):
 
     @staticmethod
     def _best_genre(main_event: list[str], event_cat: list[str], tags: list[str]) -> str:
-        """Pick a single Hebrew genre string. Prefers the broad event-cat
-        ('מוסיקה' / 'בידור' / 'הרצאה' / 'ילדים' / 'מועדון חברות'), falls back
-        to scanning the main-event/tag lists for known buckets, else "".
+        """Pick a single genre string. Prefers the broad event-cat
+        ('Music' / 'Entertainment' / 'Lecture' / 'Kids' / 'Membership Club'),
+        falls back to scanning the main-event/tag lists for known buckets,
+        else "".
         """
         # Generic 'main' wrappers — drop them; they're not useful as a genre.
-        skip = {"אירוע ראשי", "ראשי", "אירוע גמלאים", "גמלאים", "מועדון חברות",
-                "מועדון חברות בית החייל"}
+        skip = {"Main Event", "Main", "Seniors Event", "Seniors", "Membership Club",
+                "Beit HaHayal Membership Club"}
         # Try event-cat first.
         for name in event_cat:
             if name and name not in skip:
                 return name
         # Fall back to scanning main-event for a known bucket.
         known_buckets = {
-            "סטנדאפ", "מוסיקה", "תיאטרון", "מחזמר", "מחול", "ילדים", "הרצאה",
-            "סרט", "קרקס", "שירה", "בידור",
+            "Stand-up", "Music", "Theatre", "Musical", "Dance", "Kids", "Lecture",
+            "Film", "Circus", "Song", "Entertainment",
         }
         for name in main_event:
             if name in known_buckets:

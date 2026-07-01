@@ -1,13 +1,13 @@
 """
-Scraper for Studio Yoram Loewenstein — סטודיו יורם לוינשטיין (Tel Aviv).
+Scraper for Studio Yoram Loewenstein (Tel Aviv).
 
 Studio Yoram Loewenstein is a small acting school + theater in the Hatikva
 neighbourhood. They produce a handful of student-led productions each season.
 Two web surfaces are useful:
 
   1. The WordPress site (https://www.studioact.co.il/) hosts an editorial
-     archive of every production at /הצגות-סטודיו/. Each show has a detail page
-     with credits in a `<pre>` block (מחזה / עיבוד / בימוי / תרגום) and a cast
+     archive of every production at /studio-shows/. Each show has a detail page
+     with credits in a `<pre>` block (play / adaptation / direction / translation) and a cast
      list in a similar `<pre>` block. JSON-LD provides datePublished and
      og:image gives a usable poster.
 
@@ -15,7 +15,7 @@ Two web surfaces are useful:
      authoritative source for *upcoming* dates. Each currently-bookable show
      appears as a `.show_cube`. The detail page (/<slug>) holds the full
      schedule in a `<table>` of `<tr>` rows, each with an aria-label like
-     "ביום שני, 4 במאי 2026" and a time appended in the cell text.
+     "on Monday, 4 May 2026" and a time appended in the cell text.
 
 We use smarticket as the primary source (only currently-bookable shows are
 listed there — exactly what we want for the digest), then enrich with WP
@@ -35,6 +35,8 @@ from bs4 import BeautifulSoup
 from ..models import Show
 from .base import Scraper
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
+
 
 SMART_BASE = "https://studioact.smarticket.co.il/"
 WP_LISTING_URL = (
@@ -43,20 +45,20 @@ WP_LISTING_URL = (
 )
 
 HEBREW_MONTHS = {
-    "ינואר": 1, "פברואר": 2, "מרץ": 3, "אפריל": 4, "מאי": 5, "יוני": 6,
-    "יולי": 7, "אוגוסט": 8, "ספטמבר": 9, "אוקטובר": 10, "נובמבר": 11, "דצמבר": 12,
+    "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
+    "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12,
 }
 _MONTHS_PATTERN = "|".join(HEBREW_MONTHS.keys())
-DATE_RE = re.compile(rf"(\d{{1,2}})\s+ב?({_MONTHS_PATTERN})\s+(\d{{4}})")
+DATE_RE = re.compile(rf"(\d{{1,2}})\s+({_MONTHS_PATTERN})\s+(\d{{4}})")
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
-PRICE_RE = re.compile(r"(\d{2,4})\s*עד\s*(\d{2,4})\s*₪")
+PRICE_RE = re.compile(r"(\d{2,4})\s*to\s*(\d{2,4})\s*₪")
 
 
 class YoramLoewensteinScraper(Scraper):
     source_id = "yoram_loewenstein"
-    source_name = "סטודיו יורם לוינשטיין"
-    venue = "סטודיו יורם לוינשטיין"
-    city = "תל אביב"
+    source_name = "Yoram Loewenstein Studio"
+    venue = "Yoram Loewenstein Studio"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         # WP archive — used for enrichment (description / credits / poster).
@@ -81,7 +83,7 @@ class YoramLoewensteinScraper(Scraper):
                 continue
             href = link["href"].strip()
             # Skip subscription / season-pass cards.
-            if not href or "season" in href.lower() or "מנוי" in unquote(href):
+            if not href or "season" in href.lower() or "subscription" in unquote(href):
                 continue
             url = urljoin(SMART_BASE, href)
             if url in seen:
@@ -119,7 +121,7 @@ class YoramLoewensteinScraper(Scraper):
                 continue
             url = link["href"].strip()
             title_full = h.get_text(strip=True)
-            # Title format: "<NAME>- מאת <author> – מחזור <year>"
+            # Title format: "<NAME>- by <author> – class of <year>"
             # Strip anything after the first '-' or '–'.
             stem = re.split(r"[-–]", title_full, maxsplit=1)[0].strip()
             stem = stem.strip(" .,:")
@@ -140,7 +142,7 @@ class YoramLoewensteinScraper(Scraper):
     @staticmethod
     def _norm(s: str) -> str:
         # Strip punctuation/whitespace for a loose match.
-        return re.sub(r"[\s\-–•·\.,:;\"'״׳]+", "", s)
+        return re.sub(r"[\s\-–•·\.,:;\"']+", "", s)
 
     def _lookup_wp(self, title: str, wp_index: dict) -> dict | None:
         if not title or not wp_index:
@@ -164,12 +166,12 @@ class YoramLoewensteinScraper(Scraper):
         if not title:
             return None
 
-        # Performances + venue + price (all live in the "כל התאריכים" table).
+        # Performances + venue + price (all live in the "all dates" table).
         performances, venue_label, price_min, price_max = self._extract_schedule(soup)
 
         venue = venue_label or self.venue
 
-        # Short description from the "פרטים נוספים" section.
+        # Short description from the "Additional details" section.
         description = self._extract_smarticket_description(soup)
 
         # Try to enrich from the WordPress page.
@@ -212,7 +214,7 @@ class YoramLoewensteinScraper(Scraper):
             performers=wp_performers,
             director=wp_director,
             duration_minutes=None,  # not consistently published
-            genre="תיאטרון",
+            genre="theatre",
             price_min=price_min,
             price_max=price_max,
             poster_url=wp_poster,
@@ -225,7 +227,7 @@ class YoramLoewensteinScraper(Scraper):
 
         smarticket renders the same dates 2-3 times on the page (recent /
         upcoming / all). We dedupe and prefer the table that includes a price
-        column ("כל התאריכים").
+        column ("all dates").
         """
         performances: dict[datetime, None] = {}
         venue_label = ""
@@ -254,13 +256,13 @@ class YoramLoewensteinScraper(Scraper):
                 continue
             performances[dt] = None
 
-            # Venue label is usually the second td (e.g. אולם "עבאס"- רחוב חנוך 19).
+            # Venue label is usually the second td (e.g. "Abbas" Hall - 19 Hanoch Street).
             if len(cells) >= 2 and not venue_label:
                 v = cells[1].get_text(" ", strip=True)
                 if v and "₪" not in v:
                     venue_label = v
 
-            # Price column appears in the "כל התאריכים" table.
+            # Price column appears in the "all dates" table.
             pm = PRICE_RE.search(row_text)
             if pm:
                 lo, hi = int(pm.group(1)), int(pm.group(2))
@@ -273,9 +275,9 @@ class YoramLoewensteinScraper(Scraper):
 
     @staticmethod
     def _extract_smarticket_description(soup) -> str:
-        """Pull the prose under the 'פרטים נוספים' heading."""
+        """Pull the prose under the 'Additional details' heading."""
         h = soup.find(
-            lambda tag: tag.name in ("h2", "h3") and "פרטים נוספים" in tag.get_text()
+            lambda tag: tag.name in ("h2", "h3") and "Additional details" in tag.get_text()
         )
         if not h:
             return ""
@@ -284,9 +286,9 @@ class YoramLoewensteinScraper(Scraper):
             return ""
         text = parent.get_text("\n", strip=True)
         # Trim the heading itself.
-        text = re.sub(r"^.*פרטים נוספים\s*", "", text, count=1)
-        # Prefer the paragraph following 'תקציר:' if present.
-        m = re.search(r"תקציר[:：]\s*(.+)", text, re.S)
+        text = re.sub(r"^.*Additional details\s*", "", text, count=1)
+        # Prefer the paragraph following 'Synopsis:' if present.
+        m = re.search(r"Synopsis[:：]\s*(.+)", text, re.S)
         if m:
             text = m.group(1)
         # Collapse whitespace and trim to ~600 chars.
@@ -306,18 +308,18 @@ class YoramLoewensteinScraper(Scraper):
         r = self.get(url)
         soup = BeautifulSoup(r.text, "lxml")
 
-        # Credits — the studio uses a `<pre>` with bold labels (מחזה / בימוי /
-        # עיבוד / תרגום). The cast appears in a separate `<pre>` block.
+        # Credits — the studio uses a `<pre>` with bold labels (play / direction /
+        # adaptation / translation). The cast appears in a separate `<pre>` block.
         credits, cast = self._parse_pre_blocks(soup)
         out["director"] = (
-            credits.get("בימוי")
-            or credits.get("במאי")
-            or credits.get("בימוי ותרגום")
+            credits.get("Direction")
+            or credits.get("Director")
+            or credits.get("Direction and translation")
             or ""
         )[:200]
         out["performers"] = cast[:8]
 
-        # Description — the paragraph after "תקציר" or simply the first long
+        # Description — the paragraph after "Synopsis" or simply the first long
         # paragraph in the post body.
         description = ""
         for p in soup.find_all("p"):
@@ -328,8 +330,8 @@ class YoramLoewensteinScraper(Scraper):
                     continue
                 description = txt
                 break
-        # Strip the optional "תקציר:" prefix.
-        description = re.sub(r"^\s*תקציר\s*[:：]?\s*", "", description)
+        # Strip the optional "Synopsis:" prefix.
+        description = re.sub(r"^\s*Synopsis\s*[:：]?\s*", "", description)
         out["description"] = description[:600]
 
         # Poster — og:image is usually the show banner.
@@ -379,30 +381,30 @@ class YoramLoewensteinScraper(Scraper):
 
         Credits block::
 
-            מחזה:
-            אוריפידס
-            בימוי:
-            אודי פרסי
+            Play:
+            Euripides
+            Direction:
+            Udi Persi
 
         Cast block::
 
-            מדיאה-
-            עינת ברנר
-            ג׳ייסון-
-            אלון בוקובזה
+            Medea-
+            Einat Brener
+            Jason-
+            Alon Bukobza
 
         We walk each block line-by-line and pair "<something ending in : or ->"
         with the next non-empty line.
         """
         credit_labels = (
-            "מחזה", "עיבוד", "תרגום", "בימוי", "במאי",
-            "עיבוד ותרגום", "בימוי ותרגום",
-            "כוריאוגרפיה", "מוסיקה", "מוסיקה מקורית",
-            "תפאורה", "תלבושות", "עיצוב תפאורה",
-            "תאורה", "ליווי אומנותי", "דרמטורגיה",
-            "ע.מנהל הפקה", "מנהל הפקה",
-            "עיצוב תנועה", "ווידאו ארט", "צילום סטילס וטריילר",
-            "עיצוב תפאורה ותלבושות",
+            "Play", "Adaptation", "Translation", "Direction", "Director",
+            "Adaptation and translation", "Direction and translation",
+            "Choreography", "Music", "Original music",
+            "Scenery", "Costumes", "Set design",
+            "Lighting", "Artistic mentoring", "Dramaturgy",
+            "Assistant production manager", "Production manager",
+            "Movement design", "Video art", "Stills and trailer photography",
+            "Set and costume design",
         )
         credits: dict[str, str] = {}
         cast: list[str] = []
@@ -427,7 +429,7 @@ class YoramLoewensteinScraper(Scraper):
                         local_credits[label] = value
                         i += 1
                         continue
-                # Label-only line followed by a value line ("מחזה:" + "\n" + "אוריפידס")
+                # Label-only line followed by a value line ("Play:" + "\n" + "Euripides")
                 if line.endswith(":") or line.endswith("："):
                     label = line.rstrip(":：").strip()
                     if any(label.startswith(lbl) for lbl in credit_labels) and i + 1 < len(lines):
@@ -438,7 +440,7 @@ class YoramLoewensteinScraper(Scraper):
                             i += 2
                             continue
                 # Crew line where the dash sits inside the label
-                # ("ווידאו ארט-\nיערה ניראל"). Treat as a credit when the label
+                # ("Video art-\nYaara Nirel"). Treat as a credit when the label
                 # matches a known crew role.
                 m_dash = re.match(r"^(.{1,40})[\-–]\s*$", line)
                 if m_dash and i + 1 < len(lines):

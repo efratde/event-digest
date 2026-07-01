@@ -1,80 +1,80 @@
-# עובדות ופרטי טריוויה ברמה גבוהה על תרבות ישראלית.
-# הקהל היעד מכיר את הסטנדרטים — אז כל פריט צריך להציע משהו לא טריוויאלי.
-# קישור אופציונלי ללמידה נוספת.
+# High-level facts and trivia about Israeli culture.
+# The target audience already knows the standards — so every item should offer something non-trivial.
+# Optional link for further reading.
 
 facts:
-  # --- מוזיקה: סיפורים פחות מוכרים ---
-  - text: "המנגינה של 'ירושלים של זהב' זהה למנגינת לוללי ספרדית-באסקית בשם 'Pello Joxepe', וזה משהו שנעמי שמר הודתה בו רק במכתב שנמצא אחרי מותה ב-2007. היא אהבה את השיר הבאסקי בנעוריה ושאבה את המנגינה ללא מודע."
-    link: "https://he.wikipedia.org/wiki/ירושלים_של_זהב"
-    link_label: "ויקיפדיה"
+  # --- Music: lesser-known stories ---
+  - text: "The melody of 'Jerusalem of Gold' is identical to that of a Spanish-Basque lullaby called 'Pello Joxepe', something Naomi Shemer admitted only in a letter found after her death in 2007. She had loved the Basque song in her youth and drew on its melody unconsciously."
+    link: "https://en.wikipedia.org/wiki/Jerusalem_of_Gold"
+    link_label: "Wikipedia"
 
-  - text: "הסולן של תיסלם, יזהר אשדות, היה הזמר היחיד באולפן כשהוקלט 'מי האיש' של מאיר אריאל ב-1989 — מאיר אריאל הציע לו לבצע את השיר אבל הוא העדיף להישאר בשייכות של הצללים. השיר נכנס לאלבום של מאיר ולתודעה הלאומית."
+  - text: "Yizhar Ashdot, the lead singer of Tislam, was the only vocalist in the studio when Meir Ariel's 'Mi HaIsh' was recorded in 1989 — Meir Ariel offered him the chance to perform the song, but he preferred to stay in the background. The song made it onto Meir's album and into the national consciousness."
 
-  - text: "להקת כוורת התפרקה ב-1976 בגלל ויכוח אחד פנימי על מי יבצע סולו בשיר 'בעצם מה אכפת לי' באלבום השלישי. הוויכוח החריף עד לפירוק רשמי תוך שבועיים — הם לא דיברו אחד עם השני 17 שנה אחרי זה."
-    link: "https://he.wikipedia.org/wiki/כוורת_(להקה)"
-    link_label: "ויקיפדיה"
+  - text: "The band Kaveret broke up in 1976 over a single internal argument about who would sing the solo in the song 'Be'etzem Ma Ichpat Li' on their third album. The dispute escalated into a formal breakup within two weeks — the members didn't speak to one another for 17 years afterward."
+    link: "https://en.wikipedia.org/wiki/Kaveret"
+    link_label: "Wikipedia"
 
-  - text: "השיר 'אתמול חלפה שנה' של אריק איינשטיין נכתב במקור ביוגסלביה ב-1973 על ידי השרגאי גוראן ברגוביץ' בתור שיר לסרט. שלום חנוך פגש את גוראן בקונצרט בליובליאנה והעביר את המנגינה לאריק. אריק כתב את המילים בעברית בשעה אחת בלילה."
+  - text: "Arik Einstein's 'Etmol Chalfa Shana' was originally written in Yugoslavia in 1973 by Goran Bregović as a song for a film. Shalom Hanoch met Goran at a concert in Ljubljana and passed the melody on to Arik. Arik wrote the Hebrew lyrics in a single hour at one in the morning."
 
-  - text: "מאיר אריאל היה הראשון שעשה ראפ בעברית — בשיר 'שיר כאב' מ-1979. אז זה לא נקרא ראפ, אז זה נקרא 'דיבור מקצובי'. הוא חזר על זה גם ב'תרנגול כפרות' (1989) שמשפיע עד היום."
+  - text: "Meir Ariel was the first person to rap in Hebrew — in his 1979 song 'Shir Ke'ev'. Back then it wasn't called rap; it was called 'rhythmic speech'. He returned to it in 'Tarnegol Kaparot' (1989), which remains influential to this day."
     link: "https://www.youtube.com/watch?v=CBOQOA-vZpI"
-    link_label: "האזנה ב-YouTube"
+    link_label: "Listen on YouTube"
 
-  - text: "השיר 'יש לי תוכנית' של אריאל זילבר היה עומד להיות הסינגל הראשון של להקת תמוז ב-1981 — אבל הלהקה התפרקה לפני ההקלטה. שלמה ידוב הציע אותו בסופו של דבר לאריאל, שהיה אז זמר חצי לא ידוע."
+  - text: "Ariel Zilber's 'Yesh Li Tochnit' was slated to be the debut single of the band Tamuz in 1981 — but the band broke up before the recording. Shlomo Yidov eventually offered it to Ariel, who was then a half-unknown singer."
 
-  - text: "ברי סחרוף הקליט את אלבום הבכורה שלו 'נגוע' ב-1990 בלי שום מוזיקאי ישראלי בליוויו — כל הליווי נוגן על ידי מינימל קומפקט (להקתו הקודמת) שעוד הייתה פעילה אז בבריסל."
+  - text: "Berry Sakharof recorded his debut album 'Nagua' in 1990 without a single Israeli musician backing him — all the accompaniment was played by Minimal Compact (his former band), which was still active at the time in Brussels."
 
-  - text: "המוזיקה לסרט 'אסקימו לימון' (1978) הוקלטה בלונדון על ידי תזמורת BBC כי הבמאי בועז דוידזון רצה ליצור 'הוליווד-טייסט' — תקציב המוזיקה היה גדול יותר מתקציב הצילום של הסרט עצמו."
+  - text: "The music for the film 'Lemon Popsicle' (1978) was recorded in London by the BBC orchestra because director Boaz Davidson wanted to create a 'Hollywood taste' — the music budget was larger than the film's entire shooting budget."
 
-  # --- תיאטרון: עובדות שלא מסתובבות בעיתונות ---
-  - text: "המחזה הראשון בעברית מודרנית בארץ לא היה של תיאטרון הבימה — אלא 'נטע' של אהרן אשמן, שהוצג ב-1923 בנס ציונה על ידי 'קבוצת התרבות העברית'. הבימה הציגה רק שנתיים אחר כך."
+  # --- Theatre: facts that don't circulate in the press ---
+  - text: "The first play in modern Hebrew staged in this country was not by the Habima Theatre — it was 'Neta' by Aharon Ashman, performed in 1923 in Ness Ziona by the 'Hebrew Culture Group'. Habima staged its own first production only two years later."
 
-  - text: "חנוך לוין כתב 56 מחזות, מתוכם 33 הוצגו בתיאטרון הקאמרי. אבל המחזה הראשון שלו, 'אתה ואני והמלחמה הבאה' (1968), נדחה על ידי כל התיאטראות בארץ — הוצג לבסוף במועדון 'בצל הירוק' בתל אביב, ב-100 צופים בכל ערב."
-    link: "https://he.wikipedia.org/wiki/חנוך_לוין"
-    link_label: "ויקיפדיה"
+  - text: "Hanoch Levin wrote 56 plays, 33 of which were staged at the Cameri Theatre. But his first play, 'You and Me and the Next War' (1968), was rejected by every theatre in the country — it was finally staged at the 'BaTzal HaYarok' club in Tel Aviv, to 100 spectators each evening."
+    link: "https://en.wikipedia.org/wiki/Hanoch_Levin"
+    link_label: "Wikipedia"
 
-  - text: "תיאטרון גשר התקיים 5 שנים שלמות (1991-1996) ברוסית בלבד, עם תרגום סימולטני באוזניות. ההצגה הראשונה כולה בעברית הייתה 'אדם בן כלב' (1996) — שזכתה בפרס תיאטרון השנה."
+  - text: "The Gesher Theatre operated entirely in Russian for five full years (1991-1996), with simultaneous translation over headphones. Its first fully Hebrew production was 'Adam Resurrected' (1996) — which won the Theatre of the Year award."
     link: "https://www.gesher-theatre.co.il/he/"
-    link_label: "אתר התיאטרון"
+    link_label: "Theatre website"
 
-  - text: "המחזמר 'קזבלן' (1966) של דן אלמגור עבר על ידי בית הדין למוזיקה של עיריית תל אביב לפני העלייתו, כי השופטים חשבו שהשיר 'דמוקרטיה' מסית למחאה אזרחית. הם איפשרו אותו רק אחרי שדן אלמגור התחייב להוסיף שיר פטריוטי בסוף."
+  - text: "The musical 'Kazablan' (1966) by Dan Almagor was reviewed by the Tel Aviv municipality's music tribunal before it premiered, because the judges thought the song 'Democracy' incited civil protest. They allowed it only after Dan Almagor agreed to add a patriotic song at the end."
 
-  - text: "השחקנית גילה אלמגור הייתה אמורה לבצע את הסולו ב'הקיץ של אביה' (1989) שעיבדה לקולנוע מהאוטוביוגרפיה שלה — אבל הבמאי איל חלפון התעקש שהיא לא תוכל לשחק את אמא שלה. היא בחרה את הילי ירמיאש לתפקיד."
+  - text: "Actress Gila Almagor was supposed to play the lead in 'The Summer of Aviya' (1989), which she adapted for the screen from her own autobiography — but director Eyal Halfon insisted she couldn't play her own mother. She chose Hili Yarmiash for the role."
 
-  # --- מקומות: היסטוריה לא ידועה ---
-  - text: "אולם מאן (היכל התרבות תל אביב) תוכנן ב-1949 על ידי האדריכל זאב רכטר אבל בנייתו הופסקה ב-1952 בגלל מחסור בברזל אחרי מבצע סיני. הוא הושלם רק ב-1957 — שמונה שנים אחרי תכנונו."
+  # --- Venues: little-known history ---
+  - text: "The Mann Auditorium (Tel Aviv Culture Palace) was designed in 1949 by architect Ze'ev Rechter, but its construction was halted in 1952 due to an iron shortage after the Sinai Campaign. It was completed only in 1957 — eight years after it was designed."
 
-  - text: "אמפיתיאטרון קיסריה הוקם במאה ה-1 לספירה על ידי הורדוס המלך, וכלל מקום ל-3,500 צופים. הוא היה האמפיתיאטרון הרומי היחיד במזרח התיכון עם תפאורה ימית מאחורי הבמה — נוף הים היה חלק מההפקה."
+  - text: "The Caesarea amphitheatre was built in the 1st century CE by King Herod and held 3,500 spectators. It was the only Roman amphitheatre in the Middle East with a maritime backdrop behind the stage — the sea view was part of the production."
 
-  - text: "מועדון בארבי הוקם ב-1992 כתחליף ל'פנטאזיה' שנסגר. השם 'בארבי' הוא קיצור של 'בר בית הרקדנים בישראל' — שורש זה היה מועדון הריקודים הראשון בארץ ב-1922."
+  - text: "The Barby club was founded in 1992 as a replacement for 'Fantasia', which had closed. The name 'Barby' is an abbreviation of 'Bar Beit HaRakdanim BeYisrael' (the Dancers' House Bar in Israel) — that same establishment was the country's first dance club, back in 1922."
 
-  - text: "תיאטרון צוותא לא היה במקור תיאטרון אלא מועדון מוזיקה של 'איגוד אוהבי המוזיקה הקלאסית' שהוקם ב-1937 על ידי קבוצת מוסיקאים ברלינאים שעלו ארצה. עברו לתיאטרון רק בשנות ה-60."
-    link: "https://he.wikipedia.org/wiki/צוותא"
-    link_label: "ויקיפדיה"
+  - text: "The Tzavta theatre was not originally a theatre but a music club of the 'Classical Music Lovers' Association', founded in 1937 by a group of Berlin-born musicians who had immigrated to the country. It became a theatre only in the 1960s."
+    link: "https://en.wikipedia.org/wiki/Tzavta"
+    link_label: "Wikipedia"
 
-  # --- אירוויזיון ---
-  - text: "השיר 'אבניבי' (1978) של איזהר כהן ולהקת אלפא־ביתא הוא היחיד בהיסטוריית האירוויזיון שנכתב כולו בשפת ילדים — שפה משחק ילדותית שהייתה פופולרית בשנות ה-60 בישראל."
+  # --- Eurovision ---
+  - text: "'A-Ba-Ni-Bi' (1978) by Izhar Cohen and the Alphabeta band is the only Eurovision entry ever written entirely in a children's secret language — a playful kids' word-game that was popular in 1960s Israel."
 
-  - text: "ב-1980 לא ייצגנו את ישראל באירוויזיון בכלל — בגלל סירוב של רשות השידור לעמוד בעלות שידור התחרות שעברה לעיירה האג בהולנד. ישראל הייתה המדינה היחידה שלא הצביעה בתחרות באותה שנה."
+  - text: "In 1980 Israel wasn't represented at Eurovision at all — because the Broadcasting Authority refused to cover the cost of broadcasting the contest, which had moved to the town of The Hague in the Netherlands. Israel was the only country that didn't vote in the contest that year."
 
-  # --- מוזיקה: סיפורים מדהימים ---
-  - text: "אלבום הבכורה של דוד ברוזה ('שיר במוסיקה') הוקלט בספרד ב-1977 כי לא היה אולפן ישראלי שיכול היה לכלול את התזמורת שדרש. שמירה הולנד שיחקה בו על הקרן יער — כן, אותה שמירה שאחר כך הפכה לשחקנית בלוס אנג'לס."
+  # --- Music: astonishing stories ---
+  - text: "David Broza's debut album ('Shir BeMusica') was recorded in Spain in 1977 because no Israeli studio could accommodate the orchestra he wanted. Shmira Holland played the French horn on it — yes, the same Shmira who later became an actress in Los Angeles."
 
-  - text: "השיר 'אהובת לבבי' של זוהר ארגוב נכתב על ידי משה גיאת ב-1978 לחתונת אחיו. זוהר התעקש לבצע אותו אחרי ששמע אותו במסיבה — והקליט אותו כשבועיים אחרי. השיר התפרסם רק 4 שנים אחר כך."
+  - text: "Zohar Argov's 'Ahuvat Levavi' was written by Moshe Giat in 1978 for his brother's wedding. Zohar insisted on performing it after hearing it at a party — and recorded it about two weeks later. The song only became famous four years after that."
 
-  - text: "'אנא מותק' של דני סנדרסון נכתב במקור באנגלית בשם 'Honey Please' ב-1973. סנדרסון תרגם אותו לעברית רק ב-1978 כשהבין שהפזמון 'אנא מותק' נשמע יותר טוב מ'Honey Please'."
+  - text: "Danny Sanderson's 'Ana Motek' was originally written in English as 'Honey Please' in 1973. Sanderson translated it into Hebrew only in 1978, when he realized that the refrain 'Ana Motek' sounded better than 'Honey Please'."
 
-  - text: "הזמרת חוה אלברשטיין הקליטה את שיריה הראשונים ב-1964 — בגיל 17 — בשפה היידיש. רק שנתיים אחר כך עברה לעברית, וב-1971 כבר הייתה כוכבת השנה בישראל."
+  - text: "Singer Chava Alberstein recorded her first songs in 1964 — at age 17 — in Yiddish. Only two years later did she switch to Hebrew, and by 1971 she was already Israel's star of the year."
 
-  # --- טריוויה אסטרטגית ---
-  - text: "ההיכר של יואב יצחק (יואב יצחק) על המחזה 'הטוב הרע והדור' של חנוך לוין כלל את התיאור: 'הצגה של מאזוכיסט שיודע איך לעצבן 1500 איש בו זמנית באמנותיות'. לוין שמח כשקרא את זה."
+  # --- Strategic trivia ---
+  - text: "Yoav Yitzhak's review of Hanoch Levin's play 'The Good, the Bad and the Generation' included the description: 'a masochist's show that knows how to annoy 1,500 people simultaneously, and artfully'. Levin was delighted when he read it."
 
-  - text: "להקת מאשינה ניגנה את השיר הראשון שלהם ('פינוקיו') במופע ראשון ב-1985 בקאן 17 — באולם שבו היו 8 צופים בלבד. שלושה מהצופים הפכו לימים למפיקי המוזיקה החשובים של הלהקה."
+  - text: "The band Mashina played their first song ('Pinocchio') at their first show in 1985 at Kan 17 — in a hall with only 8 spectators. Three of those spectators later became the band's most important music producers."
 
-  - text: "השיר 'אדון עולם' (גרסת מאיר בנאי) הוקלט באלבום 'מאיר בנאי 4' (2004) כקריצה לבקשת חברו האחיין הצעיר שלו, שביקש 'משהו דתי בשבילי'. השיר הפך ללהיט הגדול ביותר באלבום ועד היום נשמע בבר מצוות."
+  - text: "'Adon Olam' (Meir Banai's version) was recorded on the album 'Meir Banai 4' (2004) as a wink, at the request of his young nephew, who asked for 'something religious just for me'. The song became the album's biggest hit and is still played at bar mitzvahs to this day."
 
-  - text: "אסף אבידן (Asaf Avidan) הוא היחיד מבין הזמרים הישראלים שזכה ב-'גראמי גרמני' (Echo Award) — ב-2013, על השיר 'Reckoning Song' שהפך ללהיט אירופי. הוא לא היה ידוע בישראל באותה תקופה."
+  - text: "Asaf Avidan is the only Israeli singer to have won a 'German Grammy' (Echo Award) — in 2013, for 'Reckoning Song', which became a European hit. He wasn't well known in Israel at the time."
     link: "https://en.wikipedia.org/wiki/Asaf_Avidan"
     link_label: "Wikipedia"
 
-  - text: "'הכל זהב' של פרויקט שלמה גרוניך (1986) זכה אז במכירות נמוכות מאוד, אבל היה האלבום הישראלי הראשון שזכה לסקירה חיובית במגזין Spin האמריקאי. סקירה שאמרה: 'השפה לא מובנת, המוזיקה ברורה לחלוטין'."
+  - text: "'HaKol Zahav' by Shlomo Gronich's project (1986) sold very poorly at the time, but it was the first Israeli album to receive a favorable review in the American magazine Spin. The review said: 'The language is unintelligible, the music perfectly clear'."

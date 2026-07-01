@@ -50,25 +50,25 @@ def match_tags(show: Show, prefs: Preferences) -> list[dict]:
     # Loved
     for p in show.performers:
         if p in prefs.loved_performers:
-            tags.append({"label": f"❤ שחקן אהוב: {p}", "kind": "love"})
+            tags.append({"label": f"❤ Loved actor: {p}", "kind": "love"})
         if p in prefs.loved_artists:
-            tags.append({"label": f"❤ אמן אהוב: {p}", "kind": "love"})
+            tags.append({"label": f"❤ Loved artist: {p}", "kind": "love"})
     if show.director and show.director in prefs.loved_directors:
-        tags.append({"label": f"❤ במאי אהוב: {show.director}", "kind": "love"})
+        tags.append({"label": f"❤ Loved director: {show.director}", "kind": "love"})
     # Title might match an artist (concert)
     if show.title in prefs.loved_artists:
-        tags.append({"label": f"❤ אמן אהוב: {show.title}", "kind": "love"})
+        tags.append({"label": f"❤ Loved artist: {show.title}", "kind": "love"})
     if show.genre and show.genre in prefs.loved_genres:
-        tags.append({"label": f"❤ ז׳אנר אהוב: {show.genre}", "kind": "love"})
+        tags.append({"label": f"❤ Loved genre: {show.genre}", "kind": "love"})
 
     # Disliked (keep these visible so the user knows why something looks downgraded)
     for p in show.performers:
         if p in prefs.disliked_performers or p in prefs.disliked_artists:
-            tags.append({"label": f"👎 לא בקטע: {p}", "kind": "dislike"})
+            tags.append({"label": f"👎 Not into it: {p}", "kind": "dislike"})
     if show.title in prefs.disliked_artists:
-        tags.append({"label": f"👎 לא בקטע: {show.title}", "kind": "dislike"})
+        tags.append({"label": f"👎 Not into it: {show.title}", "kind": "dislike"})
     if show.genre and show.genre in prefs.disliked_genres:
-        tags.append({"label": f"👎 לא בקטע: {show.genre}", "kind": "dislike"})
+        tags.append({"label": f"👎 Not into it: {show.genre}", "kind": "dislike"})
 
     return tags
 
@@ -87,7 +87,7 @@ def is_disliked(show: Show, prefs: Preferences) -> bool:
 
 # -- Match scoring -----------------------------------------------------------
 #
-# Returns an integer 0-100 representing how strongly this show matches Dad's
+# Returns an integer 0-100 representing how strongly this show matches the user's
 # declared taste in preferences.yaml. The client-side JS will further adjust
 # this based on his actual pin/dismiss history (which lives in localStorage).
 
@@ -100,23 +100,23 @@ def match_score(show: Show, prefs: Preferences) -> int:
     for p in show.performers:
         if p in prefs.loved_performers:
             score += 30
-            matches.append(f"שחקן אהוב: {p}")
+            matches.append(f"Loved actor: {p}")
         if p in prefs.loved_artists:
             score += 30
-            matches.append(f"אמן אהוב: {p}")
+            matches.append(f"Loved artist: {p}")
     if show.title in prefs.loved_artists:
         score += 35
-        matches.append(f"אמן אהוב: {show.title}")
+        matches.append(f"Loved artist: {show.title}")
 
     # Director
     if show.director and show.director in prefs.loved_directors:
         score += 25
-        matches.append(f"במאי אהוב: {show.director}")
+        matches.append(f"Loved director: {show.director}")
 
     # Genre
     if show.genre and show.genre in prefs.loved_genres:
         score += 15
-        matches.append(f"ז'אנר אהוב: {show.genre}")
+        matches.append(f"Loved genre: {show.genre}")
 
     return min(100, score)
 
@@ -126,13 +126,13 @@ def score_reasons(show: Show, prefs: Preferences) -> list[str]:
     reasons: list[str] = []
     for p in show.performers:
         if p in prefs.loved_performers:
-            reasons.append(f"❤ שחקן אהוב: {p}")
+            reasons.append(f"❤ Loved actor: {p}")
         if p in prefs.loved_artists:
-            reasons.append(f"❤ אמן אהוב: {p}")
+            reasons.append(f"❤ Loved artist: {p}")
     if show.title in prefs.loved_artists:
-        reasons.append(f"❤ אמן אהוב: {show.title}")
+        reasons.append(f"❤ Loved artist: {show.title}")
     if show.director and show.director in prefs.loved_directors:
-        reasons.append(f"❤ במאי אהוב: {show.director}")
+        reasons.append(f"❤ Loved director: {show.director}")
     if show.genre and show.genre in prefs.loved_genres:
-        reasons.append(f"❤ ז'אנר אהוב: {show.genre}")
+        reasons.append(f"❤ Loved genre: {show.genre}")
     return reasons

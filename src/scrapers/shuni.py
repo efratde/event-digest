@@ -1,5 +1,5 @@
 """
-Scraper for Zappa Amphi Shuni (זאפה אמפי שוני) — open-air summer venue
+Scraper for Zappa Amphi Shuni — open-air summer venue
 in Park Shuni, Binyamina.
 
 The amphitheater is operated by Zappa, so it lives on the same Eventim-backed
@@ -9,7 +9,7 @@ identical to ``zappa_tlv.py`` — one ``article.listing-item`` per night,
 the stable id, ``/event/<slug>`` for the URL.
 
 Listing page (paginated via ?pnum=N):
-  https://www.zappa-club.co.il/city/בנימינה-1957/venue/זאפה-אמפי-שוני-25739/
+  https://www.zappa-club.co.il/city/binyamina-1957/venue/zappa-amphi-shuni-25739/
 
 Akamai blocks /event/<slug>/ detail pages with 403 for non-browser
 fingerprints, so — like the Zappa TLV scraper — we extract everything from
@@ -23,6 +23,8 @@ that's expected, not a bug.
 """
 
 from __future__ import annotations
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 import re
 from datetime import datetime
@@ -39,7 +41,7 @@ from .base import Scraper
 BASE = "https://www.zappa-club.co.il"
 LISTING_URL = (
     "https://www.zappa-club.co.il/"
-    "city/בנימינה-1957/venue/זאפה-אמפי-שוני-25739/"
+    "city/binyamina-1957/venue/zappa-amphi-shuni-25739/"
 )
 MAX_PAGES = 10  # safety cap
 
@@ -66,9 +68,9 @@ BROWSER_HEADERS = {
 
 class ShuniScraper(Scraper):
     source_id = "shuni"
-    source_name = "אמפי שוני"
-    venue = "אמפי שוני"
-    city = "בנימינה"
+    source_name = "Amphi Shuni"
+    venue = "Amphi Shuni"
+    city = "Binyamina"
 
     def __init__(self, timeout: float = 30.0):
         super().__init__(timeout=timeout)
@@ -219,7 +221,7 @@ class ShuniScraper(Scraper):
             performers=[],
             director="",
             duration_minutes=None,
-            genre="מוזיקה",
+            genre="Music",
             poster_url=(data.get("posters") or [""])[0],
         )
 
@@ -245,14 +247,14 @@ class ShuniScraper(Scraper):
     def _title_key(title: str) -> str:
         """Normalise title for grouping multi-night residencies."""
         t = re.sub(r"\s+", " ", title).strip()
-        t = re.sub(r"[\"'״׳`]", "", t)
+        t = re.sub(r"[\"'`]", "", t)
         return t.lower()
 
     @staticmethod
     def _is_shuni(href: str) -> bool:
         from urllib.parse import unquote
         decoded = unquote(href).lower()
-        markers = ["שוני", "אמפי-שוני", "shuni", "amphi-shuni", "בנימינה", "binyamina"]
+        markers = ["shuni", "amphi-shuni", "binyamina"]
         return any(m in decoded for m in markers)
 
     @staticmethod

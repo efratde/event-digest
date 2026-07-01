@@ -28,7 +28,7 @@ import httpx
 log = logging.getLogger("distance")
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
-USER_AGENT = "DadTicketsDigest/1.0 (personal use; one geocoding call per venue)"
+USER_AGENT = "EventDigest/1.0 (personal use; one geocoding call per venue)"
 
 GEOCODE_DDL = """
 CREATE TABLE IF NOT EXISTS geocode_cache (
@@ -130,7 +130,7 @@ class Geocoder:
         """Returns a GeoPoint (truthy) if found, GeoPoint(0,0) (falsy) for negative cache, or None on error.
 
         If the exact query fails, tries a small set of fallback variants
-        (drop the word 'רחוב', drop the city, etc.) before giving up.
+        (drop the word 'Street', drop the city, etc.) before giving up.
         """
         for variant in self._variants(query):
             cached = self._from_cache(variant)
@@ -159,9 +159,9 @@ class Geocoder:
         """
         q = query.strip()
         out = [q]
-        # Drop "רחוב " prefix (Nominatim stores street names without it)
-        if q.startswith("רחוב "):
-            out.append(q[len("רחוב "):].strip())
+        # Drop "Street " prefix (Nominatim stores street names without it)
+        if q.startswith("Street "):
+            out.append(q[len("Street "):].strip())
         return out
 
     def _geocode_one(self, query: str) -> GeoPoint | None:
@@ -183,7 +183,7 @@ class Geocoder:
                     "format": "json",
                     "limit": 1,
                     "countrycodes": "il",
-                    "accept-language": "he",
+                    "accept-language": "en",
                 },
             )
             r.raise_for_status()

@@ -1,7 +1,7 @@
 """
-Scraper for Cameri Theater (תיאטרון הקאמרי).
+Scraper for the Cameri Theatre (Cameri).
 
-Listing page: https://www.cameri.co.il/הצגות_הקאמרי/
+Listing page: https://www.cameri.co.il/cameri_shows/
 Each show card (li.show-item) contains:
   - <a class="inner block show-badge" href="...">  → detail-page link
   - <h2>                                            → show title
@@ -20,6 +20,7 @@ Dates are DD.MM (no year). Same as Habima — assume next occurrence; if more
 than 30 days in the past, roll to next year.
 """
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 from __future__ import annotations
 
 import re
@@ -33,16 +34,16 @@ from ..models import Show
 from .base import Scraper
 
 
-LISTING_URL = "https://www.cameri.co.il/הצגות_הקאמרי/"
+LISTING_URL = "https://www.cameri.co.il/cameri_shows/"
 DATE_RE = re.compile(r"(\d{1,2})\.(\d{1,2})")
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 
 
 class CameriScraper(Scraper):
     source_id = "cameri"
-    source_name = "תיאטרון הקאמרי"
-    venue = "תיאטרון הקאמרי"
-    city = "תל אביב"
+    source_name = "Cameri Theatre"
+    venue = "Cameri Theatre"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         listing = self.get(LISTING_URL)
@@ -52,14 +53,14 @@ class CameriScraper(Scraper):
 
         seen_urls: set[str] = set()
         for card in cards:
-            link = card.select_one("a.show-badge, a[href*='הצגות_הקאמרי/']")
+            link = card.select_one("a.show-badge, a[href*='cameri_shows/']")
             if not link:
                 continue
             url = link.get("href", "").strip()
             if not url or url in seen_urls:
                 continue
             # Skip the listing-page URL itself
-            if url.rstrip("/").endswith("הצגות_הקאמרי"):
+            if url.rstrip("/").endswith("cameri_shows"):
                 continue
             seen_urls.add(url)
 
@@ -101,7 +102,7 @@ class CameriScraper(Scraper):
         if sc:
             credits_text = sc.get_text("\n", strip=True)
 
-        director = self._extract_credit(credits_text, ["בימוי", "במאי"])
+        director = self._extract_credit(credits_text, ["Directing", "Director"])
         performers = self._extract_performers(soup, credits_text)
         duration_minutes = self._extract_duration(soup)
 
@@ -133,7 +134,7 @@ class CameriScraper(Scraper):
             performers=performers,
             director=director,
             duration_minutes=duration_minutes,
-            genre="תיאטרון",
+            genre="Theatre",
             poster_url=poster_url,
         )
 
@@ -149,7 +150,7 @@ class CameriScraper(Scraper):
             # Skip short / link-only / map-only paragraphs
             if len(txt) < 30:
                 continue
-            if "צפייה במפה" in txt or "צפייה בתוכנייה" in txt:
+            if "View map" in txt or "View program" in txt:
                 continue
             paras.append(txt)
         return " ".join(paras[:2])[:600]
@@ -176,14 +177,14 @@ class CameriScraper(Scraper):
 
     @staticmethod
     def _extract_performers(soup, credits_text: str) -> list[str]:
-        # Cameri pages usually carry a "בהצגה זו השחקנים.ות ..." sentence in body.
+        # Cameri pages usually carry a "The cast of this show ..." sentence in body.
         body_text = soup.get_text(" ", strip=True)
-        for label in ["בהצגה זו השחקנים.ות", "משתתפים", "בכיכובם", "שחקנים"]:
+        for label in ["The cast of this show", "Cast", "Starring", "Actors"]:
             m = re.search(rf"{re.escape(label)}[:：\s]+([^.]{{10,400}})", body_text)
             if m:
                 raw = m.group(1).strip()
-                # Split on commas, slashes (lead actor variants), middots
-                parts = re.split(r"[,/•·]|\s+ו(?=\S)", raw)
+                # Split on commas, slashes (lead actor variants), middots, and "and"
+                parts = re.split(r"[,/•·]|\s+and\s+", raw)
                 parts = [p.strip(" .") for p in parts if p.strip(" .")]
                 if parts:
                     return parts[:8]
@@ -196,28 +197,28 @@ class CameriScraper(Scraper):
     @staticmethod
     def _extract_duration(soup) -> int | None:
         text = soup.get_text(" ", strip=True)
-        # "משך ההצגה: 90 דקות" / "כ-90 דקות"
+        # "Show duration: 90 minutes" / "approx. 90 minutes"
         m = re.search(
-            r"(?:משך|אורך)\s+ההצגה\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text
+            r"(?:duration|length)\s+of\s+the\s+show\s*[:：]?\s*(?:approx\.?-?\s*)?(\d{2,3})\s*min", text
         )
         if m:
             return int(m.group(1))
-        # Hebrew word forms: "שעה וחצי", "שעתיים", "שעתיים ו-45 דקות", "N שעות"
+        # Word forms: "an hour and a half", "two hours", "two hours and 45 minutes", "N hours"
         m = re.search(
-            r"(?:משך|אורך)\s+ההצגה[^.]*?(שעה|שעתיים|(\d)\s*שעות)"
-            r"(?:\s*ו(?:-)?\s*(חצי|(\d{1,2})\s*דק))?",
+            r"(?:duration|length)\s+of\s+the\s+show[^.]*?(two hours|(\d)\s*hours|hour)"
+            r"(?:\s*and(?:-)?\s*(half|(\d{1,2})\s*min))?",
             text,
         )
         if m:
             word = m.group(1)
-            if word == "שעה":
+            if word == "hour":
                 hours = 1
-            elif word == "שעתיים":
+            elif word == "two hours":
                 hours = 2
             else:
                 hours = int(m.group(2))
             extra = m.group(3)
-            if extra == "חצי":
+            if extra == "half":
                 mins = 30
             elif m.group(4):
                 mins = int(m.group(4))

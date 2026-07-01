@@ -1,15 +1,17 @@
-# Dad Tickets — דייג'סט יומי של הופעות
+# Event Digest — a daily personalized performance digest
 
-צינור פייתון שסורק 17 אתרי כרטיסים ישראליים, מסנן לפי טעם של אבא (תיאטרון/מוזיקה/סטנדאפ ולא קלאסי/אופרה/בלט), ובונה דף HTML יומי עם:
+> **Portfolio demonstration — synthetic data.** The taste profile, seed preferences, home location used for travel-distance, and pin/hide history in this demo are fictional and de-identified, and represent no real person or address. Any performers, venues, or shows are drawn from public event listings only and reflect no real individual's private preferences. This is a portfolio piece, not a real recommendation service.
 
-- כרטיסיות בסגנון אפליקציית סטרימינג, מסגרת בצבע ז'אנר
-- מיון לפי "התאמה לטעם" (מבוסס preferences.yaml + פעולות נעיצה/הסתרה ב-localStorage)
-- תצוגת לוח שנה אלטרנטיבית
-- מחיר נסיעה מהבית (Nominatim, מקומי)
-- העשרה אוטומטית מ-Wikipedia + מסך קישורים לחיפושים בספוטיפיי/יוטיוב/ביקורות
-- שאלון טעם היררכי + עורך העדפות במודל
+A Python pipeline that scrapes 17 Israeli ticketing sites, filters by a taste profile (theater/music/standup, excluding classical/opera/ballet), and builds a daily HTML page with:
 
-## הרצה מקומית
+- Streaming-app-style cards, with a genre-colored border
+- Sorting by "taste match" (based on preferences.yaml + pin/hide actions in localStorage)
+- An alternative calendar view
+- Travel cost from home (Nominatim, local)
+- Automatic enrichment from Wikipedia + a links panel for Spotify/YouTube/review searches
+- A hierarchical taste questionnaire + a modal preferences editor
+
+## Running locally
 
 ```bash
 uv sync
@@ -17,9 +19,9 @@ uv run python -m src.main
 open output/digest.html
 ```
 
-האופציה `--no-web-enrich` מדלגת על שליפת תיאורים/תמונות מויקיפדיה (חוסך כדקה בריצה מקומית).
+The `--no-web-enrich` option skips fetching descriptions/images from Wikipedia (saves about a minute on a local run).
 
-## ארכיטקטורה
+## Architecture
 
 ```
 src/
@@ -45,12 +47,12 @@ config.yaml              sources, freshness windows, output path
 preferences.yaml         seed prefs (overridden by browser localStorage)
 ```
 
-## הוספת מקור (אתר חדש)
+## Adding a source (new site)
 
-1. כתוב `src/scrapers/X.py` שמממש את `Scraper` מ-`base.py`
-2. רשום ב-`src/scrapers/__init__.py` תחת `REGISTRY`
-3. הוסף ל-`config.yaml` תחת `sources:` (כולל `geocode_query`)
+1. Write `src/scrapers/X.py` implementing `Scraper` from `base.py`
+2. Register it in `src/scrapers/__init__.py` under `REGISTRY`
+3. Add it to `config.yaml` under `sources:` (including `geocode_query`)
 
-## פריסה אוטומטית (Claude Routine)
+## Automated deployment (Claude Routine)
 
-ראה את הפרומפט של ה-routine ב-`.claude/routine_prompt.md`.
+See the routine prompt in `.claude/routine_prompt.md`.

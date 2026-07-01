@@ -7,13 +7,15 @@ Each show card links to a detail page like
 which in turn embeds:
   - h3.show-title           → show title
   - .show-desc              → multi-paragraph description
-  - .presentations li       → upcoming performances ("DD.MM HH:MM יום-X לרכישה")
+  - .presentations li       → upcoming performances ("DD.MM HH:MM day-X Buy")
                               each containing <a href="https://tickets.habima.co.il/order/{id}">
   - .show-card-image img    → poster
 
 Dates appear in DD.MM format (no year). We assume the next occurrence — if
 the date is more than 60 days in the past, we roll it to next year.
 """
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 from __future__ import annotations
 
@@ -35,9 +37,9 @@ DATE_RE = re.compile(r"(\d{1,2})\.(\d{1,2})\s+(\d{1,2}):(\d{2})")
 
 class HabimaScraper(Scraper):
     source_id = "habima"
-    source_name = "תיאטרון הבימה"
-    venue = "תיאטרון הבימה"
-    city = "תל אביב"
+    source_name = "Habima Theatre"
+    venue = "Habima Theatre"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         listing = self.get(LISTING_URL)
@@ -88,11 +90,11 @@ class HabimaScraper(Scraper):
             paras = [p for p in paras if len(p) > 20]
             description = " ".join(paras[:2])[:600]
 
-        # Performers — try to find a "בכיכובם" / "משתתפים" section
+        # Performers — try to find a "Starring" / "Cast" section
         performers = self._extract_performers(soup)
 
         # Director
-        director = self._extract_field(soup, ["בימוי", "במאי"])
+        director = self._extract_field(soup, ["Directed by", "Director"])
 
         # Duration
         duration_minutes = self._extract_duration(soup)
@@ -128,7 +130,7 @@ class HabimaScraper(Scraper):
             performers=performers,
             director=director,
             duration_minutes=duration_minutes,
-            genre="תיאטרון",
+            genre="Theatre",
             poster_url=poster_url,
             tickets_opened_on=tickets_opened_on,
         )
@@ -171,16 +173,16 @@ class HabimaScraper(Scraper):
 
     @staticmethod
     def _extract_performers(soup) -> list[str]:
-        # Look for "בכיכובם" / "משתתפים" / "שחקנים"
-        for label in ["בכיכובם", "משתתפים", "שחקנים", "מבצעים"]:
+        # Look for "Starring" / "Cast" / "Actors"
+        for label in ["Starring", "Cast", "Actors", "Performers"]:
             for el in soup.find_all(string=re.compile(rf"{re.escape(label)}")):
                 parent = el.parent
                 txt = parent.get_text(" ", strip=True)
                 m = re.search(rf"{re.escape(label)}\s*[:：]\s*(.+)", txt)
                 if m:
                     raw = m.group(1).strip()
-                    # Split by commas, "ו", or middots
-                    parts = re.split(r"[,•·]|\s+ו(?=\S)", raw)
+                    # Split by commas, "and", or middots
+                    parts = re.split(r"[,•·]|\s+and\s+", raw)
                     parts = [p.strip(" .") for p in parts if p.strip()]
                     return parts[:8]
         return []
@@ -210,12 +212,12 @@ class HabimaScraper(Scraper):
 
     @staticmethod
     def _extract_duration(soup) -> int | None:
-        # Look for "משך ההצגה" / "אורך ההצגה"
+        # Look for "Show duration" / "Show length"
         text = soup.get_text(" ", strip=True)
-        m = re.search(r"(?:משך|אורך)\s+ההצגה\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text)
+        m = re.search(r"(?:duration|length)\s+of the show\s*[:：]?\s*(?:approx\.?\s*-?\s*)?(\d{2,3})\s*min", text)
         if m:
             return int(m.group(1))
-        m = re.search(r"(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        m = re.search(r"(\d)\s*(?:hour|hours)\s*(?:and\s*-?\s*(\d{1,2})\s*min)?", text)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0

@@ -42,19 +42,19 @@ DB_PATH = "data/shows.db"
 PUBLIC_URL = "https://dad-tickets.pages.dev/"
 PUBLIC_IMAGE_BASE = "https://dad-tickets.pages.dev/images/"
 
-HEBREW_DAYS = ["שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת", "ראשון"]
+HEBREW_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 HEBREW_MONTHS = [
-    "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
 ]
 
 
 def he_date(d: date) -> str:
-    return f"יום {HEBREW_DAYS[d.weekday()]}, {d.day} ב{HEBREW_MONTHS[d.month - 1]} {d.year}"
+    return f"{HEBREW_DAYS[d.weekday()]}, {d.day} {HEBREW_MONTHS[d.month - 1]} {d.year}"
 
 
 def he_short_date(d: date) -> str:
-    return f"{d.day} ב{HEBREW_MONTHS[d.month - 1]}"
+    return f"{d.day} {HEBREW_MONTHS[d.month - 1]}"
 
 
 def time_of_day_greeting(now: datetime | None = None) -> str:
@@ -62,12 +62,12 @@ def time_of_day_greeting(now: datetime | None = None) -> str:
     h = now.hour
     weekday = HEBREW_DAYS[now.weekday()]
     if 5 <= h < 11:
-        return f"בוקר טוב, יום {weekday}"
+        return f"Good morning, {weekday}"
     if 11 <= h < 16:
-        return f"צהריים טובים, יום {weekday}"
+        return f"Good afternoon, {weekday}"
     if 16 <= h < 20:
-        return f"אחר צהריים נעים, יום {weekday}"
-    return f"ערב טוב, יום {weekday}"
+        return f"Pleasant afternoon, {weekday}"
+    return f"Good evening, {weekday}"
 
 
 def load_secrets(path: str = "secrets.env") -> dict[str, str]:
@@ -128,7 +128,7 @@ def fetch_new_shows(today: date) -> list[dict]:
         if not upcoming:
             continue
         next_p = upcoming[0]
-        when_he = f"{he_short_date(next_p.date())} בשעה {next_p.strftime('%H:%M')}"
+        when_he = f"{he_short_date(next_p.date())} at {next_p.strftime('%H:%M')}"
         # Convert local image path to public URL
         poster = r["poster_url"] or ""
         if poster.startswith("images/"):
@@ -150,12 +150,12 @@ def fetch_new_shows(today: date) -> list[dict]:
 def fetch_tv_recommendation() -> dict | None:
     """Ask the local `claude` CLI for a fresh TV/streaming recommendation."""
     prompt = (
-        "ענה רק עם JSON אחד נקי, ללא טקסט נוסף לפני או אחרי. "
-        "המלץ על סדרת טלוויזיה אחת שיצאה ב-2024 או 2025 ומתאימה לקהל בוגר אינטליגנטי "
-        "ישראלי בן 70 שאוהב דרמה איכותית, מתח, ביוגרפיות, או היסטוריה. "
-        "סדרה צריכה להיות זמינה בישראל (Netflix, Apple TV+, Disney+, Max, yes, HOT). "
-        "פורמט: {\"title\":\"...\",\"platform\":\"...\",\"year\":\"...\",\"genre\":\"...\","
-        "\"blurb\":\"שני משפטים בעברית למה זה מומלץ\"}"
+        "Respond with a single clean JSON object only, with no extra text before or after. "
+        "Recommend one TV series released in 2024 or 2025 that suits an intelligent, mature "
+        "70-year-old Israeli viewer who enjoys quality drama, thrillers, biographies, or history. "
+        "The series must be available in Israel (Netflix, Apple TV+, Disney+, Max, yes, HOT). "
+        "Format: {\"title\":\"...\",\"platform\":\"...\",\"year\":\"...\",\"genre\":\"...\","
+        "\"blurb\":\"two sentences on why it's recommended\"}"
     )
     try:
         result = subprocess.run(
@@ -207,7 +207,7 @@ def build_feature(today: date) -> dict | None:
     if tv:
         return {
             "icon": "📺",
-            "kind_label": "המלצה לסדרה",
+            "kind_label": "Series recommendation",
             "title": tv["title"],
             "subtitle": f"{tv.get('platform', '')} · {tv.get('year', '')} · {tv.get('genre', '')}".strip(" ·"),
             "body": tv.get("blurb", ""),
@@ -219,7 +219,7 @@ def build_feature(today: date) -> dict | None:
         years_ago = today.year - today_event.get("year", today.year)
         return {
             "icon": "📅",
-            "kind_label": f"היום לפני {years_ago} שנים",
+            "kind_label": f"On this day {years_ago} years ago",
             "title": None,
             "subtitle": None,
             "body": today_event["text"],
@@ -230,11 +230,11 @@ def build_feature(today: date) -> dict | None:
     if fact:
         # Support both old (string) and new (dict) format
         if isinstance(fact, str):
-            return {"icon": "💡", "kind_label": "הידעת?", "title": None, "subtitle": None,
+            return {"icon": "💡", "kind_label": "Did you know?", "title": None, "subtitle": None,
                     "body": fact, "link": None, "link_label": None}
         return {
             "icon": "💡",
-            "kind_label": "הידעת?",
+            "kind_label": "Did you know?",
             "title": None,
             "subtitle": None,
             "body": fact.get("text", ""),
@@ -250,22 +250,22 @@ def build_feature(today: date) -> dict | None:
 # Claude generates a specific item in the chosen category. Better than a
 # generic "say something fun" prompt that produces bland quips.
 FUN_CATEGORIES = [
-    ("🌍", "סיפור חדשותי מוזר אבל אמיתי",
-     "סיפר חדשותי אמיתי שקרה לאחרונה (או בכל זמן) — מוזר, אבסורדי, או מצחיק. למשל: 'שגריר נורבגי בעלמא נתפס מנסה להחזיר לדואר חבילה של 17 קילו של פירות מיובשים שאף אחד לא הזמין'. תן סיפור אחד בלבד, 2-3 משפטים."),
-    ("🦒", "עובדה מוזרה אבל אמיתית על חיה",
-     "עובדה מוזרה ולא ידועה על חיה כלשהי. למשל: 'הצב הענק של גלפגוס יכול לחיות יותר מ-150 שנה — הוא לא מזדקן בקצב נורמלי, ובאמצעות מחקר מצאו שהדרך שלו לחלוקת תאים שונה מבני אדם'. תן עובדה אחת, 2-3 משפטים, מפתיעה."),
-    ("📚", "אטימולוגיה מפתיעה של מילה בעברית",
-     "סיפור על מקור מפתיע של מילה בעברית. למשל: 'המילה ׳אבן׳ נשארה כמעט ללא שינוי מאז שפת העברית של ימי הבית הראשון לפני 3000 שנה — אחת מהמילים העתיקות ביותר ששרדו בשפה חיה'. תן עובדה אחת, מפתיעה, 2-3 משפטים."),
-    ("🧠", "עובדה מצחיקה על המוח האנושי",
-     "עובדה מוזרה על איך המוח שלנו עובד. למשל: 'המוח שלך לא יכול להבדיל בין כאב פיזי לכאב חברתי — אותם אזורים בדיוק נדלקים. אז כשמישהו שובר לך את הלב, זה באמת כואב לך באותה דרך כמו שכואב לישבן'. תן עובדה אחת, 2-3 משפטים."),
-    ("🌐", "עובדה מוזרה על גיאוגרפיה",
-     "עובדה גיאוגרפית מוזרה ומפתיעה. למשל: 'יש כפר בנורבגיה בו השמש לא זורחת כלל ב-5 חודשים בשנה — אז בנו תחנה רובוטית של ראיות שמשליכה אור קרני שמש מלאכותיות לשטח הכפר'. עובדה אחת, מפתיעה, 2-3 משפטים."),
-    ("🔬", "המצאה מוזרה או היסטוריה של המצאה",
-     "סיפור על המצאה מוזרה או היסטוריה לא ידועה של המצאה רגילה. למשל: 'התליפון נמצא במקור על ידי המוצא שלא בטוח. אנטוניו מוצ'י המציא טלפון 16 שנה לפני בל, אבל לא היה לו כסף לחדש את הפטנט. בל קיבל את הקרדיט'. עובדה אחת, מפתיעה, 2-3 משפטים."),
-    ("🇮🇱", "סיפור מוזר מההיסטוריה הישראלית",
-     "אנקדוטה מוזרה אבל אמיתית מההיסטוריה של ישראל. למשל: 'בכפר ירוק (1948) צה\"ל גילה שבמאפייה גרמנית באזור היה תנור גדול מספיק לאפיית 800 כיכרות לחם. במקום להרוס אותו — הם השאירו אותו ועד היום הוא מאפה ללחם בית ספר'. סיפור אחד, מוזר, 2-3 משפטים."),
-    ("🎨", "סיפור מצחיק על אמן/יצירה מפורסמת",
-     "אנקדוטה מצחיקה או מוזרה על יצירת אמנות מפורסמת או על אמן. למשל: 'ואן גוך מכר רק תמונה אחת בחייו — והיה אחיו של הקונה. הוא ידע על זה רק 6 חודשים אחרי שעמדה לפי שנמכרה'. אנקדוטה אחת, 2-3 משפטים."),
+    ("🌍", "A strange but true news story",
+     "A real news story that happened recently (or at any time) — strange, absurd, or funny. For example: 'A Norwegian ambassador was caught trying to return to the post office a 17-kilogram parcel of dried fruit that nobody had ordered.' Give just one story, 2-3 sentences."),
+    ("🦒", "A strange but true animal fact",
+     "A strange, little-known fact about some animal. For example: 'The Galapagos giant tortoise can live for more than 150 years — it doesn't age at a normal rate, and research has found that the way it divides its cells differs from humans.' Give one fact, 2-3 sentences, surprising."),
+    ("📚", "A surprising etymology of a Hebrew word",
+     "A story about the surprising origin of a Hebrew word. For example: 'The word 'even' (stone) has remained almost unchanged since the Hebrew of the First Temple period 3,000 years ago — one of the oldest words to survive in a living language.' Give one fact, surprising, 2-3 sentences."),
+    ("🧠", "A funny fact about the human brain",
+     "A strange fact about how our brain works. For example: 'Your brain can't tell the difference between physical pain and social pain — the very same regions light up. So when someone breaks your heart, it really does hurt you the same way a physical injury does.' Give one fact, 2-3 sentences."),
+    ("🌐", "A strange geography fact",
+     "A strange and surprising geographical fact. For example: 'There's a village in Norway where the sun doesn't rise at all for 5 months of the year — so they built a system of robotic mirrors that cast artificial sunlight over the village.' One fact, surprising, 2-3 sentences."),
+    ("🔬", "A strange invention, or the history of an invention",
+     "A story about a strange invention or the little-known history of an ordinary invention. For example: 'The telephone's true inventor is uncertain. Antonio Meucci invented a telephone 16 years before Bell, but couldn't afford to renew the patent. Bell got the credit.' One fact, surprising, 2-3 sentences."),
+    ("🇮🇱", "A strange story from Israeli history",
+     "A strange but true anecdote from the history of Israel. For example: 'At Kfar Yarok (1948) the IDF discovered that a German bakery in the area had an oven big enough to bake 800 loaves of bread. Instead of demolishing it, they kept it, and to this day it bakes bread for a school.' One story, strange, 2-3 sentences."),
+    ("🎨", "A funny story about a famous artist/artwork",
+     "A funny or strange anecdote about a famous artwork or artist. For example: 'Van Gogh sold only one painting in his lifetime, and the buyer was his brother. He only learned of it 6 months after it had supposedly been sold.' One anecdote, 2-3 sentences."),
 ]
 
 
@@ -276,7 +276,7 @@ def fetch_fun_quip() -> tuple[str, str] | None:
     """
     emoji, label, prompt_template = random.choice(FUN_CATEGORIES)
     prompt = (
-        f"ענה רק עם הטקסט עצמו, ללא הקדמות, ללא הסברים, ללא ציטוטים. "
+        f"Respond with the text itself only, no preamble, no explanations, no quotation marks. "
         f"{prompt_template}"
     )
     try:
@@ -286,7 +286,7 @@ def fetch_fun_quip() -> tuple[str, str] | None:
         )
         if result.returncode != 0:
             return None
-        text = result.stdout.strip().strip("\"'״׳ \n")
+        text = result.stdout.strip().strip("\"' \n")
         if not text:
             return None
         if len(text) > 400:
@@ -328,7 +328,7 @@ def render_email_html(today: date, shows: list[dict], total_count: int) -> tuple
     template = env.get_template("email_digest.html")
 
     n = total_count
-    subject = f"🎭 {n} {'הופעה חדשה' if n == 1 else 'הופעות חדשות'} היום"
+    subject = f"🎭 {n} {'new show' if n == 1 else 'new shows'} today"
 
     grand_total = fetch_total_active_count(today)
 

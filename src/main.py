@@ -137,8 +137,8 @@ def main(argv: list[str] | None = None) -> int:
     out_path = cfg.get("output", {}).get("html_path", "output/digest.html")
     fresh_days = cfg.get("freshness", {}).get("fresh_days", 7)
     warm_days = cfg.get("freshness", {}).get("warm_days", 21)
-    home_address = cfg.get("recipient", {}).get("home_address") or cfg.get("recipient", {}).get("home_city", "תל אביב")
-    home_origin = cfg.get("recipient", {}).get("home_city", "תל אביב")
+    home_address = cfg.get("recipient", {}).get("home_address") or cfg.get("recipient", {}).get("home_city", "Tel Aviv")
+    home_origin = cfg.get("recipient", {}).get("home_city", "Tel Aviv")
 
     # Compute drive distance/time per source (geocoded once, then cached forever)
     venue_queries = {s["id"]: s.get("geocode_query") or f"{s.get('name')}, {s.get('city', '')}" for s in enabled_sources}

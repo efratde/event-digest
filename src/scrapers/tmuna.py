@@ -1,6 +1,6 @@
 """
-Scraper for Tmuna Theater (תיאטרון תמונע) — independent fringe theater in Tel
-Aviv (Soncino 8).
+Scraper for Tmuna Theatre — an independent fringe theatre in Tel Aviv
+(Soncino 8).
 
 Site root:    https://www.tmu-na.org.il/
 Schedule:     https://www.tmu-na.org.il/?pg=show
@@ -16,14 +16,16 @@ Each show detail page contains:
   - h1                                 → title
   - .Show-Tabs-Content-Inner           → multi-paragraph description, with
                                          credits at the end (label-prefixed
-                                         lines like "בימוי:", "שחקנים:")
-  - <b>מופעים קרובים</b> + <table>     → all upcoming dates for that show
+                                         lines like "Directing:", "Actors:")
+  - <b>Upcoming Performances</b> + <table> → all upcoming dates for that show
                                          (not just those visible on the front
                                          schedule's window)
   - <meta property="og:image">         → poster
 
 There is no JSON-LD on the show pages, so `tickets_opened_on` is left None.
 """
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 from __future__ import annotations
 
@@ -45,38 +47,38 @@ SCHEDULE_URL = "https://www.tmu-na.org.il/?pg=show"
 DATE_RE = re.compile(r"(\d{1,2})/(\d{1,2})/(\d{4})")
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 
-# Hebrew credit labels — used both to detect where credits start in the
+# Credit labels — used both to detect where credits start in the
 # description block, and to extract individual fields (director, performers).
-# Sorted longest-first so that "עיצוב במה" matches before "עיצוב".
+# Sorted longest-first so that "Stage Design" matches before "Design".
 CREDIT_LABELS = sorted([
-    "מחזה",
-    "מאת",
-    "בימוי",
-    "במאי",
-    "דרמטורגיה",
-    "כוריאוגרפיה",
-    "תרגום",
-    "עיצוב במה",
-    "עיצוב תאורה",
-    "עיצוב",
-    "תפאורה",
-    "תלבושות",
-    "תאורה",
-    "מוסיקה",
-    "מוזיקה",
-    "ייעוץ מוסיקלי",
-    "הפקה",
-    "שחקנים",
-    "משתתפים",
-    "מבצעים",
-    "בכיכובם",
-    "בכיכוב",
+    "Play",
+    "By",
+    "Directing",
+    "Director",
+    "Dramaturgy",
+    "Choreography",
+    "Translation",
+    "Stage Design",
+    "Lighting Design",
+    "Design",
+    "Set",
+    "Costumes",
+    "Lighting",
+    "Music",
+    "Musical Score",
+    "Musical Consulting",
+    "Production",
+    "Actors",
+    "Featuring",
+    "Performers",
+    "Starring",
+    "Starred by",
 ], key=len, reverse=True)
 
 _LABEL_OR = "|".join(re.escape(l) for l in CREDIT_LABELS)
 # Match a label, optionally followed by 1-3 connector words (e.g.
-# "בימוי ודרמטורגיה" or "עיצוב במה ותלבושות"), then a colon.
-_LABEL_TAIL = r"(?:\s+ו?[א-ת]+){0,3}\s*[:：]"
+# "Directing and Dramaturgy" or "Stage Design and Costumes"), then a colon.
+_LABEL_TAIL = r"(?:\s+[A-Za-z]+){0,3}\s*[:：]"
 # Generic "any credit label + colon" — used as a stop pattern in field lookups
 # and to find where the credits block begins inside a description.
 ANY_LABEL_COLON_RE = re.compile(rf"\b(?:{_LABEL_OR}){_LABEL_TAIL}")
@@ -84,9 +86,9 @@ ANY_LABEL_COLON_RE = re.compile(rf"\b(?:{_LABEL_OR}){_LABEL_TAIL}")
 
 class TmunaScraper(Scraper):
     source_id = "tmuna"
-    source_name = "תיאטרון תמונע"
-    venue = "תיאטרון תמונע"
-    city = "תל אביב"
+    source_name = "Tmuna Theatre"
+    venue = "Tmuna Theatre"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         listing = self.get(SCHEDULE_URL)
@@ -101,7 +103,7 @@ class TmunaScraper(Scraper):
         self.log.info("Tmuna schedule: %d performance rows", len(rows))
 
         # Group performances by show URL.
-        # Track listing-side genre per URL too (from the "קטגוריה" column).
+        # Track listing-side genre per URL too (from the "Category" column).
         grouped: dict[str, dict] = {}
         current_date: tuple[int, int, int] | None = None  # (y, m, d)
 
@@ -188,7 +190,7 @@ class TmunaScraper(Scraper):
         description, credits_text = self._extract_description_and_credits(soup)
 
         performers = self._extract_performers(credits_text)
-        director = self._extract_field(credits_text, ["בימוי", "במאי"])
+        director = self._extract_field(credits_text, ["Directing", "Director"])
 
         duration_minutes = self._extract_duration(soup)
 
@@ -198,9 +200,9 @@ class TmunaScraper(Scraper):
         if og and og.get("content"):
             poster_url = og["content"].strip()
 
-        # Performances — prefer the detail page's "מופעים קרובים" table when
-        # present (it includes dates beyond the front-schedule window). Fall
-        # back to the listing-side dates otherwise.
+        # Performances — prefer the detail page's "Upcoming Performances" table
+        # when present (it includes dates beyond the front-schedule window).
+        # Fall back to the listing-side dates otherwise.
         detail_performances = self._extract_detail_performances(soup)
         if detail_performances:
             performances = sorted(set(detail_performances) | set(listing_performances))
@@ -222,7 +224,7 @@ class TmunaScraper(Scraper):
             performers=performers,
             director=director,
             duration_minutes=duration_minutes,
-            genre=listing_genre or "תיאטרון",
+            genre=listing_genre or "Theatre",
             poster_url=poster_url,
         )
 
@@ -237,8 +239,8 @@ class TmunaScraper(Scraper):
 
     @staticmethod
     def _extract_detail_performances(soup) -> list[datetime]:
-        """Pull dates out of the "מופעים קרובים" table on a show page."""
-        b = soup.find("b", string=re.compile(r"מופעים\s+קרובים"))
+        """Pull dates out of the "Upcoming Performances" table on a show page."""
+        b = soup.find("b", string=re.compile(r"Upcoming\s+Performances"))
         if not b:
             return []
         table = b.find_next("table")
@@ -267,7 +269,7 @@ class TmunaScraper(Scraper):
 
         The Show-Tabs-Content-Inner block mixes prose (description, sometimes a
         review quote) with credit lines that look like
-        "מחזה: ... // בימוי: ... // שחקנים: ...".
+        "Play: ... // Directing: ... // Actors: ...".
         We flatten to a single line, then split at the first credit-label.
         """
         inner = soup.select_one(".Show-Tabs-Content-Inner")
@@ -291,11 +293,11 @@ class TmunaScraper(Scraper):
 
     @staticmethod
     def _extract_field(credits_text: str, labels: list[str]) -> str:
-        """Find a labeled value (e.g. "בימוי: ...") inside flat credits text.
+        """Find a labeled value (e.g. "Directing: ...") inside flat credits text.
 
-        Labels may carry connector words ("בימוי ודרמטורגיה:") and values run
-        until the next "//" delimiter, the next labeled field, or the end of
-        the string.
+        Labels may carry connector words ("Directing and Dramaturgy:") and
+        values run until the next "//" delimiter, the next labeled field, or the
+        end of the string.
         """
         if not credits_text:
             return ""
@@ -314,10 +316,10 @@ class TmunaScraper(Scraper):
 
     @classmethod
     def _extract_performers(cls, credits_text: str) -> list[str]:
-        for label in ["שחקנים", "משתתפים", "מבצעים", "בכיכובם", "בכיכוב"]:
+        for label in ["Actors", "Featuring", "Performers", "Starring", "Starred by"]:
             raw = cls._extract_field(credits_text, [label])
             if raw:
-                parts = re.split(r"[,•·]|\s+ו(?=\S)", raw)
+                parts = re.split(r"[,•·]|\s+and\s+", raw)
                 parts = [p.strip(" .") for p in parts if p.strip()]
                 if parts:
                     return parts[:8]
@@ -327,22 +329,22 @@ class TmunaScraper(Scraper):
     def _extract_duration(soup) -> int | None:
         text = soup.get_text(" ", strip=True)
         m = re.search(
-            r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק",
+            r"(?:running time|duration)\s+(?:of\s+)?(?:the\s+)?(?:show|play|performance)\s*[:：]?\s*(?:approx\.?\s*|about\s+)?(\d{2,3})\s*min",
             text,
         )
         if m:
             return int(m.group(1))
         m = re.search(
-            r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*(?:כ-?\s*)?(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?",
+            r"(?:running time|duration)\s+(?:of\s+)?(?:the\s+)?(?:show|play|performance)\s*[:：]?\s*(?:approx\.?\s*|about\s+)?(\d)\s*hours?\s*(?:and\s*(\d{1,2})\s*min)?",
             text,
         )
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0
             return hours * 60 + mins
-        # "כשעה" / "כשעה וחצי"
-        if re.search(r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*כשעה\s+וחצי", text):
+        # "about an hour" / "about an hour and a half"
+        if re.search(r"(?:running time|duration)\s+(?:of\s+)?(?:the\s+)?(?:show|play|performance)\s*[:：]?\s*(?:about|approx\.?)\s+an?\s+hour\s+and\s+a\s+half", text):
             return 90
-        if re.search(r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*כשעה", text):
+        if re.search(r"(?:running time|duration)\s+(?:of\s+)?(?:the\s+)?(?:show|play|performance)\s*[:：]?\s*(?:about|approx\.?)\s+an?\s+hour", text):
             return 60
         return None

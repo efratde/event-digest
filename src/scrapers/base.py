@@ -19,7 +19,7 @@ class Scraper(ABC):
     """Base class for site scrapers."""
 
     source_id: str = ""        # short id, e.g. "habima"
-    source_name: str = ""      # display name, e.g. "תיאטרון הבימה"
+    source_name: str = ""      # display name, e.g. "Habima Theatre"
 
     def __init__(self, timeout: float = 30.0):
         self.log = logging.getLogger(f"scraper.{self.source_id}")

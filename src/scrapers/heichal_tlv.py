@@ -1,5 +1,5 @@
 """
-Scraper for Heichal Hatarbut Tel Aviv (היכל התרבות תל אביב — Charles Bronfman
+Scraper for Tel Aviv Culture Palace (Heichal Hatarbut Tel Aviv — Charles Bronfman
 Auditorium / "Mann Auditorium"). The venue hosts the Israel Philharmonic but
 also a heavy rotation of pop/rock/Israeli music, musicals, and tribute shows.
 
@@ -17,16 +17,16 @@ events render on a single page (no pagination at the time of writing) — about
 
 Detail pages are Elementor templates. Useful selectors / cues:
   - h1.elementor-heading-title             → title
-  - span.event-date-occurrence             → "DD.MM.YY | יום X" (for the
+  - span.event-date-occurrence             → "DD.MM.YY | Day X" (for the
                                              specific occurrence the URL hits)
   - <meta property="og:description">       → starts with
-        "תאריך:  אולם: <hall> תחילת המופע: HH:MM ..."
+        "Date:  Hall: <hall> Show start: HH:MM ..."
         — the most reliable place to get start time, hall, and a short blurb.
   - .elementor-widget-text-editor          → free-form description widgets
                                              (also lots of boilerplate ones)
   - JSON-LD @graph                         → datePublished (≈ tickets-opened)
 
-Time strategy: parse the og:description for "תחילת המופע: HH:MM" — that field
+Time strategy: parse the og:description for "Show start: HH:MM" — that field
 exists on every event we sampled. Fall back to scanning small headings for
 HH:MM if the meta tag is missing.
 
@@ -55,44 +55,46 @@ from ..models import Show
 from .base import Scraper
 
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
+
 LISTING_URL = "https://www.hatarbut.co.il/events/"
 BASE = "https://www.hatarbut.co.il"
 
 # DD.MM.YY (2-digit year, sometimes appears as DD.MM.YYYY in older posts)
 DATE_RE = re.compile(r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})")
-# Time of show, taken from the og:description "תחילת המופע: HH:MM"
-START_TIME_RE = re.compile(r"תחילת\s+המופע\s*[:：]?\s*(\d{1,2}):(\d{2})")
-# Hall name, taken from the og:description "אולם: <name>"
-HALL_RE = re.compile(r"אולם\s*[:：]?\s*([^\s][^\n]{0,40}?)\s+תחילת")
+# Time of show, taken from the og:description "Show start: HH:MM"
+START_TIME_RE = re.compile(r"Show\s+start\s*[:：]?\s*(\d{1,2}):(\d{2})")
+# Hall name, taken from the og:description "Hall: <name>"
+HALL_RE = re.compile(r"Hall\s*[:：]?\s*([^\s][^\n]{0,40}?)\s+Show")
 
-# Classical / opera / ballet exclusion keywords (Hebrew). The user's father
-# has explicitly excluded these genres. We match on the show title.
+# Classical / opera / ballet exclusion keywords. The user's father has
+# explicitly excluded these genres. We match on the show title.
 CLASSICAL_PATTERNS = [
-    r"סימפונ",            # סימפונית, סימפוניה
-    r"פילהרמונ",          # הפילהרמונית הישראלית
-    r"אופרה",
-    r"בלט",
-    r"קלאסי",
-    r"קונצ['׳]?רט",       # קונצ'רט / קונצרט / קונצ'רטו
-    r"סונט",
-    r"קוורטט",
-    r"רביעי(י|)ה",        # רביעיית מיתרים, הרביעייה הירושלמית
-    r"חמישי(י|)ה",        # חמישייה
-    r"אנסמבל",            # most ensembles here are classical/chamber
-    r"תזמורת",            # תזמורת הבארוק / תזמורת המהפכה
-    r"בארוק",
-    r"קאמרי(?!ת)",        # "קאמרי" (chamber); avoid matching "בקאמרית" alone
-    r"ברנשטיין",
-    r"בטהובן|מוצרט|באך|שופן|ברהמס|מאהלר",
+    r"symphon",           # symphonic, symphony
+    r"philharmon",        # the Israel Philharmonic
+    r"opera",
+    r"ballet",
+    r"classic",           # classic / classical
+    r"concert",           # concert / concerto
+    r"sonat",             # sonata
+    r"quartet",
+    r"quartet",           # string quartet, the Jerusalem Quartet
+    r"quintet",           # quintet
+    r"ensemble",          # most ensembles here are classical/chamber
+    r"orchestra",         # the Baroque Orchestra / the Revolution Orchestra
+    r"baroque",
+    r"chamber",           # chamber (music); classical chamber ensembles
+    r"Bernstein",
+    r"Beethoven|Mozart|Bach|Chopin|Brahms|Mahler",
 ]
 CLASSICAL_RE = re.compile("|".join(CLASSICAL_PATTERNS))
 
 
 class HeichalTlvScraper(Scraper):
     source_id = "heichal_tlv"
-    source_name = "היכל התרבות תל אביב"
-    venue = "היכל התרבות תל אביב"
-    city = "תל אביב"
+    source_name = "Tel Aviv Culture Palace"
+    venue = "Tel Aviv Culture Palace"
+    city = "Tel Aviv"
 
     def fetch_shows(self) -> Iterable[Show]:
         listing = self.get(LISTING_URL)
@@ -165,7 +167,7 @@ class HeichalTlvScraper(Scraper):
 
         # og:description — single best source for start time, hall, and a
         # short blurb. Format always starts with:
-        #   "תאריך:  אולם: <hall> תחילת המופע: HH:MM <free-text...>"
+        #   "Date:  Hall: <hall> Show start: HH:MM <free-text...>"
         og_desc = ""
         og = soup.select_one('meta[property="og:description"]')
         if og:
@@ -207,9 +209,9 @@ class HeichalTlvScraper(Scraper):
 
         venue_name = self.venue
         if hall:
-            # Append the hall name (e.g. "צוקר", "לאוי") for context. Both
+            # Append the hall name (e.g. "Zucker", "Lavi") for context. Both
             # are inside the same building, so city stays the same.
-            venue_name = f"{self.venue} - אולם {hall}"
+            venue_name = f"{self.venue} - Hall {hall}"
 
         return Show(
             source=self.source_id,
@@ -223,7 +225,7 @@ class HeichalTlvScraper(Scraper):
             performers=[],
             director="",
             duration_minutes=self._extract_duration(og_desc + " " + soup.get_text(" ", strip=True)),
-            genre="מוזיקה",
+            genre="Music",
             poster_url=poster_url,
             tickets_opened_on=tickets_opened_on,
         )
@@ -257,7 +259,7 @@ class HeichalTlvScraper(Scraper):
             return ""
         m = HALL_RE.search(og_desc)
         if m:
-            return m.group(1).strip(" :־-")
+            return m.group(1).strip(" :-")
         return ""
 
     @staticmethod
@@ -309,26 +311,26 @@ class HeichalTlvScraper(Scraper):
     @staticmethod
     def _build_description(og_desc: str, soup) -> str:
         """Pull a short blurb. The og:description prefix is structured
-        boilerplate ('תאריך: אולם: <h> תחילת המופע: HH:MM לרכישת כרטיסים …')
+        boilerplate ('Date: Hall: <h> Show start: HH:MM To purchase tickets …')
         — we cut it off and take whatever real prose follows."""
         if og_desc:
             # Trim everything up to the first sentence that looks like prose,
-            # i.e. drop the structured prefix that always begins with "תאריך:".
+            # i.e. drop the structured prefix that always begins with "Date:".
             cleaned = re.sub(
-                r"^.*?(?:תחילת\s+המופע\s*[:：]?\s*\d{1,2}:\d{2}\s*)",
+                r"^.*?(?:Show\s+start\s*[:：]?\s*\d{1,2}:\d{2}\s*)",
                 "",
                 og_desc,
                 count=1,
             )
             # Drop common ticketing/membership boilerplate phrases.
             for boilerplate in [
-                r"לרכישת כרטיסים",
-                r"חברי ההיכל נהנים יותר",
-                r"הצטרפו לקבוצה השקטה ותהנו!?",
-                r"פתיחת דלתות שעה לפני תחילת המופע",
-                r"נא הקדימו הגעתכם/?ן.{0,80}",
-                r"כרטיסים שנרכשו לתאריך .{0,30} הינם בתוקף למועד זה",
-                r"שימו לב!?",
+                r"To purchase tickets",
+                r"Auditorium members enjoy more",
+                r"Join the quiet group and enjoy!?",
+                r"Doors open one hour before the show",
+                r"Please arrive early.{0,80}",
+                r"Tickets purchased for the date .{0,30} are valid for this date",
+                r"Please note!?",
             ]:
                 cleaned = re.sub(boilerplate, " ", cleaned)
             cleaned = re.sub(r"\s+", " ", cleaned).strip(" .,-")
@@ -345,12 +347,12 @@ class HeichalTlvScraper(Scraper):
             if any(
                 bad in low
                 for bad in (
-                    "חברי ההיכל",
-                    "מדיניות הפרטיות",
-                    "פיקוד העורף",
+                    "Auditorium members",
+                    "Privacy policy",
+                    "Home Front Command",
                     "Cookies",
-                    "עוגיות",
-                    "פתיחת דלתות",
+                    "cookies",
+                    "Doors open",
                 )
             ):
                 continue
@@ -364,10 +366,10 @@ class HeichalTlvScraper(Scraper):
     def _extract_duration(text: str) -> int | None:
         if not text:
             return None
-        m = re.search(r"משך\s+ה?מופע\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text)
+        m = re.search(r"Show\s+duration\s*[:：]?\s*(?:approx\.?\s*)?(\d{2,3})\s*min", text)
         if m:
             return int(m.group(1))
-        m = re.search(r"(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        m = re.search(r"(\d)\s*hours?\s*(?:(?:and\s*)?(\d{1,2})\s*min)?", text)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0

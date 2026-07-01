@@ -41,14 +41,14 @@ wrangler pages deploy output/ \\
 
 ### 4. Send Gmail to dad-tickets@example.com
 Use the Gmail send_message tool (NOT a draft):
-  Subject: 🎭 הופעות לאבא — <today's Hebrew date, e.g. "יום שני, 4 במאי 2026">
+  Subject: 🎭 Shows for Dad — <today's date, e.g. "Monday, May 4, 2026">
   Body (HTML):
-    <div dir="rtl" style="font-family: Heebo, Arial, sans-serif; font-size: 15px; line-height: 1.5">
-      <p>הדייג'סט היומי מוכן 🎭</p>
-      <p><a href="https://dad-tickets.pages.dev/" style="color:#c4392f;font-weight:600">לחץ כאן לפתיחת הדף</a></p>
+    <div dir="ltr" style="font-family: Heebo, Arial, sans-serif; font-size: 15px; line-height: 1.5">
+      <p>The daily digest is ready 🎭</p>
+      <p><a href="https://dad-tickets.pages.dev/" style="color:#c4392f;font-weight:600">Click here to open the page</a></p>
       <p style="color:#888;font-size:13px;margin-top:24px">
-        רץ אוטומטית פעמיים ביום (07:00 ו-16:00 ישראל).<br>
-        ההעדפות (פינים, הסתרות, אהובים) נשמרות בדפדפן.
+        Runs automatically twice a day (07:00 and 16:00 Israel time).<br>
+        Preferences (pins, hidden items, favorites) are saved in the browser.
       </p>
     </div>
 
@@ -60,20 +60,20 @@ EOF
 echo "$PROMPT" | pbcopy
 
 cat <<MSG
-✅ הפרומפט המלא הועתק ללוח (Cmd+V להדבקה).
-   צריך למלא בתוכו את ה-Account ID וה-API token של Cloudflare (placeholders).
+✅ The full prompt has been copied to the clipboard (Cmd+V to paste).
+   You need to fill in your Cloudflare Account ID and API token (placeholders).
 
-עכשיו צריך רק לעשות שני דברים:
+Now you just need to do two things:
 
-1. צרי Cloudflare API token (30 שניות):
+1. Create a Cloudflare API token (30 seconds):
    • https://dash.cloudflare.com/profile/api-tokens
    • Create Token → "Edit Cloudflare Workers" template → Use template
-   • Continue to summary → Create Token → העתיקי
+   • Continue to summary → Create Token → copy it
 
-2. ב-https://claude.ai/code/routines:
-   • פתחי את הרוטין → הדביקי את התוכן מהלוח (Cmd+V) במקום הקיים
-   • החליפי <<CF_TOKEN>> בטוקן שיצרת
+2. At https://claude.ai/code/routines:
+   • Open the routine → paste the content from the clipboard (Cmd+V) over the existing text
+   • Replace <<CF_TOKEN>> with the token you created
    • Save → Run now
 
-זהו. כל השאר אוטומטי.
+That's it. Everything else is automatic.
 MSG

@@ -1,26 +1,23 @@
-# Personal taste preferences for Dad — populate manually for now.
+# Personal taste preferences — illustrative PUBLIC demo values.
 # Shows that match get a ❤ badge in the digest.
-# In v2 we'll add a feedback UI (likes/dislikes from clicking).
 
-loved_performers: []
-  # - גילה אלמגור
-  # - חנן יובל
+loved_performers:
+  - Gila Almagor
+  - Sasson Gabai
 
-loved_directors: []
-  # - חנן שניר
+loved_directors:
+  - Hanan Snir
 
-loved_artists: []      # for music acts
-  # - שלמה ארצי
-  # - ריטה
+loved_artists:      # for music acts
+  - Shlomo Artzi
+  - Rita
 
-loved_genres: []
-  # - מוזיקה ישראלית
-  # - תיאטרון
+loved_genres:
+  - Theater
+  - Jazz
 
-# Things to flag as DISLIKED (will hide them or push to bottom)
+# Things to flag as DISLIKED (hidden or pushed to bottom)
 disliked_performers: []
 disliked_artists: []
-disliked_genres: []
-  # - אופרה
-  # - בלט
-  # - מוזיקה קלאסית
+disliked_genres:
+  - Opera        # demo: exercises the hard-hide path (no demo show uses it)

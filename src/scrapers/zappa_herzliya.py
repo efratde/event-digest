@@ -1,5 +1,5 @@
 """
-Scraper for Zappa Club Herzliya (זאפה הרצליה).
+Scraper for Zappa Club Herzliya.
 
 Sister venue to Zappa Tel Aviv on the same Eventim-backed zappa-club.co.il
 listing site. The HTML structure is identical to ``zappa_tlv.py`` — one
@@ -7,7 +7,7 @@ listing site. The HTML structure is identical to ``zappa_tlv.py`` — one
 datetime, ``data-event-id`` for the stable id, ``/event/<slug>`` for the URL.
 
 Listing page (paginated via ?pnum=N):
-  https://www.zappa-club.co.il/city/הרצליה-314/venue/זאפה-הרצליה-25735/
+  https://www.zappa-club.co.il/city/herzliya-314/venue/zappa-herzliya-25735/
 
 Akamai blocks /event/<slug>/ detail pages with 403 for non-browser
 fingerprints, so — like the Zappa TLV scraper — we extract everything from
@@ -16,6 +16,7 @@ them. Multi-night runs of the same artist are collapsed into a single
 ``Show`` with multiple performance datetimes.
 """
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 from __future__ import annotations
 
 import re
@@ -33,7 +34,7 @@ from .base import Scraper
 BASE = "https://www.zappa-club.co.il"
 LISTING_URL = (
     "https://www.zappa-club.co.il/"
-    "city/הרצליה-314/venue/זאפה-הרצליה-25735/"
+    "city/herzliya-314/venue/zappa-herzliya-25735/"
 )
 MAX_PAGES = 10  # safety cap
 
@@ -60,9 +61,9 @@ BROWSER_HEADERS = {
 
 class ZappaHerzliyaScraper(Scraper):
     source_id = "zappa_herzliya"
-    source_name = "זאפה הרצליה"
-    venue = "זאפה הרצליה"
-    city = "הרצליה"
+    source_name = "Zappa Herzliya"
+    venue = "Zappa Herzliya"
+    city = "Herzliya"
 
     def __init__(self, timeout: float = 30.0):
         super().__init__(timeout=timeout)
@@ -213,7 +214,7 @@ class ZappaHerzliyaScraper(Scraper):
             performers=[],
             director="",
             duration_minutes=None,
-            genre="מוזיקה",
+            genre="Music",
             poster_url=(data.get("posters") or [""])[0],
         )
 
@@ -239,14 +240,14 @@ class ZappaHerzliyaScraper(Scraper):
     def _title_key(title: str) -> str:
         """Normalise title for grouping multi-night residencies."""
         t = re.sub(r"\s+", " ", title).strip()
-        t = re.sub(r"[\"'״׳`]", "", t)
+        t = re.sub(r"[\"'`]", "", t)
         return t.lower()
 
     @staticmethod
     def _is_herzliya(href: str) -> bool:
         from urllib.parse import unquote
         decoded = unquote(href).lower()
-        markers = ["זאפה-הרצליה", "הרצליה", "herzliya", "hertzliya"]
+        markers = ["zappa-herzliya", "herzliya", "hertzliya"]
         return any(m in decoded for m in markers)
 
     @staticmethod

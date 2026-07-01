@@ -1,12 +1,12 @@
 """
-Scraper for Caesarea Amphitheater (אמפי קיסריה) — major outdoor summer venue.
+Scraper for Caesarea Amphitheater — major outdoor summer venue.
 
-The venue's owner (החברה לפיתוח קיסריה, caesarea.com) does NOT publish an
-upcoming-shows feed of its own; its "אמפי קיסריה – הופעות ומוסיקה" page just
-links out to the Zappa/Eventim ticketing site, which acts as the de-facto
-official listing:
+The venue's owner (Caesarea Development Corporation, caesarea.com) does NOT
+publish an upcoming-shows feed of its own; its "Caesarea Amphi – Concerts and
+Music" page just links out to the Zappa/Eventim ticketing site, which acts as
+the de-facto official listing:
 
-  https://www.zappa-club.co.il/city/<קיסריה-1573>/venue/<אמפיתיאטרון-קיסריה-21941>/
+  https://www.zappa-club.co.il/city/<caesarea-1573>/venue/<caesarea-amphitheater-21941>/
 
 This is the same Zappa/Eventim platform that powers `zappa_tlv`, so we reuse
 the same scraping pattern (article.listing-item cards with embedded
@@ -17,7 +17,7 @@ fingerprint gets RST'd on this host.
 Notes:
 - The venue is summer-only — most of the year the listing is sparse (single
   digits of cards) and that's expected, not a bug.
-- Many concerts run as multi-night residencies (e.g. הכבש הששה עשר for two
+- Many concerts run as multi-night residencies (e.g. HaKeves HaShisha Asar for two
   consecutive nights). We collapse these by canonical title so they appear as
   one Show with multiple performance datetimes — the Zappa pattern.
 - Detail pages on Eventim are 403-blocked by Akamai even for a normal browser
@@ -26,6 +26,8 @@ Notes:
 """
 
 from __future__ import annotations
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 import re
 from datetime import datetime
@@ -40,7 +42,7 @@ from .base import Scraper
 
 
 BASE = "https://www.zappa-club.co.il"
-# city: קיסריה-1573 / venue: אמפיתיאטרון-קיסריה-21941 — URL-encoded so curl /
+# city: caesarea-1573 / venue: caesarea-amphitheater-21941 — URL-encoded so curl /
 # shell tools downstream don't choke on Hebrew bytes.
 LISTING_URL = (
     "https://www.zappa-club.co.il/"
@@ -74,9 +76,9 @@ BROWSER_HEADERS = {
 
 class CaesareaScraper(Scraper):
     source_id = "caesarea"
-    source_name = "אמפי קיסריה"
-    venue = "אמפי קיסריה"
-    city = "קיסריה"
+    source_name = "Caesarea Amphitheater"
+    venue = "Caesarea Amphitheater"
+    city = "Caesarea"
 
     def __init__(self, timeout: float = 30.0):
         super().__init__(timeout=timeout)
@@ -240,7 +242,7 @@ class CaesareaScraper(Scraper):
             performers=[],
             director="",
             duration_minutes=None,
-            genre="מוזיקה",
+            genre="Music",
             poster_url=(data.get("posters") or [""])[0],
         )
 
@@ -266,15 +268,15 @@ class CaesareaScraper(Scraper):
     def _title_key(title: str) -> str:
         """Normalise title for grouping multi-night residencies."""
         t = re.sub(r"\s+", " ", title).strip()
-        t = re.sub(r"[\"'״׳`]", "", t)
+        t = re.sub(r"[\"'`]", "", t)
         return t.lower()
 
     @staticmethod
     def _is_caesarea(href: str) -> bool:
-        """Crude venue filter — slug should mention the amphi/קיסריה."""
+        """Crude venue filter — slug should mention the amphi/Caesarea."""
         from urllib.parse import unquote
         decoded = unquote(href).lower()
-        markers = ["קיסריה", "אמפיתיאטרון-קיסריה", "caesarea", "amphi"]
+        markers = ["caesarea", "caesarea-amphitheater", "amphi"]
         return any(m in decoded for m in markers)
 
     @staticmethod

@@ -33,7 +33,7 @@ from .models import Show
 LOG = logging.getLogger("web_enrich")
 
 USER_AGENT = (
-    "DadTicketsDigest/0.1 (personal-use script; "
+    "EventDigest/0.1 (personal-use script; "
     "contact: dad-tickets@example.com) httpx"
 )
 
@@ -240,11 +240,11 @@ def _candidate_queries(show: Show) -> list[str]:
     if show.performers:
         add(show.performers[0])
     add(show.title)
-    # If Hebrew artist name has a generic suffix, try a disambiguated form.
-    # (Wikipedia frequently disambiguates singers as "X (זמר)".)
+    # If the artist name has a generic suffix, try a disambiguated form.
+    # (Wikipedia frequently disambiguates performers as "X (singer)".)
     if show.performers and show.performers[0]:
-        add(f"{show.performers[0]} (זמר)")
-        add(f"{show.performers[0]} (זמרת)")
+        add(f"{show.performers[0]} (singer)")
+        add(f"{show.performers[0]} (musician)")
     return seen
 
 

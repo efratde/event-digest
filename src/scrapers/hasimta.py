@@ -1,21 +1,23 @@
 """
-Scraper for HaSimta Theater — small intimate theater in old Jaffa.
+Scraper for HaSimta Theatre — small intimate theatre in old Jaffa.
 
-Listing page: https://hasimta.com/לוח-אירועים/
+Listing page: https://hasimta.com/events-calendar/ (the "events calendar" page)
 The site uses WordPress + Elementor + JetEngine; the calendar page renders one
 `.jet-listing-grid__item` per individual upcoming performance, each carrying:
   - data-post-id="4-{post_id}-{n}"  → individual occurrence (n is 0-indexed)
   - <a href=".../shows/{slug}/">    → link to the show detail page
-  - text "{Hebrew Month} {DD}, {YYYY} {HH}:{MM}"
+  - text "{Month} {DD}, {YYYY} {HH}:{MM}"
 
 We group performance rows by show URL, then enrich each unique show by fetching
 its detail page (description, credits, poster, og:updated_time as the
 "tickets opened" proxy since hasimta.com does not emit JSON-LD `datePublished`).
 
-Each show detail page contains the show body followed by a "הצגות נוספות"
-("more shows") sidebar that repeats credits for unrelated shows. We truncate the
-text at the first occurrence of that heading before mining credits.
+Each show detail page contains the show body followed by a "More shows"
+sidebar that repeats credits for unrelated shows. We truncate the text at the
+first occurrence of that heading before mining credits.
 """
+
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 from __future__ import annotations
 
@@ -33,23 +35,23 @@ from .base import Scraper
 LISTING_URL = "https://hasimta.com/%d7%9c%d7%95%d7%97-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d/"
 
 HEBREW_MONTHS = {
-    "ינואר": 1, "פברואר": 2, "מרץ": 3, "מארס": 3, "אפריל": 4,
-    "מאי": 5, "יוני": 6, "יולי": 7, "אוגוסט": 8,
-    "ספטמבר": 9, "אוקטובר": 10, "נובמבר": 11, "דצמבר": 12,
+    "January": 1, "February": 2, "March": 3, "April": 4,
+    "May": 5, "June": 6, "July": 7, "August": 8,
+    "September": 9, "October": 10, "November": 11, "December": 12,
 }
 DATE_RE = re.compile(
-    r"(ינואר|פברואר|מרץ|מארס|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר)"
+    r"(January|February|March|April|May|June|July|August|September|October|November|December)"
     r"\s+(\d{1,2}),\s+(\d{4})\s+(\d{1,2}):(\d{2})"
 )
 INDIV_PID_RE = re.compile(r"^4-\d+-\d+$")
-MORE_SHOWS_HEADING = "הצגות נוספות"
+MORE_SHOWS_HEADING = "More shows"
 
 
 class HasimtaScraper(Scraper):
     source_id = "hasimta"
-    source_name = "תיאטרון הסמטה"
-    venue = "תיאטרון הסמטה"
-    city = "יפו"
+    source_name = "HaSimta Theatre"
+    venue = "HaSimta Theatre"
+    city = "Jaffa"
 
     def fetch_shows(self) -> Iterable[Show]:
         listing = self.get(LISTING_URL)
@@ -105,12 +107,12 @@ class HasimtaScraper(Scraper):
         r = self.get(url)
         soup = BeautifulSoup(r.text, "lxml")
 
-        # Title — strip the suffix " - תאטרון הסימטה" added by the site
+        # Title — strip the suffix " - HaSimta Theatre" added by the site
         title = ""
         og_title = soup.find("meta", property="og:title")
         if og_title:
             title = (og_title.get("content") or "").strip()
-            title = re.sub(r"\s*-\s*תא?י?טרון הסימטה\s*$", "", title).strip()
+            title = re.sub(r"\s*-\s*HaSimta Theat(?:re|er)\s*$", "", title).strip()
         if not title:
             h1 = soup.select_one("h1")
             if h1:
@@ -118,7 +120,7 @@ class HasimtaScraper(Scraper):
         if not title:
             return None
 
-        # Walk widgets in DOM order until the "הצגות נוספות" marker — anything
+        # Walk widgets in DOM order until the "More shows" marker — anything
         # after that marker is a sidebar of unrelated shows.
         own_widgets = self._collect_own_widgets(soup)
 
@@ -130,7 +132,7 @@ class HasimtaScraper(Scraper):
         body_text = " ".join(
             own_widgets["text_paragraphs"] + own_widgets["grid_items"]
         )
-        director = self._extract_field(body_text, ["בימוי", "במאי", "כתיבה ובימוי"])
+        director = self._extract_field(body_text, ["Direction", "Director", "Writing and direction"])
         performers = self._extract_performers(body_text)
 
         # Duration
@@ -168,14 +170,14 @@ class HasimtaScraper(Scraper):
             performers=performers,
             director=director,
             duration_minutes=duration_minutes,
-            genre="תיאטרון",
+            genre="Theatre",
             poster_url=poster_url,
             tickets_opened_on=tickets_opened_on,
         )
 
     @staticmethod
     def _collect_own_widgets(soup) -> dict:
-        """Walk widgets in DOM order; stop at the 'הצגות נוספות' marker.
+        """Walk widgets in DOM order; stop at the 'More shows' marker.
 
         Returns a dict with:
           - `text_paragraphs`: paragraph strings from text-editor widgets only.
@@ -223,14 +225,14 @@ class HasimtaScraper(Scraper):
         # A paragraph that contains *any* credit label is treated as credits, since
         # show pages often pack several labels into one comma-separated paragraph.
         CREDIT_LABEL = re.compile(
-            r"(?<![\w֐-׿])(?:כתיבה|בימוי|מחזה|במאי|שחקנים|מבצעים|משתתפים|בכיכוב|"
-            r"מוסיקה|מוזיקה|תאורה|תפאורה|תלבושות|כוריאוגרפיה|תרגום|הפקה|צילום|"
-            r"עיצוב|דרמטורג|תודות|ע\.|מחזאי|ריקוד|וידאו|עריכה)"
+            r"(?<!\w)(?:Writing|Direction|Play|Director|Actors|Performers|Participants|Starring|"
+            r"Music|Lighting|Scenery|Costumes|Choreography|Translation|Production|Photography|"
+            r"Design|Dramaturg|Thanks|Playwright|Dance|Video|Editing)"
             r"\s*(?:\([^)]*\))?\s*[:：–]"
         )
-        # Notices like "לתשומת ליבכם:" or pure links/phrases.
+        # Notices like "Please note:" or pure links/phrases.
         SKIP_PHRASES = re.compile(
-            r"^(לתשומת\s+ליבכם|מן\s+הביקורות|ביקורות|ליצירת\s+קשר|לצפיה|לצפייה|לטריילר|לביקורת|קישור|להצטרפות|\*\*|\*)"
+            r"^(please\s+note|from\s+the\s+reviews|reviews?|contact|watch|trailer|review|link|join|\*\*|\*)"
         )
         out: list[str] = []
         total = 0
@@ -250,8 +252,8 @@ class HasimtaScraper(Scraper):
                     after = p[last:]
                     # Heuristic: the credit value is comma-separated names; the
                     # next sentence starts when we see a period followed by a
-                    # capital Hebrew word, or two consecutive spaces.
-                    cut_m = re.search(r"\.\s+(?=[א-ת\"])", after)
+                    # capital word, or two consecutive spaces.
+                    cut_m = re.search(r'\.\s+(?=[A-Za-z"])', after)
                     if cut_m:
                         tail = after[cut_m.end():].strip()
                     else:
@@ -270,49 +272,48 @@ class HasimtaScraper(Scraper):
     # All credit labels we recognise — used to find label boundaries
     # while parsing free-form credits text.
     _CREDIT_LABELS = (
-        "בימוי",
-        "במאי",
-        "כתיבה",
-        "מחזה",
-        "מחזאי",
-        "שחקנים",
-        "משחק",
-        "מבצעים",
-        "משתתפים",
-        "בכיכובם",
-        "בכיכוב",
-        "מוסיקה",
-        "מוזיקה",
-        "תאורה",
-        "תפאורה",
-        "תלבושות",
-        "כוריאוגרפיה",
-        "תרגום",
-        "הפקה",
-        "צילום",
-        "עיצוב",
-        "דרמטורג",
-        "תודות",
-        "וידאו",
-        "עריכה",
-        "בהקלטה",
-        "תפיסת",
-        "ריקוד",
+        "Direction",
+        "Director",
+        "Writing",
+        "Play",
+        "Playwright",
+        "Actors",
+        "Acting",
+        "Performers",
+        "Participants",
+        "Starring",
+        "Featured",
+        "Music",
+        "Lighting",
+        "Scenery",
+        "Costumes",
+        "Choreography",
+        "Translation",
+        "Production",
+        "Photography",
+        "Design",
+        "Dramaturg",
+        "Thanks",
+        "Video",
+        "Editing",
+        "Recording",
+        "Concept",
+        "Dance",
     )
 
     @classmethod
     def _parse_credits(cls, text: str) -> dict[str, str]:
-        """Locate every '<label>[ <extra hebrew words>]: value' pair in the text.
+        """Locate every '<label>[ <extra words>]: value' pair in the text.
 
         Returns a {label: value} mapping where the value is the text up to the
         next label match (or end of string). Tolerates compound forms like
-        'בימוי ודרמטורגיה :' or 'שחקנים (לפי סדר הופעתם):'.
+        'Direction and dramaturgy :' or 'Actors (in order of appearance):'.
         """
         label_alt = "|".join(re.escape(l) for l in cls._CREDIT_LABELS)
         pattern = (
-            rf"(?<![\w֐-׿])({label_alt})"
-            rf"(?:\s+[א-ת']+){{0,3}}"  # optional extra Hebrew words
-            rf"(?:\s*\([^)]*\))?"      # optional "(לפי סדר הופעתם)"
+            rf"(?<!\w)({label_alt})"
+            rf"(?:\s+[A-Za-z']+){{0,3}}"  # optional extra words
+            rf"(?:\s*\([^)]*\))?"      # optional "(in order of appearance)"
             rf"\s*[:：–\-]\s*"
         )
         positions = [
@@ -327,22 +328,23 @@ class HasimtaScraper(Scraper):
             raw = re.split(r"\s+\d{1,2}/\d{1,2}/\d", raw, maxsplit=1)[0]
             raw = re.split(r"[\.]\s+[\"”]", raw, maxsplit=1)[0]
             # Cut at the first sentence boundary — credits values do not
-            # contain prose. A period followed by space + Hebrew word starts
+            # contain prose. A period followed by space + word starts
             # the surrounding narrative copy.
-            raw = re.split(r"\.\s+(?=[א-ת])", raw, maxsplit=1)[0]
+            raw = re.split(r"\.\s+(?=[A-Za-z])", raw, maxsplit=1)[0]
             # Cut on common narrative starters that hint at the show body.
-            raw = re.split(r"\s+(?:שעת|בית\s+קפה|יום|בערב|במהלך|הפקה\s+של|המחזה|ההצגה)\s", raw, maxsplit=1)[0]
+            raw = re.split(r"\s+(?:time\s+of|cafe|day|in\s+the\s+evening|during|a\s+production\s+of|the\s+play|the\s+show)\s", raw, maxsplit=1)[0]
             raw = raw.strip(" .|,–-–")
             if raw and len(raw) < 250 and label not in out:
                 out[label] = raw
-                # Compound labels like "כתיבה ובימוי" → also key the value
-                # under the secondary label so callers find it under "בימוי".
-                if "ובימוי" in full and "בימוי" not in out:
-                    out["בימוי"] = raw
-                if "ובמאי" in full and "במאי" not in out:
-                    out["במאי"] = raw
-                if "ודרמטורגיה" in full and "דרמטורג" not in out:
-                    out["דרמטורג"] = raw
+                # Compound labels like "Writing and direction" → also key the
+                # value under the secondary label so callers find it under
+                # "Direction".
+                if "and direction" in full and "Direction" not in out:
+                    out["Direction"] = raw
+                if "and director" in full and "Director" not in out:
+                    out["Director"] = raw
+                if "and dramaturgy" in full and "Dramaturg" not in out:
+                    out["Dramaturg"] = raw
         return out
 
     @classmethod
@@ -356,12 +358,12 @@ class HasimtaScraper(Scraper):
     @classmethod
     def _extract_performers(cls, text: str) -> list[str]:
         credits = cls._parse_credits(text)
-        for label in ["שחקנים", "משחק", "מבצעים", "משתתפים", "בכיכובם", "בכיכוב"]:
+        for label in ["Actors", "Acting", "Performers", "Participants", "Starring", "Featured"]:
             raw = credits.get(label)
             if raw:
-                # Strip parenthetical hints like "(לפי סדר הופעתם)" if any survived.
+                # Strip parenthetical hints like "(in order of appearance)" if any survived.
                 raw = re.sub(r"\([^)]+\)", "", raw).strip()
-                parts = re.split(r"[,•·]|\s+ו(?=\S)", raw)
+                parts = re.split(r"[,•·]|\s+and\s+", raw)
                 parts = [p.strip(" .") for p in parts if p.strip()]
                 if parts:
                     return parts[:8]
@@ -369,10 +371,10 @@ class HasimtaScraper(Scraper):
 
     @staticmethod
     def _extract_duration(text: str) -> int | None:
-        m = re.search(r"משך\s+(?:ה?הצגה|ה?מופע)\s*[:：]?\s*(?:כ-?\s*)?(\d{2,3})\s*דק", text)
+        m = re.search(r"(?:duration|running\s+time)\s+(?:of\s+)?(?:the\s+)?(?:show|performance)\s*[:：]?\s*(?:approx\.?\s*)?(\d{2,3})\s*min", text)
         if m:
             return int(m.group(1))
-        m = re.search(r"(\d)\s*שע(?:ה|ות)\s*(?:ו-?\s*(\d{1,2})\s*דק)?", text)
+        m = re.search(r"(\d)\s*hours?\s*(?:(?:and\s+)?(\d{1,2})\s*min)?", text)
         if m:
             hours = int(m.group(1))
             mins = int(m.group(2)) if m.group(2) else 0

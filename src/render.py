@@ -13,21 +13,21 @@ from .models import Show
 from .preferences import Preferences, is_disliked, match_score, match_tags, score_reasons
 
 
-HEBREW_DAYS = ["שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת", "ראשון"]
+HEBREW_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 HEBREW_MONTHS = [
-    "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
 ]
 
 
 def he_date(d: date | datetime) -> str:
     if isinstance(d, datetime):
         d = d.date()
-    return f"יום {HEBREW_DAYS[d.weekday()]}, {d.day} ב{HEBREW_MONTHS[d.month - 1]} {d.year}"
+    return f"{HEBREW_DAYS[d.weekday()]}, {d.day} {HEBREW_MONTHS[d.month - 1]} {d.year}"
 
 
 def he_short_date(d: date | datetime) -> str:
-    return f"{d.day} ב{HEBREW_MONTHS[d.month - 1]}"
+    return f"{d.day} {HEBREW_MONTHS[d.month - 1]}"
 
 
 def _build_calendar(cards: list[dict], today: date, num_weeks: int = 8) -> list[list[dict]]:
@@ -71,7 +71,7 @@ def _build_calendar(cards: list[dict], today: date, num_weeks: int = 8) -> list[
                 "venue": c["venue"],
             })
 
-    he_short_days = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"]
+    he_short_days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
     weeks: list[list[dict]] = []
     for w in range(num_weeks):
@@ -95,24 +95,24 @@ def _build_calendar(cards: list[dict], today: date, num_weeks: int = 8) -> list[
 def _refine_genre(genre: str, title: str, description: str) -> str:
     """Override / refine the raw genre based on title/description heuristics.
 
-    Catches things like 'מסיבת כיתה' (class reunion parties) and tribute nights
-    that scrapers tag generically as 'מוזיקה'. Returns the refined genre string.
+    Catches things like class-reunion parties and tribute nights that scrapers
+    tag generically as 'Music'. Returns the refined genre string.
     """
     g = (genre or "").strip()
     text = f"{title} {description}".lower()
 
-    # Party / nightlife — explicit Israeli idioms
-    party_markers = ["מסיבת כיתה", "מסיבה ", "מסיבת ", "פארטי", "תקליטן", "תקליטנים",
-                     " party", "party ", "rave", "80s", "90s", "ערב 80", "ערב 90",
-                     "ערב שנות", "ערב נוסטלגיה"]
+    # Party / nightlife — explicit idioms
+    party_markers = ["class reunion", " party", "party ", "dj set", "djs",
+                     "rave", "80s", "90s", "80s night", "90s night",
+                     "throwback night", "nostalgia night"]
     if any(m in text for m in party_markers):
-        return "מסיבות"
+        return "Parties"
 
     # Tribute show — its own sub-category, but still music
-    tribute_markers = ["מחווה ל", "מופע מחווה", "tribute", "celebrating ",
-                       "הצדעה ל", "מופע הצדעה"]
+    tribute_markers = ["tribute to", "tribute show", "tribute", "celebrating ",
+                       "salute to", "homage show"]
     if any(m in text for m in tribute_markers):
-        return "מחווה"
+        return "Tribute"
 
     return g
 
@@ -120,24 +120,24 @@ def _refine_genre(genre: str, title: str, description: str) -> str:
 def _genre_css_class(genre: str, source: str) -> str:
     """Map a show's genre to a CSS class name used for color-coded card borders.
 
-    Israeli sites use inconsistent terminology — בידור often means stand-up,
-    מוסיקה (samech) is the same thing as מוזיקה (zayin). Normalize both.
+    Source sites use inconsistent terminology — 'entertainment' often means
+    stand-up, and 'music' has several interchangeable spellings. Normalize both.
     """
     g = (genre or "").strip().lower()
-    THEATER = {"תיאטרון", "מחזות זמר", "מחזה זמר"}
-    MUSIC = {"מוזיקה", "מוסיקה", "מוזיקה ישראלית", "מוסיקה ישראלית",
-             "ג'אז", "ג׳אז", "מזרחית", "פופ", "רוק", "ים-תיכוני", "ים תיכוני"}
-    COMEDY = {"סטנדאפ", "סטנד-אפ", "סטנד אפ", "בידור", "קומדיה", "קברט"}
-    DANCE = {"מחול", "ריקוד"}
-    KIDS = {"ילדים", "ילדי"}
+    THEATER = {"theater", "theatre", "musical", "musicals"}
+    MUSIC = {"music", "israeli music", "jazz", "mizrahi", "pop", "rock",
+             "mediterranean", "mediterranean pop"}
+    COMEDY = {"standup", "stand-up", "stand up", "entertainment", "comedy", "cabaret"}
+    DANCE = {"dance", "dancing"}
+    KIDS = {"kids", "children"}
 
     if g in THEATER: return "g-theater"
     if g in MUSIC: return "g-music"
     if g in COMEDY: return "g-comedy"
     if g in DANCE: return "g-dance"
     if g in KIDS: return "g-other"   # we treat kids as "other" — usually filtered out anyway
-    if g == "מסיבות": return "g-party"
-    if g == "מחווה": return "g-music"   # tribute shows behave like music
+    if g == "parties": return "g-party"
+    if g == "tribute": return "g-music"   # tribute shows behave like music
 
     # Source-based fallback when genre is empty or unrecognized
     if source in {"zappa_tlv", "zappa_herzliya", "zappa_jlm", "barby", "shuni",
@@ -155,8 +155,8 @@ def _canonical_venue(venue: str) -> str:
     """Strip per-hall suffixes so multiple halls inside one venue collapse for the filter.
 
     Examples:
-      'היכל התרבות תל אביב - אולם צוקר' → 'היכל התרבות תל אביב'
-      'היכל התרבות גבעתיים - אולם אלמוזלינו' → 'היכל התרבות גבעתיים'
+      'Tel Aviv Culture Palace - Zucker Hall' → 'Tel Aviv Culture Palace'
+      'Givatayim Culture Hall - Almozlino Hall' → 'Givatayim Culture Hall'
     """
     v = (venue or "").strip()
     # Cut at " - " or " – " separator (which precedes the hall name)
@@ -174,7 +174,7 @@ def _bucket(show: Show, today: date, fresh_days: int, warm_days: int) -> tuple[s
     Bucket: 'fresh' | 'warm' | 'old'.
     """
     signal_date = show.tickets_opened_on or show.first_seen
-    label = "נפתח למכירה" if show.tickets_opened_on else "ראינו לראשונה"
+    label = "On sale" if show.tickets_opened_on else "First seen"
     if not signal_date:
         return "old", None, label
     age = (today - signal_date).days
@@ -278,7 +278,7 @@ def render_digest(
     prefs: Preferences | None = None,
     travel_by_source: dict[str, dict] | None = None,
     perf_deltas_by_id: dict[str, int] | None = None,
-    home_origin: str = "תל אביב",
+    home_origin: str = "Tel Aviv",
     db_path: str = "data/shows.db",
 ) -> Path:
     today = today or date.today()
@@ -304,7 +304,7 @@ def render_digest(
             continue
         # Skip shows with no upcoming performances at all — including the case
         # where the scraper returned an empty performances list (e.g. Habima's
-        # "סיור מאחורי הקסם" before any tour dates are scheduled).
+        # "Behind the Magic" backstage tour before any tour dates are scheduled).
         if not show.performances or not any(p.date() >= today for p in show.performances):
             continue
         bucket, signal_date, signal_label = _bucket(show, today, fresh_days, warm_days)
@@ -336,12 +336,12 @@ def render_digest(
 
     # Genre filter options — only show categories that have at least one show
     genre_class_labels = {
-        "g-theater": "תיאטרון",
-        "g-music":   "מוזיקה",
-        "g-comedy":  "סטנדאפ",
-        "g-dance":   "מחול",
-        "g-party":   "מסיבות",
-        "g-other":   "אחר",
+        "g-theater": "Theater",
+        "g-music":   "Music",
+        "g-comedy":  "Stand-up",
+        "g-dance":   "Dance",
+        "g-party":   "Parties",
+        "g-other":   "Other",
     }
     genre_options = [
         {"class": gc, "label": genre_class_labels[gc]}
@@ -376,7 +376,7 @@ def render_digest(
             return True
         if any(ch in s for ch in [":", "|", " - ", "–", "—", "(", ")", "[", "]", "/"]):
             return True
-        # Has digits (e.g. "15 שנות אלון עדר", "1987")
+        # Has digits (e.g. "15 Years of Alon Eder", "1987")
         if any(ch.isdigit() for ch in s):
             return True
         # Has English words like Show, PARTY, LIVE, TRIBUTE
@@ -384,9 +384,9 @@ def render_digest(
                                          "CONCERT", "CELEBRATING", "EXPERIENCE", "TOUR",
                                          "FEATURING", "FT.", "FT ", "VS.", "&"]):
             return True
-        # Has Hebrew narrative words
-        for word in ["מופע", "ערב", "להיט", "אורחים", "מארח", "מארחים", "מקהלה",
-                     "מחווה", "לכבוד", "אנסמבל", "להקה", "קבוצה", "סנט-", "צוותא"]:
+        # Has narrative words that signal a show title rather than a name
+        for word in ["show", "evening", "hit", "guests", "host", "hosting", "choir",
+                     "tribute", "in honor of", "ensemble", "band", "group", "saint-", "Tzavta"]:
             if word in s:
                 return True
         # Too long — real names are short

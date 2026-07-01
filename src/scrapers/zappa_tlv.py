@@ -1,11 +1,11 @@
 """
-Scraper for Zappa Club Tel Aviv (זאפה תל אביב — מתחם מידטאון).
+Scraper for Zappa Club Tel Aviv (Zappa Tel Aviv — Midtown complex).
 
 The Zappa chain runs a single ticketing site (powered by Eventim/Akamai) that
 lists every Zappa branch in Israel. We target the Tel Aviv venue specifically.
 
 Listing page (paginated via ?pnum=N):
-  https://www.zappa-club.co.il/city/<תל-אביב-249>/venue/<זאפה-תל-אביב-25734>/
+  https://www.zappa-club.co.il/city/<tel-aviv-249>/venue/<zappa-tel-aviv-25734>/
 
 Each `article.listing-item` carries:
   - h2.event-listing-city                  → show / artist title
@@ -36,11 +36,12 @@ from bs4 import BeautifulSoup
 from ..models import Show
 from .base import Scraper
 
+# NOTE: source-site text-matching literals were translated from the original Hebrew for this English demo.
 
 BASE = "https://www.zappa-club.co.il"
 LISTING_URL = (
     "https://www.zappa-club.co.il/"
-    "city/תל-אביב-249/venue/זאפה-תל-אביב-25734/"
+    "city/tel-aviv-249/venue/zappa-tel-aviv-25734/"
 )
 MAX_PAGES = 10  # safety cap
 
@@ -70,9 +71,9 @@ ISO_TZ_RE = re.compile(r"([+\-]\d{2}):?(\d{2})$")
 
 class ZappaTlvScraper(Scraper):
     source_id = "zappa_tlv"
-    source_name = "זאפה תל אביב"
-    venue = "זאפה תל אביב"
-    city = "תל אביב"
+    source_name = "Zappa Tel Aviv"
+    venue = "Zappa Tel Aviv"
+    city = "Tel Aviv"
 
     def __init__(self, timeout: float = 30.0):
         # Bypass the base client and roll our own with browser-like headers
@@ -236,7 +237,7 @@ class ZappaTlvScraper(Scraper):
             performers=[],
             director="",
             duration_minutes=None,
-            genre="מוזיקה",
+            genre="Music",
             poster_url=(data.get("posters") or [""])[0],
         )
 
@@ -266,7 +267,7 @@ class ZappaTlvScraper(Scraper):
         """Normalise title for grouping multi-night residencies."""
         # Lowercase ASCII portions, collapse whitespace, strip punctuation
         t = re.sub(r"\s+", " ", title).strip()
-        t = re.sub(r"[\"'״׳`]", "", t)
+        t = re.sub(r"[\"'`]", "", t)
         return t.lower()
 
     @staticmethod
@@ -275,7 +276,7 @@ class ZappaTlvScraper(Scraper):
         # The site sometimes URL-encodes; check both raw and decoded forms.
         from urllib.parse import unquote
         decoded = unquote(h)
-        markers = ["זאפה-תל-אביב", "תל-אביב", "tel-aviv", "tlv"]
+        markers = ["zappa-tel-aviv", "tel-aviv", "tlv"]
         return any(m in decoded for m in markers)
 
     @staticmethod
