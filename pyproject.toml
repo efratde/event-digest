@@ -1,7 +1,7 @@
 [project]
-name = "tickets"
+name = "event-digest"
 version = "0.1.0"
-description = "Add your description here"
+description = "A daily personalized performance-listings digest (portfolio demo)"
 requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.14.3",

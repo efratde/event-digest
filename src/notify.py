@@ -39,8 +39,8 @@ from .weather import fetch_tlv_today
 log = logging.getLogger("notify")
 
 DB_PATH = "data/shows.db"
-PUBLIC_URL = "https://dad-tickets.pages.dev/"
-PUBLIC_IMAGE_BASE = "https://dad-tickets.pages.dev/images/"
+PUBLIC_URL = "https://efratde.github.io/event-digest/"
+PUBLIC_IMAGE_BASE = "https://efratde.github.io/event-digest/images/"
 
 HEBREW_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 HEBREW_MONTHS = [

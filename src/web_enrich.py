@@ -34,7 +34,7 @@ LOG = logging.getLogger("web_enrich")
 
 USER_AGENT = (
     "EventDigest/0.1 (personal-use script; "
-    "contact: dad-tickets@example.com) httpx"
+    "contact: event-digest@example.com) httpx"
 )
 
 CACHE_TTL_DAYS = 30

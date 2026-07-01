@@ -5,7 +5,7 @@
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG_DIR="$HOME/Library/Logs/dad-tickets"
+LOG_DIR="$HOME/Library/Logs/event-digest"
 LAST_RUN_FILE="$LOG_DIR/last-success"
 mkdir -p "$LOG_DIR"
 
@@ -36,7 +36,7 @@ cd "$PROJECT_DIR"
   echo ""
   echo "--- deploying to Cloudflare Pages ---"
   wrangler pages deploy output/ \
-    --project-name=dad-tickets \
+    --project-name=event-digest \
     --branch=production \
     --commit-dirty=true 2>&1 | tail -10
 

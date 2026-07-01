@@ -36,7 +36,7 @@ account, labeled "Account ID"). Copy it.
    - Cron: `0 4,13 * * *` (07:00 and 16:00 Israel — UTC offset +3)
    - Timezone: select **Asia/Jerusalem** if available
 4. **Connectors / integrations:** enable
-   - **GitHub** — pick the `efratde/dad-tickets` repo
+   - **GitHub** — pick the `efratde/event-digest` repo
    - **Gmail** — your Google account
 5. **Environment variables / secrets:**
    - `CLOUDFLARE_API_TOKEN` — paste the token from step 1
@@ -50,16 +50,16 @@ account, labeled "Account ID"). Copy it.
 ```
 You are operating the daily ticket-digest pipeline for a family member.
 
-Repo: efratde/dad-tickets (on GitHub, available via the GitHub connector).
+Repo: efratde/event-digest (on GitHub, available via the GitHub connector).
 Required env vars: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID.
 
 Run these steps in order. Stop and report if any step fails.
 
 ### 1. Set up the working environment
   cd /tmp
-  rm -rf dad-tickets
-  git clone https://github.com/efratde/dad-tickets.git
-  cd dad-tickets
+  rm -rf event-digest
+  git clone https://github.com/efratde/event-digest.git
+  cd event-digest
   curl -LsSf https://astral.sh/uv/install.sh | sh
   export PATH="$HOME/.local/bin:$PATH"
   uv sync --frozen
@@ -75,22 +75,22 @@ Run these steps in order. Stop and report if any step fails.
 ### 3. Deploy to Cloudflare Pages
   npm install -g wrangler
   wrangler pages deploy output/ \
-    --project-name=dad-tickets \
+    --project-name=event-digest \
     --branch=production \
     --commit-dirty=true
   
   Capture the deployment URL from the output (looks like
-  https://XXXXXXXX.dad-tickets.pages.dev). The stable URL for the latest
-  is always https://dad-tickets.pages.dev/.
+  https://XXXXXXXX.efratde.github.io/event-digest). The stable URL for the latest
+  is always https://efratde.github.io/event-digest/.
 
 ### 4. Send a Gmail notification
   Use the Gmail send_message tool (NOT a draft):
-    To: dad-tickets@example.com
-    Subject: 🎭 Shows for Dad — <today's date, e.g. "Monday, 4 May 2026">
+    To: digest@example.com
+    Subject: 🎭 Event Digest — <today's date, e.g. "Monday, 4 May 2026">
     Body (HTML, RTL):
       <div dir="rtl" style="font-family: Heebo, Arial, sans-serif; font-size: 15px; line-height: 1.5">
         <p>Your daily digest is ready 🎭</p>
-        <p><a href="https://dad-tickets.pages.dev/" style="color:#c4392f;font-weight:600">Click here to open the page</a></p>
+        <p><a href="https://efratde.github.io/event-digest/" style="color:#c4392f;font-weight:600">Click here to open the page</a></p>
         <p style="color:#888;font-size:13px;margin-top:24px">
           Runs automatically twice a day (07:00 and 16:00 Israel time).<br>
           Your preferences (pins, hides, favorites) are saved in the browser only —
@@ -106,7 +106,7 @@ output. Do not retry.
 
 ## After the routine runs successfully once
 
-- Replace the email recipient with dad's actual email
+- Replace the email recipient with the recipient's actual email
 - Consider adding `--no-web-enrich` to step 2 for the morning run if you want
   it faster (web enrichment adds ~1 minute and isn't critical daily — it's
   only useful when new shows appear that aren't yet in the cache)

@@ -13,7 +13,7 @@ wheels/
 data/*.db
 output/
 
-# Per-machine secrets (Gmail App Password, dad's email, etc.) — never commit
+# Per-machine secrets (Gmail App Password, the recipient's email, etc.) — never commit
 .env
 *.env
 secrets.yaml

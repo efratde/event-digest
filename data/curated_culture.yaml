@@ -34,7 +34,7 @@ music_subgenres:
   - "World music"
   - "Tribute to hit bands (Tribute bands)"
 
-# === Israeli music artists — what Dad would actually recognize ===
+# === Israeli music artists — mainstream, widely recognized ===
 # Grouped roughly by era; UI shows them mixed.
 music_artists:
   # Classic / 70s-90s heavyweights

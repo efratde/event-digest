@@ -14,7 +14,7 @@ if [[ ! -f "output/digest.html" ]]; then
 fi
 
 # Stage the output as the new gh-pages branch using git worktree
-WORKTREE="/tmp/dad-tickets-pages-$$"
+WORKTREE="/tmp/event-digest-pages-$$"
 trap "rm -rf '$WORKTREE'" EXIT
 
 # Ensure local refs are up-to-date
@@ -51,7 +51,7 @@ if git diff --cached --quiet; then
   echo "No changes to deploy."
   exit 0
 fi
-git -c user.name="Dad Tickets Bot" -c user.email="bot@dad-tickets.local" commit -m "Daily build $(date -u +%Y-%m-%d_%H:%M)"
+git -c user.name="Event Digest Bot" -c user.email="bot@event-digest.local" commit -m "Daily build $(date -u +%Y-%m-%d_%H:%M)"
 git push origin gh-pages
 
 echo "Deployed to gh-pages."

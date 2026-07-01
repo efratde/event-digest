@@ -15,9 +15,9 @@ Run these steps in order. Stop and report if any step fails.
 
 ### 1. Working environment
 cd /tmp
-rm -rf dad-tickets
-git clone https://github.com/efratde/dad-tickets.git
-cd dad-tickets
+rm -rf event-digest
+git clone https://github.com/efratde/event-digest.git
+cd event-digest
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="\$HOME/.local/bin:\$PATH"
 uv sync --frozen
@@ -35,17 +35,17 @@ npm install -g wrangler
 export CLOUDFLARE_API_TOKEN="<<CF_TOKEN>>"
 export CLOUDFLARE_ACCOUNT_ID="${ACCOUNT_ID}"
 wrangler pages deploy output/ \\
-  --project-name=dad-tickets \\
+  --project-name=event-digest \\
   --branch=production \\
   --commit-dirty=true
 
-### 4. Send Gmail to dad-tickets@example.com
+### 4. Send Gmail to digest@example.com
 Use the Gmail send_message tool (NOT a draft):
-  Subject: 🎭 Shows for Dad — <today's date, e.g. "Monday, May 4, 2026">
+  Subject: 🎭 Event Digest — <today's date, e.g. "Monday, May 4, 2026">
   Body (HTML):
     <div dir="ltr" style="font-family: Heebo, Arial, sans-serif; font-size: 15px; line-height: 1.5">
       <p>The daily digest is ready 🎭</p>
-      <p><a href="https://dad-tickets.pages.dev/" style="color:#c4392f;font-weight:600">Click here to open the page</a></p>
+      <p><a href="https://efratde.github.io/event-digest/" style="color:#c4392f;font-weight:600">Click here to open the page</a></p>
       <p style="color:#888;font-size:13px;margin-top:24px">
         Runs automatically twice a day (07:00 and 16:00 Israel time).<br>
         Preferences (pins, hidden items, favorites) are saved in the browser.
