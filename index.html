@@ -1,0 +1,5092 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+<meta charset="utf-8">
+<title>Event Digest — Wednesday, 1 July 2026</title>
+<style>
+  :root {
+    --bg: #0e1014;
+    --bg-elev: #161a22;
+    --bg-card: #1c212c;
+    --text: #f0f0f0;
+    --text-dim: #a0a8b8;
+    --text-faint: #6c7585;
+    --border: #2a313e;
+    --accent: #c4392f;
+    --love: #e91e63;
+
+    /* Genre colors — used as the left/top accent on each card */
+    --g-theater: #4f9ef0;
+    --g-music:   #b06bd9;
+    --g-comedy:  #f0a020;
+    --g-dance:   #4ec977;
+    --g-party:   #ff7f50;
+    --g-other:   #6c7585;
+    --gold:      #ffd54a;
+
+    --fresh: #4ec977;
+    --warm:  #f0a020;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Heebo", "Segoe UI", -apple-system, sans-serif;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Page header */
+  header.top {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+  }
+  header h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  header .subtitle { color: var(--text-dim); font-size: 14px; }
+  header .stats { color: var(--text-faint); font-size: 12px; margin-top: 6px; }
+
+  /* Filters */
+  .filters {
+    padding: 14px 24px;
+    background: var(--bg-elev);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+  }
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .filter-group label {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .filter-group select,
+  .filter-group input[type=text] {
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .filter-group input[type=text] { min-width: 200px; }
+
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .filter-toggle.active {
+    background: rgba(233, 30, 99, 0.15);
+    color: #ff4081;
+    border-color: var(--love);
+  }
+  .filter-toggle.dismissed-toggle.active {
+    background: rgba(160, 168, 184, 0.15);
+    color: var(--text-dim);
+    border-color: var(--text-dim);
+  }
+  .filter-spacer { flex: 1; }
+  .filter-link {
+    color: var(--text-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 6px;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    font-family: inherit;
+  }
+  .filter-link:hover { color: var(--text); }
+
+  /* Section headings */
+  .section-heading {
+    margin: 24px 24px 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* The card grid — Netflix-style auto-fill */
+  .grid {
+    padding: 8px 16px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    position: relative;
+    background: var(--bg-card);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+    /* Genre accent — full border, more prominent */
+    border: 3px solid var(--g-other);
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  }
+  .card.g-theater { border-color: var(--g-theater); }
+  .card.g-music   { border-color: var(--g-music); }
+  .card.g-comedy  { border-color: var(--g-comedy); }
+  .card.g-dance   { border-color: var(--g-dance); }
+  .card.g-party   { border-color: var(--g-party); }
+  .card.g-other   { border-color: var(--g-other); }
+  .card.pinned {
+    box-shadow: 0 0 0 3px var(--love);
+  }
+
+  /* Highly-matched cards (set by JS based on score) — gold border, gentle glow,
+     larger size in the grid via column-span. */
+  .card.match-strong {
+    border-color: var(--gold) !important;
+    border-width: 4px !important;
+    box-shadow: 0 0 18px 2px rgba(255, 213, 74, 0.45);
+    grid-column: span 2;
+    animation: gold-pulse 2.4s ease-in-out infinite;
+  }
+  .card.match-strong .poster { aspect-ratio: 16 / 8; }   /* taller card needs proportional poster */
+  @keyframes gold-pulse {
+    0%, 100% { box-shadow: 0 0 14px 2px rgba(255, 213, 74, 0.35); }
+    50%      { box-shadow: 0 0 28px 6px rgba(255, 213, 74, 0.7); }
+  }
+  /* Mid-match: subtle gold accent without spanning columns */
+  .card.match-mid {
+    border-color: rgba(255, 213, 74, 0.7) !important;
+    box-shadow: 0 0 10px 1px rgba(255, 213, 74, 0.25);
+  }
+
+  /* Action buttons (X and pin) — top-RIGHT visually (RTL inset-inline-start) */
+  .card-actions {
+    position: absolute;
+    top: 8px;
+    inset-inline-start: 8px;
+    display: flex;
+    gap: 4px;
+    z-index: 2;
+  }
+  .card-action {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s;
+  }
+  .card-action:hover { background: rgba(0,0,0,0.85); }
+  .card-action.pin.active {
+    background: var(--love);
+    color: white;
+  }
+
+  /* Card poster */
+  .poster {
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    background: #11141a;
+    overflow: hidden;
+    position: relative;
+  }
+  .poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .poster.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.9);
+    font-size: 44px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.14), transparent 55%),
+      linear-gradient(135deg, #232935 0%, #12151c 100%);
+  }
+  /* Genre-keyed gradient placeholders — no external images fetched. */
+  .card.g-theater .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+      linear-gradient(135deg, var(--g-theater) 0%, #16283f 85%);
+  }
+  .card.g-music .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+      linear-gradient(135deg, var(--g-music) 0%, #2a1a38 85%);
+  }
+  .card.g-comedy .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.18), transparent 55%),
+      linear-gradient(135deg, var(--g-comedy) 0%, #3a2606 85%);
+  }
+  .card.g-dance .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.16), transparent 55%),
+      linear-gradient(135deg, var(--g-dance) 0%, #123322 85%);
+  }
+  .card.g-party .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.18), transparent 55%),
+      linear-gradient(135deg, var(--g-party) 0%, #3a1c12 85%);
+  }
+  .card.g-other .poster.empty {
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,0.12), transparent 55%),
+      linear-gradient(135deg, #4a515f 0%, #1a1e26 85%);
+  }
+
+  /* Genre + freshness badges — top-LEFT visually (RTL inset-inline-end), larger */
+  .poster-overlay {
+    position: absolute;
+    top: 8px;
+    inset-inline-end: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    z-index: 2;
+    max-width: 65%;
+    justify-content: flex-end;
+  }
+  .ovbadge {
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.78);
+    color: white;
+    backdrop-filter: blur(4px);
+    font-weight: 500;
+    line-height: 1.1;
+  }
+  .ovbadge.fresh { background: rgba(78, 201, 119, 0.95); color: #07150c; font-weight: 700; }
+  .ovbadge.warm  { background: rgba(240, 160, 32, 0.95); color: #1a0e00; font-weight: 700; }
+
+  /* Card body */
+  .card-body {
+    padding: 12px 14px 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .card-body h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+  .card-body h3 a { color: inherit; text-decoration: none; }
+  .card-body h3 a:hover { color: var(--g-theater); }
+
+  .venue-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .venue-line .dot { color: var(--text-faint); }
+  .venue-line .travel { color: var(--text-faint); }
+
+  .desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin: 4px 0 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .perfs {
+    font-size: 12px;
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+    padding: 7px 10px;
+    border-radius: 6px;
+    margin-top: 4px;
+  }
+  .perfs strong { font-weight: 600; }
+  .perfs .more, .perfs .spread { color: var(--text-faint); font-size: 11px; }
+  .perfs .spread { display: block; margin-top: 3px; }
+
+  .meta-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+  .meta-chip {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .meta-chip.love { background: rgba(233, 30, 99, 0.2); color: #ff4081; }
+  .meta-chip.match-badge {
+    background: linear-gradient(135deg, rgba(255, 213, 74, 0.25), rgba(255, 153, 51, 0.2));
+    color: #fff5cc;
+    border: 1px solid rgba(255, 213, 74, 0.5);
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  .meta-chip.match-badge.high {
+    background: linear-gradient(135deg, var(--gold), #ff9933);
+    color: #1a1100;
+    border-color: transparent;
+    font-size: 13px;
+    padding: 5px 12px;
+    box-shadow: 0 0 10px rgba(255, 213, 74, 0.6);
+  }
+
+  .performer-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .performer-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+  }
+  .performer-chip:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+
+  .cta-row {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  .cta {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .cta:hover { background: #d8443a; }
+
+  .enrich-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  .enrich-link {
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 5px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .enrich-link:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-faint);
+    padding: 64px 16px;
+    font-size: 14px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 11px;
+    padding: 24px 16px 32px;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+
+  .legend {
+    display: inline-flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .legend span {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .swatch.g-theater { background: var(--g-theater); }
+  .swatch.g-music   { background: var(--g-music); }
+  .swatch.g-comedy  { background: var(--g-comedy); }
+  .swatch.g-dance   { background: var(--g-dance); }
+  .swatch.g-other   { background: var(--g-other); }
+
+  /* Hidden state — set via JS */
+  .card.hidden-by-filter { display: none; }
+  .cal-event.hidden-by-filter { display: none; }
+  .cal-event.hidden-by-overflow { display: none; }
+  .cal-day.empty-by-filter .cal-num { opacity: 0.4; }
+  .cal-overflow {
+    font-size: 10px;
+    color: var(--text-faint);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+  .cal-overflow:hover { color: var(--text); }
+
+  /* View toggle tabs */
+  .view-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 24px 0;
+    background: var(--bg-elev);
+  }
+  .view-tab {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 10px 18px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .view-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .view-tab:hover { color: var(--text); }
+
+  /* Hidden views */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Calendar grid */
+  .calendar-wrap {
+    padding: 16px;
+  }
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    background: var(--bg-elev);
+    padding: 4px;
+    border-radius: 8px;
+  }
+  .cal-day-header {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 6px 0;
+    background: var(--bg);
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  .cal-day {
+    background: var(--bg-card);
+    border-radius: 6px;
+    min-height: 110px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+  }
+  .cal-day.past {
+    opacity: 0.45;
+  }
+  .cal-day.today {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  .cal-day .cal-num {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .cal-day.today .cal-num {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .cal-event {
+    font-size: 11px;
+    background: var(--bg-elev);
+    color: var(--text);
+    padding: 3px 5px;
+    border-radius: 4px;
+    border-inline-start: 3px solid var(--g-other);
+    cursor: pointer;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+    display: block;
+  }
+  .cal-event:hover {
+    background: var(--bg);
+    overflow: visible;
+    white-space: normal;
+    z-index: 5;
+    position: relative;
+  }
+  .cal-event.g-theater { border-inline-start-color: var(--g-theater); }
+  .cal-event.g-music   { border-inline-start-color: var(--g-music); }
+  .cal-event.g-comedy  { border-inline-start-color: var(--g-comedy); }
+  .cal-event.g-dance   { border-inline-start-color: var(--g-dance); }
+  .cal-event.g-other   { border-inline-start-color: var(--g-other); }
+  .cal-event .cal-time {
+    color: var(--text-faint);
+    font-weight: 600;
+    margin-inline-end: 4px;
+  }
+
+  /* Card-jump highlight when scrolled to from calendar */
+  .card.highlight {
+    box-shadow: 0 0 0 3px var(--accent), 0 6px 20px rgba(196, 57, 47, 0.4);
+    transition: box-shadow 0.3s;
+  }
+
+  @media (max-width: 760px) {
+    .cal-day { min-height: 70px; }
+    .cal-event { font-size: 10px; }
+  }
+
+  /* ---- Preferences and questionnaire modals ---- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h2 { margin: 0; font-size: 18px; }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0 8px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .pref-section { margin-bottom: 22px; }
+  .pref-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .pref-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    min-height: 24px;
+  }
+  .pref-chip {
+    background: rgba(212,20,90,0.18);
+    color: #ffd6e3;
+    border: 1px solid rgba(212,20,90,0.4);
+    border-radius: 999px;
+    padding: 3px 8px 3px 12px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pref-chip.dislike {
+    background: rgba(160,168,184,0.18);
+    color: var(--text-dim);
+    border-color: rgba(160,168,184,0.4);
+  }
+  .pref-chip button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.7;
+  }
+  .pref-chip button:hover { opacity: 1; }
+  .pref-input-row {
+    display: flex;
+    gap: 6px;
+  }
+  .pref-input-row input {
+    flex: 1;
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .pref-input-row .pref-add {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .pref-suggestions {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-height: 90px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+  .pref-suggestion {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .pref-suggestion:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+  .pref-suggestion.added { opacity: 0.4; pointer-events: none; }
+
+  /* Top-bar preferences/questionnaire buttons */
+  .top-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .top-action-btn {
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+  }
+  .top-action-btn:hover { background: rgba(255,255,255,0.06); }
+
+  /* Questionnaire */
+  .quiz-question { font-size: 16px; margin-bottom: 14px; }
+  .quiz-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .quiz-option {
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .quiz-option:hover { background: rgba(255,255,255,0.06); }
+  .quiz-option.selected {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .quiz-progress {
+    color: var(--text-faint);
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  .quiz-nav {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .quiz-nav button {
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 16px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .quiz-nav .primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .quiz-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🎭 Event Digest</h1>
+  <div class="subtitle">Wednesday, 1 July 2026</div>
+  <div class="stats" id="stats">24 shows</div>
+  <div class="legend">
+    <span><span class="swatch g-theater"></span> Theater</span>
+    <span><span class="swatch g-music"></span> Music</span>
+    <span><span class="swatch g-comedy"></span> Standup</span>
+    <span><span class="swatch g-dance"></span> Dance</span>
+    <span><span class="swatch g-other"></span> Other</span>
+  </div>
+  <div class="top-actions">
+    <button class="top-action-btn" id="open-prefs">⚙️ My preferences</button>
+    <button class="top-action-btn" id="open-quiz">📝 Quick taste quiz</button>
+  </div>
+</header>
+
+<div class="view-tabs">
+  <button class="view-tab active" data-view="cards">🎴 Cards</button>
+  <button class="view-tab" data-view="calendar">📅 Calendar</button>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <label>Sort:</label>
+    <select id="sort">
+      <option value="match">Taste match</option>
+      <option value="next_perf">Soonest show first</option>
+      <option value="opened_desc">Newest on sale</option>
+      <option value="alpha">A–Z</option>
+      <option value="distance">Distance from home</option>
+      <option value="run_short">Short run (fresh / selling out)</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Venue:</label>
+    <select id="venue-filter">
+      <option value="">All</option>
+      <optgroup label="Show only">
+        <option value="only:Barby Club">Only Barby Club</option><option value="only:Caesarea Amphitheatre">Only Caesarea Amphitheatre</option><option value="only:Cameri Theatre">Only Cameri Theatre</option><option value="only:Gesher Theatre">Only Gesher Theatre</option><option value="only:Givatayim Culture Hall">Only Givatayim Culture Hall</option><option value="only:HaSimta Theatre">Only HaSimta Theatre</option><option value="only:Habima Theatre">Only Habima Theatre</option><option value="only:Lessin Theatre">Only Lessin Theatre</option><option value="only:Reading 3">Only Reading 3</option><option value="only:Shuni Amphitheatre">Only Shuni Amphitheatre</option><option value="only:Suzanne Dellal Center">Only Suzanne Dellal Center</option><option value="only:Tel Aviv Culture Palace (Bronfman)">Only Tel Aviv Culture Palace (Bronfman)</option><option value="only:Tmuna Theatre">Only Tmuna Theatre</option><option value="only:Tzavta">Only Tzavta</option><option value="only:Yoram Loewenstein Studio">Only Yoram Loewenstein Studio</option><option value="only:Zappa Herzliya">Only Zappa Herzliya</option><option value="only:Zappa Tel Aviv">Only Zappa Tel Aviv</option>
+      </optgroup>
+      <optgroup label="Hide">
+        <option value="not:Barby Club">Without Barby Club</option><option value="not:Caesarea Amphitheatre">Without Caesarea Amphitheatre</option><option value="not:Cameri Theatre">Without Cameri Theatre</option><option value="not:Gesher Theatre">Without Gesher Theatre</option><option value="not:Givatayim Culture Hall">Without Givatayim Culture Hall</option><option value="not:HaSimta Theatre">Without HaSimta Theatre</option><option value="not:Habima Theatre">Without Habima Theatre</option><option value="not:Lessin Theatre">Without Lessin Theatre</option><option value="not:Reading 3">Without Reading 3</option><option value="not:Shuni Amphitheatre">Without Shuni Amphitheatre</option><option value="not:Suzanne Dellal Center">Without Suzanne Dellal Center</option><option value="not:Tel Aviv Culture Palace (Bronfman)">Without Tel Aviv Culture Palace (Bronfman)</option><option value="not:Tmuna Theatre">Without Tmuna Theatre</option><option value="not:Tzavta">Without Tzavta</option><option value="not:Yoram Loewenstein Studio">Without Yoram Loewenstein Studio</option><option value="not:Zappa Herzliya">Without Zappa Herzliya</option><option value="not:Zappa Tel Aviv">Without Zappa Tel Aviv</option>
+      </optgroup>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Genre:</label>
+    <select id="genre-filter">
+      <option value="">All</option>
+      <optgroup label="Show only">
+        <option value="only:g-theater">Only Theater</option><option value="only:g-music">Only Music</option><option value="only:g-comedy">Only Stand-up</option><option value="only:g-dance">Only Dance</option><option value="only:g-party">Only Parties</option><option value="only:g-other">Only Other</option>
+      </optgroup>
+      <optgroup label="Hide">
+        <option value="not:g-theater">Without Theater</option><option value="not:g-music">Without Music</option><option value="not:g-comedy">Without Stand-up</option><option value="not:g-dance">Without Dance</option><option value="not:g-party">Without Parties</option><option value="not:g-other">Without Other</option>
+      </optgroup>
+    </select>
+  </div>
+  
+  <div class="filter-group">
+    <label>Sub-genre:</label>
+    <select id="sub-genre-filter">
+      <option value="">All</option>
+      <optgroup label="Show only">
+        <option value="only:90s Night">Only 90s Night</option><option value="only:Israeli Rock">Only Israeli Rock</option><option value="only:Mediterranean Pop">Only Mediterranean Pop</option><option value="only:Reunion">Only Reunion</option>
+      </optgroup>
+      <optgroup label="Hide">
+        <option value="not:90s Night">Without 90s Night</option><option value="not:Israeli Rock">Without Israeli Rock</option><option value="not:Mediterranean Pop">Without Mediterranean Pop</option><option value="not:Reunion">Without Reunion</option>
+      </optgroup>
+    </select>
+  </div>
+  
+  <div class="filter-group">
+    <label>Time window:</label>
+    <select id="window-filter">
+      <option value="all">All</option>
+      <option value="7">This week</option>
+      <option value="30">This month</option>
+      <option value="90">3 months</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Distance up to:</label>
+    <select id="distance-filter">
+      <option value="">Any distance</option>
+      <option value="15">15 min</option>
+      <option value="30">30 min</option>
+      <option value="60">60 min</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <input type="text" id="text-filter" placeholder="Free search…">
+  </div>
+  <button class="filter-toggle" id="loved-only">📌 Favorites only</button>
+  <button class="filter-toggle dismissed-toggle" id="show-dismissed">Show hidden <span id="dismissed-count"></span></button>
+  <div class="filter-spacer"></div>
+  <button class="filter-link" id="reset-filters">Reset</button>
+</div>
+
+<div id="view-cards" class="view active">
+
+<h2 class="section-heading" id="pinned-heading" hidden>📌 Favorites</h2>
+<div class="grid" id="pinned-grid" hidden></div>
+
+<h2 class="section-heading" id="main-heading">All shows</h2>
+<div class="grid" id="main-grid">
+  
+  <article
+    id="card-gesher:gs-330"
+    class="card g-theater"
+    data-id="gesher:gs-330"
+    data-source="gesher"
+    data-venue="Gesher Theatre - Main Stage"
+    data-venue-canonical="Gesher Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-04"
+    data-opened="4 June"
+    data-opened-iso="1"
+    data-distance="13"
+    data-perf-count="3"
+    data-base-score="15"
+    data-performers="Doron Tavory|Efrat Ben-Zur"
+    data-director="Michael Zats"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="The Dybbuk Reimagined A restless spirit crosses between worlds in this bold, movement-driven reinvention of the classic folk drama. Doron Tavory Efrat Ben-Zur Michael Zats Gesher Theatre - Main Stage"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      
+      
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">The Dybbuk Reimagined</a></h3>
+
+      <div class="venue-line">
+        <span>Gesher Theatre - Main Stage</span>
+        <span class="travel">· ~13 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line"><span class="meta-chip">⏱ 105 min</span></div>
+      
+
+      <div class="desc">A restless spirit crosses between worlds in this bold, movement-driven reinvention of the classic folk drama.</div>
+
+      
+      <div class="venue-line"><span>🎬 Michael Zats</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Doron+Tavory" target="_blank" rel="noopener">Doron Tavory</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Efrat+Ben-Zur" target="_blank" rel="noopener">Efrat Ben-Zur</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>4 July</strong> 19:00 · 
+        
+          <strong>11 July</strong> 19:00 · 
+        
+          <strong>25 July</strong> 19:00
+        
+        
+        <span class="spread">
+          3 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=The+Dybbuk+Reimagined+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22The+Dybbuk+Reimagined%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Doron+Tavory" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Gesher+Theatre+-+Main+Stage%2C+Jaffa" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-habima:hb-101"
+    class="card g-theater"
+    data-id="habima:hb-101"
+    data-source="habima"
+    data-venue="Habima Theatre - Rovina Hall"
+    data-venue-canonical="Habima Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-05"
+    data-opened="29 June"
+    data-opened-iso="3"
+    data-distance="7"
+    data-perf-count="4"
+    data-base-score="70"
+    data-performers="Gila Almagor|Yoav Ronen"
+    data-director="Hanan Snir"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="The Glass Menagerie Revisited A luminous new staging of a fragile family, where memory and glass both threaten to shatter under a single touch. Gila Almagor Yoav Ronen Hanan Snir Habima Theatre - Rovina Hall"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">The Glass Menagerie Revisited</a></h3>
+
+      <div class="venue-line">
+        <span>Habima Theatre - Rovina Hall</span>
+        <span class="travel">· ~7 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved actor: Gila Almagor</span>
+        
+          <span class="meta-chip love">❤ Loved director: Hanan Snir</span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 29 June</span>
+        <span class="meta-chip">⏱ 115 min</span>
+      </div>
+      
+
+      <div class="desc">A luminous new staging of a fragile family, where memory and glass both threaten to shatter under a single touch.</div>
+
+      
+      <div class="venue-line"><span>🎬 Hanan Snir</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Gila+Almagor" target="_blank" rel="noopener">Gila Almagor</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Yoav+Ronen" target="_blank" rel="noopener">Yoav Ronen</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>5 July</strong> 20:30 · 
+        
+          <strong>10 July</strong> 20:30 · 
+        
+          <strong>17 July</strong> 20:30
+        
+        <span class="more"> +1</span>
+        <span class="spread">
+          4 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=The+Glass+Menagerie+Revisited+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22The+Glass+Menagerie+Revisited%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Gila+Almagor" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Habima+Theatre+-+Rovina+Hall%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-reading3:r3-810"
+    class="card g-music"
+    data-id="reading3:r3-810"
+    data-source="reading3"
+    data-venue="Reading 3"
+    data-venue-canonical="Reading 3"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-05"
+    data-opened="25 June"
+    data-opened-iso="1"
+    data-distance="15"
+    data-perf-count="3"
+    data-base-score="15"
+    data-performers="Anat Cohen|Omer Klein"
+    data-director=""
+    data-genre="Jazz"
+    data-sub-genre=""
+    data-search="Blue Note Jazz Quartet Late-night standards and original charts from a tight piano-led quartet in the intimate port-side room. Anat Cohen Omer Klein  Reading 3"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Jazz</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Blue Note Jazz Quartet</a></h3>
+
+      <div class="venue-line">
+        <span>Reading 3</span>
+        <span class="travel">· ~15 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved genre: Jazz</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 25 June</span>
+        <span class="meta-chip">⏱ 100 min</span>
+      </div>
+      
+
+      <div class="desc">Late-night standards and original charts from a tight piano-led quartet in the intimate port-side room.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Anat+Cohen" target="_blank" rel="noopener">Anat Cohen</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Omer+Klein" target="_blank" rel="noopener">Omer Klein</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>5 July</strong> 22:00 · 
+        
+          <strong>19 July</strong> 22:00 · 
+        
+          <strong>2 August</strong> 22:00
+        
+        
+        <span class="spread">
+          2 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Anat+Cohen" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Anat+Cohen+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Anat+Cohen" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Reading+3%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-lessin:ls-140"
+    class="card g-theater"
+    data-id="lessin:ls-140"
+    data-source="lessin"
+    data-venue="Lessin Theatre - Studio"
+    data-venue-canonical="Lessin Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-06"
+    data-opened="26 June"
+    data-opened-iso="2"
+    data-distance="8"
+    data-perf-count="5"
+    data-base-score="40"
+    data-performers="Rivka Michaeli|Assi Levy"
+    data-director="Hanan Snir"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="Kitchen Conversations Three generations argue, cook and forgive across one long Friday night. A warm, sharp domestic comedy-drama. Rivka Michaeli Assi Levy Hanan Snir Lessin Theatre - Studio"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Kitchen Conversations</a></h3>
+
+      <div class="venue-line">
+        <span>Lessin Theatre - Studio</span>
+        <span class="travel">· ~8 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved director: Hanan Snir</span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 26 June</span>
+        <span class="meta-chip">⏱ 95 min</span>
+      </div>
+      
+
+      <div class="desc">Three generations argue, cook and forgive across one long Friday night. A warm, sharp domestic comedy-drama.</div>
+
+      
+      <div class="venue-line"><span>🎬 Hanan Snir</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Rivka+Michaeli" target="_blank" rel="noopener">Rivka Michaeli</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Assi+Levy" target="_blank" rel="noopener">Assi Levy</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>6 July</strong> 20:30 · 
+        
+          <strong>13 July</strong> 20:30 · 
+        
+          <strong>20 July</strong> 20:30
+        
+        <span class="more"> +2</span>
+        <span class="spread">
+          4 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Kitchen+Conversations+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Kitchen+Conversations%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Rivka+Michaeli" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Lessin+Theatre+-+Studio%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-cameri:cm-210"
+    class="card g-theater"
+    data-id="cameri:cm-210"
+    data-source="cameri"
+    data-venue="Cameri Theatre - Hall 1"
+    data-venue-canonical="Cameri Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-07"
+    data-opened="18 June"
+    data-opened-iso="2"
+    data-distance="8"
+    data-perf-count="4"
+    data-base-score="45"
+    data-performers="Sasson Gabai|Neta Shpigelman"
+    data-director="Noa Barkai"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="A Simple Story A quiet village, an impossible love, and a season that refuses to end well. Adapted for the stage with restraint. Sasson Gabai Neta Shpigelman Noa Barkai Cameri Theatre - Hall 1"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">A Simple Story</a></h3>
+
+      <div class="venue-line">
+        <span>Cameri Theatre - Hall 1</span>
+        <span class="travel">· ~8 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved actor: Sasson Gabai</span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 18 June</span>
+        <span class="meta-chip">⏱ 130 min</span>
+      </div>
+      
+
+      <div class="desc">A quiet village, an impossible love, and a season that refuses to end well. Adapted for the stage with restraint.</div>
+
+      
+      <div class="venue-line"><span>🎬 Noa Barkai</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Sasson+Gabai" target="_blank" rel="noopener">Sasson Gabai</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Neta+Shpigelman" target="_blank" rel="noopener">Neta Shpigelman</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>7 July</strong> 20:00 · 
+        
+          <strong>14 July</strong> 20:00 · 
+        
+          <strong>21 July</strong> 20:00
+        
+        <span class="more"> +1</span>
+        <span class="spread">
+          3 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=A+Simple+Story+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22A+Simple+Story%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Sasson+Gabai" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Cameri+Theatre+-+Hall+1%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-zappa_tlv:zt-501"
+    class="card g-music"
+    data-id="zappa_tlv:zt-501"
+    data-source="zappa_tlv"
+    data-venue="Zappa Tel Aviv"
+    data-venue-canonical="Zappa Tel Aviv"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-07"
+    data-opened="28 June"
+    data-opened-iso="1"
+    data-distance="12"
+    data-perf-count="3"
+    data-base-score="30"
+    data-performers="Shlomo Artzi"
+    data-director=""
+    data-genre="Music"
+    data-sub-genre="Israeli Rock"
+    data-search="Shlomo Artzi: Summer Songs An intimate club evening of the songs that soundtracked a generation, stripped back to guitar, piano and voice. Shlomo Artzi  Zappa Tel Aviv"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Israeli Rock</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Shlomo Artzi: Summer Songs</a></h3>
+
+      <div class="venue-line">
+        <span>Zappa Tel Aviv</span>
+        <span class="travel">· ~12 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved artist: Shlomo Artzi</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 28 June</span>
+        <span class="meta-chip">⏱ 120 min</span>
+      </div>
+      
+
+      <div class="desc">An intimate club evening of the songs that soundtracked a generation, stripped back to guitar, piano and voice.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Shlomo+Artzi" target="_blank" rel="noopener">Shlomo Artzi</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>7 July</strong> 21:00 · 
+        
+          <strong>8 July</strong> 21:00 · 
+        
+          <strong>21 July</strong> 21:00
+        
+        
+        <span class="spread">
+          3 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Shlomo+Artzi" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Shlomo+Artzi+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Shlomo+Artzi" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Zappa+Tel+Aviv%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-habima:hb-155"
+    class="card g-theater"
+    data-id="habima:hb-155"
+    data-source="habima"
+    data-venue="Habima Theatre - Bertonov Hall"
+    data-venue-canonical="Habima Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-08"
+    data-opened="30 June"
+    data-opened-iso="1"
+    data-distance="7"
+    data-perf-count="3"
+    data-base-score="15"
+    data-performers="Yona Elian|Dov Navon"
+    data-director="Ilan Ronen"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="Waiting Rooms Strangers share a clinic waiting room and, slowly, their whole lives. A tender ensemble piece about patience. Yona Elian Dov Navon Ilan Ronen Habima Theatre - Bertonov Hall"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Waiting Rooms</a></h3>
+
+      <div class="venue-line">
+        <span>Habima Theatre - Bertonov Hall</span>
+        <span class="travel">· ~7 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 30 June</span>
+        <span class="meta-chip">⏱ 100 min</span>
+      </div>
+      
+
+      <div class="desc">Strangers share a clinic waiting room and, slowly, their whole lives. A tender ensemble piece about patience.</div>
+
+      
+      <div class="venue-line"><span>🎬 Ilan Ronen</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Yona+Elian" target="_blank" rel="noopener">Yona Elian</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Dov+Navon" target="_blank" rel="noopener">Dov Navon</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>8 July</strong> 20:30 · 
+        
+          <strong>15 July</strong> 20:30 · 
+        
+          <strong>29 July</strong> 20:30
+        
+        
+        <span class="spread">
+          3 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Waiting+Rooms+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Waiting+Rooms%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Yona+Elian" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Habima+Theatre+-+Bertonov+Hall%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-hasimta:hs-072"
+    class="card g-theater"
+    data-id="hasimta:hs-072"
+    data-source="hasimta"
+    data-venue="HaSimta Theatre"
+    data-venue-canonical="HaSimta Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-10"
+    data-opened="14 June"
+    data-opened-iso="2"
+    data-distance="14"
+    data-perf-count="3"
+    data-base-score="40"
+    data-performers="Gil Frank|Shira Naor"
+    data-director="Hanan Snir"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="Alleyway Tales An intimate storytelling evening staged in Old Jaffa&#39;s smallest theatre, where the walls do half the acting. Gil Frank Shira Naor Hanan Snir HaSimta Theatre"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Alleyway Tales</a></h3>
+
+      <div class="venue-line">
+        <span>HaSimta Theatre</span>
+        <span class="travel">· ~14 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved director: Hanan Snir</span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 14 June</span>
+        <span class="meta-chip">⏱ 80 min</span>
+      </div>
+      
+
+      <div class="desc">An intimate storytelling evening staged in Old Jaffa&#39;s smallest theatre, where the walls do half the acting.</div>
+
+      
+      <div class="venue-line"><span>🎬 Hanan Snir</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Gil+Frank" target="_blank" rel="noopener">Gil Frank</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Shira+Naor" target="_blank" rel="noopener">Shira Naor</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>10 July</strong> 21:00 · 
+        
+          <strong>24 July</strong> 21:00 · 
+        
+          <strong>7 August</strong> 21:00
+        
+        
+        <span class="spread">
+          2 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Alleyway+Tales+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Alleyway+Tales%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Gil+Frank" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=HaSimta+Theatre%2C+Jaffa" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-zappa_herzliya:zh-512"
+    class="card g-music"
+    data-id="zappa_herzliya:zh-512"
+    data-source="zappa_herzliya"
+    data-venue="Zappa Herzliya"
+    data-venue-canonical="Zappa Herzliya"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-11"
+    data-opened="17 June"
+    data-opened-iso="1"
+    data-distance="18"
+    data-perf-count="2"
+    data-base-score="30"
+    data-performers="Rita"
+    data-director=""
+    data-genre="Pop"
+    data-sub-genre="Mediterranean Pop"
+    data-search="Rita: Under One Sky A powerhouse voice returns with a new set spanning three decades of hits and a handful of brand-new songs. Rita  Zappa Herzliya"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Mediterranean Pop</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Rita: Under One Sky</a></h3>
+
+      <div class="venue-line">
+        <span>Zappa Herzliya</span>
+        <span class="travel">· ~18 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved artist: Rita</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 17 June</span>
+        <span class="meta-chip">⏱ 110 min</span>
+      </div>
+      
+
+      <div class="desc">A powerhouse voice returns with a new set spanning three decades of hits and a handful of brand-new songs.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Rita" target="_blank" rel="noopener">Rita</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>11 July</strong> 21:00 · 
+        
+          <strong>25 July</strong> 21:00
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Rita" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Rita+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Rita" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Zappa+Herzliya%2C+Herzliya" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-yoram_loewenstein:yl-060"
+    class="card g-theater"
+    data-id="yoram_loewenstein:yl-060"
+    data-source="yoram_loewenstein"
+    data-venue="Yoram Loewenstein Studio - Black Box"
+    data-venue-canonical="Yoram Loewenstein Studio"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-12"
+    data-opened="1 June"
+    data-opened-iso="1"
+    data-distance="13"
+    data-perf-count="2"
+    data-base-score="15"
+    data-performers="The Graduating Ensemble"
+    data-director="Ronit Kaplan"
+    data-genre="Theater"
+    data-sub-genre=""
+    data-search="Graduation Stage The graduating class presents an evening of short original works — raw, fearless and often unexpectedly funny. The Graduating Ensemble Ronit Kaplan Yoram Loewenstein Studio - Black Box"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      
+      
+      <span class="ovbadge">Theater</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Graduation Stage</a></h3>
+
+      <div class="venue-line">
+        <span>Yoram Loewenstein Studio - Black Box</span>
+        <span class="travel">· ~13 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved genre: Theater</span>
+        
+      </div>
+
+      
+      <div class="meta-line"><span class="meta-chip">⏱ 90 min</span></div>
+      
+
+      <div class="desc">The graduating class presents an evening of short original works — raw, fearless and often unexpectedly funny.</div>
+
+      
+      <div class="venue-line"><span>🎬 Ronit Kaplan</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=The+Graduating+Ensemble" target="_blank" rel="noopener">The Graduating Ensemble</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>12 July</strong> 19:30 · 
+        
+          <strong>19 July</strong> 19:30
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Graduation+Stage+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Graduation+Stage%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=The+Graduating+Ensemble" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Yoram+Loewenstein+Studio+-+Black+Box%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-zappa_tlv:zt-820"
+    class="card g-music"
+    data-id="zappa_tlv:zt-820"
+    data-source="zappa_tlv"
+    data-venue="Zappa Tel Aviv"
+    data-venue-canonical="Zappa Tel Aviv"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-14"
+    data-opened="19 June"
+    data-opened-iso="1"
+    data-distance="12"
+    data-perf-count="2"
+    data-base-score="15"
+    data-performers="Avishai Cohen Trio"
+    data-director=""
+    data-genre="Jazz"
+    data-sub-genre=""
+    data-search="Midnight in Jaffa Jazz A monthly late set of cool, coastal jazz — brushes, upright bass and a trumpet that knows when to whisper. Avishai Cohen Trio  Zappa Tel Aviv"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Jazz</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Midnight in Jaffa Jazz</a></h3>
+
+      <div class="venue-line">
+        <span>Zappa Tel Aviv</span>
+        <span class="travel">· ~12 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+          <span class="meta-chip love">❤ Loved genre: Jazz</span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 19 June</span>
+        <span class="meta-chip">⏱ 90 min</span>
+      </div>
+      
+
+      <div class="desc">A monthly late set of cool, coastal jazz — brushes, upright bass and a trumpet that knows when to whisper.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Avishai+Cohen+Trio" target="_blank" rel="noopener">Avishai Cohen Trio</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>14 July</strong> 22:30 · 
+        
+          <strong>11 August</strong> 22:30
+        
+        
+        <span class="spread">
+          1 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Avishai+Cohen+Trio" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Avishai+Cohen+Trio+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Avishai+Cohen+Trio" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Zappa+Tel+Aviv%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-tzavta:tz-901"
+    class="card g-comedy"
+    data-id="tzavta:tz-901"
+    data-source="tzavta"
+    data-venue="Tzavta - Hall 3"
+    data-venue-canonical="Tzavta"
+    data-genre-class="g-comedy"
+    data-next-perf="2026-07-03"
+    data-opened="28 June"
+    data-opened-iso="0"
+    data-distance="6"
+    data-perf-count="4"
+    data-base-score="0"
+    data-performers="Shahar Hason"
+    data-director=""
+    data-genre="Stand-up"
+    data-sub-genre=""
+    data-search="Laugh Lines An hour of sharp, observational stand-up about parking, parents and the impossibility of a quiet coffee. Shahar Hason  Tzavta - Hall 3"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎤</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Stand-up</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Laugh Lines</a></h3>
+
+      <div class="venue-line">
+        <span>Tzavta - Hall 3</span>
+        <span class="travel">· ~6 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 28 June</span>
+        <span class="meta-chip">⏱ 75 min</span>
+      </div>
+      
+
+      <div class="desc">An hour of sharp, observational stand-up about parking, parents and the impossibility of a quiet coffee.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Shahar+Hason" target="_blank" rel="noopener">Shahar Hason</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>3 July</strong> 21:00 · 
+        
+          <strong>10 July</strong> 21:00 · 
+        
+          <strong>17 July</strong> 21:00
+        
+        <span class="more"> +1</span>
+        <span class="spread">
+          4 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Laugh+Lines+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Laugh+Lines%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Shahar+Hason" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Tzavta+-+Hall+3%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-suzanne_dellal:sd-301"
+    class="card g-dance"
+    data-id="suzanne_dellal:sd-301"
+    data-source="suzanne_dellal"
+    data-venue="Suzanne Dellal Center - Yerushalmi Hall"
+    data-venue-canonical="Suzanne Dellal Center"
+    data-genre-class="g-dance"
+    data-next-perf="2026-07-04"
+    data-opened="29 June"
+    data-opened-iso="0"
+    data-distance="12"
+    data-perf-count="4"
+    data-base-score="0"
+    data-performers="Batsheva Dancers"
+    data-director="Maya Levy"
+    data-genre="Dance"
+    data-sub-genre=""
+    data-search="Kinetic Horizons A striking new contemporary work for ten dancers exploring the line where the body ends and the horizon begins. Batsheva Dancers Maya Levy Suzanne Dellal Center - Yerushalmi Hall"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">💃</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Dance</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Kinetic Horizons</a></h3>
+
+      <div class="venue-line">
+        <span>Suzanne Dellal Center - Yerushalmi Hall</span>
+        <span class="travel">· ~12 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 29 June</span>
+        <span class="meta-chip">⏱ 70 min</span>
+      </div>
+      
+
+      <div class="desc">A striking new contemporary work for ten dancers exploring the line where the body ends and the horizon begins.</div>
+
+      
+      <div class="venue-line"><span>🎬 Maya Levy</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Batsheva+Dancers" target="_blank" rel="noopener">Batsheva Dancers</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>4 July</strong> 20:00 · 
+        
+          <strong>11 July</strong> 20:00 · 
+        
+          <strong>18 July</strong> 20:00
+        
+        <span class="more"> +1</span>
+        <span class="spread">
+          3 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Kinetic+Horizons+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Kinetic+Horizons%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Batsheva+Dancers" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Suzanne+Dellal+Center+-+Yerushalmi+Hall%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-barby:bb-620"
+    class="card g-music"
+    data-id="barby:bb-620"
+    data-source="barby"
+    data-venue="Barby Club"
+    data-venue-canonical="Barby Club"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-06"
+    data-opened="27 June"
+    data-opened-iso="0"
+    data-distance="14"
+    data-perf-count="3"
+    data-base-score="0"
+    data-performers="Electric Tram"
+    data-director=""
+    data-genre="Rock"
+    data-sub-genre=""
+    data-search="Electric Tram Four-piece indie rock with wall-of-sound guitars and a reputation for sweaty, sold-out hometown shows. Electric Tram  Barby Club"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">Rock</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Electric Tram</a></h3>
+
+      <div class="venue-line">
+        <span>Barby Club</span>
+        <span class="travel">· ~14 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 27 June</span>
+        <span class="meta-chip">⏱ 95 min</span>
+      </div>
+      
+
+      <div class="desc">Four-piece indie rock with wall-of-sound guitars and a reputation for sweaty, sold-out hometown shows.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Electric+Tram" target="_blank" rel="noopener">Electric Tram</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>6 July</strong> 21:30 · 
+        
+          <strong>13 July</strong> 21:30 · 
+        
+          <strong>3 August</strong> 21:30
+        
+        
+        <span class="spread">
+          2 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Electric+Tram" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Electric+Tram+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Electric+Tram" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Barby+Club%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-reading3:r3-950"
+    class="card g-party"
+    data-id="reading3:r3-950"
+    data-source="reading3"
+    data-venue="Reading 3"
+    data-venue-canonical="Reading 3"
+    data-genre-class="g-party"
+    data-next-perf="2026-07-06"
+    data-opened="27 June"
+    data-opened-iso="0"
+    data-distance="15"
+    data-perf-count="3"
+    data-base-score="0"
+    data-performers="DJ Retro"
+    data-director=""
+    data-genre="Parties"
+    data-sub-genre="90s Night"
+    data-search="90s Throwback Night A full-on 90s night of the decade&#39;s biggest floor-fillers, with a live DJ set and a very generous fog machine. DJ Retro  Reading 3"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎉</div>
+    
+
+    <div class="poster-overlay">
+      <span class="ovbadge fresh">🆕 New</span>
+      
+      <span class="ovbadge">90s Night</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">90s Throwback Night</a></h3>
+
+      <div class="venue-line">
+        <span>Reading 3</span>
+        <span class="travel">· ~15 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 27 June</span>
+        <span class="meta-chip">⏱ 240 min</span>
+      </div>
+      
+
+      <div class="desc">A full-on 90s night of the decade&#39;s biggest floor-fillers, with a live DJ set and a very generous fog machine.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=DJ+Retro" target="_blank" rel="noopener">DJ Retro</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>6 July</strong> 23:00 · 
+        
+          <strong>20 July</strong> 23:00 · 
+        
+          <strong>3 August</strong> 23:00
+        
+        
+        <span class="spread">
+          2 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/DJ+Retro" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=DJ+Retro+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=DJ+Retro" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Reading+3%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-heichal_givatayim:hg-970"
+    class="card g-other"
+    data-id="heichal_givatayim:hg-970"
+    data-source="heichal_givatayim"
+    data-venue="Givatayim Culture Hall - Almozlino Hall"
+    data-venue-canonical="Givatayim Culture Hall"
+    data-genre-class="g-other"
+    data-next-perf="2026-07-07"
+    data-opened="12 June"
+    data-opened-iso="0"
+    data-distance="15"
+    data-perf-count="3"
+    data-base-score="0"
+    data-performers="The Big Top Company"
+    data-director=""
+    data-genre="Family Show"
+    data-sub-genre=""
+    data-search="Family Circus Spectacular Acrobats, jugglers and a very patient clown in a bright matinee built for the whole family. Runs 60 minutes. The Big Top Company  Givatayim Culture Hall - Almozlino Hall"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎪</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Family Show</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Family Circus Spectacular</a></h3>
+
+      <div class="venue-line">
+        <span>Givatayim Culture Hall - Almozlino Hall</span>
+        <span class="travel">· ~15 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 12 June</span>
+        <span class="meta-chip">⏱ 60 min</span>
+      </div>
+      
+
+      <div class="desc">Acrobats, jugglers and a very patient clown in a bright matinee built for the whole family. Runs 60 minutes.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=The+Big+Top+Company" target="_blank" rel="noopener">The Big Top Company</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>7 July</strong> 11:00 · 
+        
+          <strong>14 July</strong> 11:00 · 
+        
+          <strong>21 July</strong> 11:00
+        
+        
+        <span class="spread">
+          3 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.google.com/search?q=Family+Circus+Spectacular&amp;hl=he" target="_blank" rel="noopener">🔎 Search</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Family+Circus+Spectacular%22&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Givatayim+Culture+Hall+-+Almozlino+Hall%2C+Givatayim" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-cameri:cm-410"
+    class="card g-theater"
+    data-id="cameri:cm-410"
+    data-source="cameri"
+    data-venue="Cameri Theatre - Hall 2"
+    data-venue-canonical="Cameri Theatre"
+    data-genre-class="g-theater"
+    data-next-perf="2026-07-09"
+    data-opened="15 June"
+    data-opened-iso="0"
+    data-distance="8"
+    data-perf-count="4"
+    data-base-score="0"
+    data-performers="Maya Dagan|Idan Alterman"
+    data-director="Tamar Keenan"
+    data-genre="Musical"
+    data-sub-genre=""
+    data-search="City of Dreams A sweeping original musical about a night-shift city that only comes alive after midnight. Big band, bigger heart. Maya Dagan Idan Alterman Tamar Keenan Cameri Theatre - Hall 2"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎭</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Musical</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">City of Dreams</a></h3>
+
+      <div class="venue-line">
+        <span>Cameri Theatre - Hall 2</span>
+        <span class="travel">· ~8 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 15 June</span>
+        <span class="meta-chip">⏱ 150 min</span>
+      </div>
+      
+
+      <div class="desc">A sweeping original musical about a night-shift city that only comes alive after midnight. Big band, bigger heart.</div>
+
+      
+      <div class="venue-line"><span>🎬 Tamar Keenan</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Maya+Dagan" target="_blank" rel="noopener">Maya Dagan</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Idan+Alterman" target="_blank" rel="noopener">Idan Alterman</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>9 July</strong> 20:00 · 
+        
+          <strong>16 July</strong> 20:00 · 
+        
+          <strong>23 July</strong> 20:00
+        
+        <span class="more"> +1</span>
+        <span class="spread">
+          4 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=City+of+Dreams+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22City+of+Dreams%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Maya+Dagan" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Cameri+Theatre+-+Hall+2%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-heichal_tlv:ht-910"
+    class="card g-comedy"
+    data-id="heichal_tlv:ht-910"
+    data-source="heichal_tlv"
+    data-venue="Tel Aviv Culture Palace (Bronfman)"
+    data-venue-canonical="Tel Aviv Culture Palace (Bronfman)"
+    data-genre-class="g-comedy"
+    data-next-perf="2026-07-09"
+    data-opened="13 June"
+    data-opened-iso="0"
+    data-distance="9"
+    data-perf-count="2"
+    data-base-score="0"
+    data-performers="Adir Miller|Orna Banai"
+    data-director=""
+    data-genre="Comedy"
+    data-sub-genre=""
+    data-search="The Roast of Everything A rotating line-up of comedians take turns roasting the week&#39;s news, each other, and the front row. Adir Miller Orna Banai  Tel Aviv Culture Palace (Bronfman)"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎤</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Comedy</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">The Roast of Everything</a></h3>
+
+      <div class="venue-line">
+        <span>Tel Aviv Culture Palace (Bronfman)</span>
+        <span class="travel">· ~9 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 13 June</span>
+        <span class="meta-chip">⏱ 85 min</span>
+      </div>
+      
+
+      <div class="desc">A rotating line-up of comedians take turns roasting the week&#39;s news, each other, and the front row.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Adir+Miller" target="_blank" rel="noopener">Adir Miller</a>
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Orna+Banai" target="_blank" rel="noopener">Orna Banai</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>9 July</strong> 20:30 · 
+        
+          <strong>23 July</strong> 20:30
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.google.com/search?q=The+Roast+of+Everything&amp;hl=he" target="_blank" rel="noopener">🔎 Search</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22The+Roast+of+Everything%22&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Tel+Aviv+Culture+Palace+%28Bronfman%29%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-suzanne_dellal:sd-320"
+    class="card g-dance"
+    data-id="suzanne_dellal:sd-320"
+    data-source="suzanne_dellal"
+    data-venue="Suzanne Dellal Center - Main Hall"
+    data-venue-canonical="Suzanne Dellal Center"
+    data-genre-class="g-dance"
+    data-next-perf="2026-07-10"
+    data-opened="16 June"
+    data-opened-iso="0"
+    data-distance="12"
+    data-perf-count="2"
+    data-base-score="0"
+    data-performers="Vertigo Company"
+    data-director="Noa Wertheim"
+    data-genre="Dance"
+    data-sub-genre=""
+    data-search="Bodies in Motion A double bill pairing a delicate duet with a thunderous full-company finale. Percussion played live on stage. Vertigo Company Noa Wertheim Suzanne Dellal Center - Main Hall"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">💃</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Dance</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Bodies in Motion</a></h3>
+
+      <div class="venue-line">
+        <span>Suzanne Dellal Center - Main Hall</span>
+        <span class="travel">· ~12 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 16 June</span>
+        <span class="meta-chip">⏱ 80 min</span>
+      </div>
+      
+
+      <div class="desc">A double bill pairing a delicate duet with a thunderous full-company finale. Percussion played live on stage.</div>
+
+      
+      <div class="venue-line"><span>🎬 Noa Wertheim</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Vertigo+Company" target="_blank" rel="noopener">Vertigo Company</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>10 July</strong> 20:30 · 
+        
+          <strong>24 July</strong> 20:30
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Bodies+in+Motion+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Bodies+in+Motion%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Vertigo+Company" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Suzanne+Dellal+Center+-+Main+Hall%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-tzavta:tz-920"
+    class="card g-comedy"
+    data-id="tzavta:tz-920"
+    data-source="tzavta"
+    data-venue="Tzavta - Hall 1"
+    data-venue-canonical="Tzavta"
+    data-genre-class="g-comedy"
+    data-next-perf="2026-07-12"
+    data-opened="3 June"
+    data-opened-iso="0"
+    data-distance="6"
+    data-perf-count="3"
+    data-base-score="0"
+    data-performers="The Republic Troupe"
+    data-director=""
+    data-genre="cabaret"
+    data-sub-genre=""
+    data-search="Improv Republic A fast, unscripted cabaret night built entirely from audience suggestions. No two shows are ever the same. The Republic Troupe  Tzavta - Hall 1"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎤</div>
+    
+
+    <div class="poster-overlay">
+      
+      
+      <span class="ovbadge">cabaret</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Improv Republic</a></h3>
+
+      <div class="venue-line">
+        <span>Tzavta - Hall 1</span>
+        <span class="travel">· ~6 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line"><span class="meta-chip">⏱ 90 min</span></div>
+      
+
+      <div class="desc">A fast, unscripted cabaret night built entirely from audience suggestions. No two shows are ever the same.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=The+Republic+Troupe" target="_blank" rel="noopener">The Republic Troupe</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>12 July</strong> 21:30 · 
+        
+          <strong>26 July</strong> 21:30 · 
+        
+          <strong>9 August</strong> 21:30
+        
+        
+        <span class="spread">
+          2 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Improv+Republic+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Improv+Republic%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=The+Republic+Troupe" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Tzavta+-+Hall+1%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-tmuna:tm-330"
+    class="card g-dance"
+    data-id="tmuna:tm-330"
+    data-source="tmuna"
+    data-venue="Tmuna Theatre"
+    data-venue-canonical="Tmuna Theatre"
+    data-genre-class="g-dance"
+    data-next-perf="2026-07-13"
+    data-opened="2 June"
+    data-opened-iso="0"
+    data-distance="10"
+    data-perf-count="2"
+    data-base-score="0"
+    data-performers="Fresh Paint Collective"
+    data-director="Iris Erez"
+    data-genre="Dance"
+    data-sub-genre=""
+    data-search="Contemporary Fragments Five short experimental pieces from emerging choreographers in the fringe scene&#39;s most beloved small stage. Fresh Paint Collective Iris Erez Tmuna Theatre"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">💃</div>
+    
+
+    <div class="poster-overlay">
+      
+      
+      <span class="ovbadge">Dance</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Contemporary Fragments</a></h3>
+
+      <div class="venue-line">
+        <span>Tmuna Theatre</span>
+        <span class="travel">· ~10 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line"><span class="meta-chip">⏱ 65 min</span></div>
+      
+
+      <div class="desc">Five short experimental pieces from emerging choreographers in the fringe scene&#39;s most beloved small stage.</div>
+
+      
+      <div class="venue-line"><span>🎬 Iris Erez</span></div>
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Fresh+Paint+Collective" target="_blank" rel="noopener">Fresh Paint Collective</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>13 July</strong> 21:00 · 
+        
+          <strong>27 July</strong> 21:00
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Contemporary+Fragments+trailer" target="_blank" rel="noopener">📺 Trailer</a>
+        
+        <a class="enrich-link" href="https://news.google.com/search?q=%22Contemporary+Fragments%22+review&amp;hl=he-IL&amp;gl=IL&amp;ceid=IL%3Ahe" target="_blank" rel="noopener">📰 Reviews</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Fresh+Paint+Collective" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Tmuna+Theatre%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-barby:bb-960"
+    class="card g-party"
+    data-id="barby:bb-960"
+    data-source="barby"
+    data-venue="Barby Club"
+    data-venue-canonical="Barby Club"
+    data-genre-class="g-party"
+    data-next-perf="2026-07-16"
+    data-opened="15 June"
+    data-opened-iso="0"
+    data-distance="14"
+    data-perf-count="2"
+    data-base-score="0"
+    data-performers="DJ Tapes"
+    data-director=""
+    data-genre="Parties"
+    data-sub-genre="Reunion"
+    data-search="Class Reunion Rave A class reunion dance night for everyone who still knows every word — expect confetti and questionable choreography. DJ Tapes  Barby Club"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎉</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Reunion</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Class Reunion Rave</a></h3>
+
+      <div class="venue-line">
+        <span>Barby Club</span>
+        <span class="travel">· ~14 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 15 June</span>
+        <span class="meta-chip">⏱ 210 min</span>
+      </div>
+      
+
+      <div class="desc">A class reunion dance night for everyone who still knows every word — expect confetti and questionable choreography.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=DJ+Tapes" target="_blank" rel="noopener">DJ Tapes</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>16 July</strong> 22:30 · 
+        
+          <strong>30 July</strong> 22:30
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/DJ+Tapes" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=DJ+Tapes+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=DJ+Tapes" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Barby+Club%2C+Tel+Aviv" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-shuni:sh-710"
+    class="card g-music"
+    data-id="shuni:sh-710"
+    data-source="shuni"
+    data-venue="Shuni Amphitheatre"
+    data-venue-canonical="Shuni Amphitheatre"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-20"
+    data-opened="5 June"
+    data-opened-iso="0"
+    data-distance="38"
+    data-perf-count="2"
+    data-base-score="0"
+    data-performers="Dudu Aharon"
+    data-director=""
+    data-genre="Mizrahi"
+    data-sub-genre=""
+    data-search="Mediterranean Nights A warm evening of Mediterranean and Mizrahi favourites in the historic courtyard amphitheatre near Binyamina. Dudu Aharon  Shuni Amphitheatre"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      
+      
+      <span class="ovbadge">Mizrahi</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Mediterranean Nights</a></h3>
+
+      <div class="venue-line">
+        <span>Shuni Amphitheatre</span>
+        <span class="travel">· ~38 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line"><span class="meta-chip">⏱ 115 min</span></div>
+      
+
+      <div class="desc">A warm evening of Mediterranean and Mizrahi favourites in the historic courtyard amphitheatre near Binyamina.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Dudu+Aharon" target="_blank" rel="noopener">Dudu Aharon</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>20 July</strong> 20:00 · 
+        
+          <strong>10 August</strong> 20:00
+        
+        
+        <span class="spread">
+          1 this month · 1 next month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Dudu+Aharon" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Dudu+Aharon+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Dudu+Aharon" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Shuni+Amphitheatre%2C+Binyamina" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+  <article
+    id="card-caesarea:cs-700"
+    class="card g-music"
+    data-id="caesarea:cs-700"
+    data-source="caesarea"
+    data-venue="Caesarea Amphitheatre"
+    data-venue-canonical="Caesarea Amphitheatre"
+    data-genre-class="g-music"
+    data-next-perf="2026-07-22"
+    data-opened="16 June"
+    data-opened-iso="0"
+    data-distance="40"
+    data-perf-count="2"
+    data-base-score="0"
+    data-performers="Ninet Tayeb"
+    data-director=""
+    data-genre="Music"
+    data-sub-genre=""
+    data-search="Summer Under the Stars An open-air night in the Roman amphitheatre by the sea, with a full band and a string section under the stars. Ninet Tayeb  Caesarea Amphitheatre"
+  >
+    <div class="card-actions">
+      <button class="card-action pin" title="Pin" data-action="pin">📌</button>
+      <button class="card-action close" title="Hide" data-action="dismiss">✕</button>
+    </div>
+
+    
+    <div class="poster empty">🎵</div>
+    
+
+    <div class="poster-overlay">
+      
+      <span class="ovbadge warm">🟡 Recent</span>
+      <span class="ovbadge">Music</span>
+    </div>
+
+    <div class="card-body">
+      <h3><a href="#" target="_blank" rel="noopener">Summer Under the Stars</a></h3>
+
+      <div class="venue-line">
+        <span>Caesarea Amphitheatre</span>
+        <span class="travel">· ~40 min drive</span>
+      </div>
+
+      <div class="meta-line">
+        <span class="meta-chip match-badge" hidden></span>
+        
+      </div>
+
+      
+      <div class="meta-line">
+        <span class="meta-chip">On sale: 16 June</span>
+        <span class="meta-chip">⏱ 130 min</span>
+      </div>
+      
+
+      <div class="desc">An open-air night in the Roman amphitheatre by the sea, with a full band and a string section under the stars.</div>
+
+      
+
+      
+      <div class="performer-chips">
+        
+          <a class="performer-chip" href="https://he.wikipedia.org/w/index.php?search=Ninet+Tayeb" target="_blank" rel="noopener">Ninet Tayeb</a>
+        
+      </div>
+      
+
+      
+      <div class="perfs">
+        📅
+        
+          <strong>22 July</strong> 20:30 · 
+        
+          <strong>29 July</strong> 20:30
+        
+        
+        <span class="spread">
+          2 this month
+          
+        </span>
+      </div>
+      
+
+      <div class="cta-row">
+        <a class="cta" href="#" target="_blank" rel="noopener">Go to ticket page →</a>
+      </div>
+
+      
+      <div class="enrich-row">
+        
+        <a class="enrich-link" href="https://open.spotify.com/search/Ninet+Tayeb" target="_blank" rel="noopener">🎵 Spotify</a>
+        
+        <a class="enrich-link" href="https://www.youtube.com/results?search_query=Ninet+Tayeb+hit+song" target="_blank" rel="noopener">📺 Music Videos</a>
+        
+        <a class="enrich-link" href="https://he.wikipedia.org/w/index.php?search=Ninet+Tayeb" target="_blank" rel="noopener">📖 Wikipedia</a>
+        
+        <a class="enrich-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=Tel+Aviv&amp;destination=Caesarea+Amphitheatre%2C+Caesarea" target="_blank" rel="noopener">🗺 Directions</a>
+        
+      </div>
+      
+    </div>
+  </article>
+  
+</div>
+
+<div class="empty" id="no-results" hidden>No shows match the current filter</div>
+</div><!-- /#view-cards -->
+
+<div id="view-calendar" class="view">
+  <div class="calendar-wrap">
+    <div id="cal-status" style="color:var(--text-dim);font-size:12px;margin:0 0 10px 4px"></div>
+    <div class="calendar">
+      <!-- Day headers — Sunday first (Israeli convention) -->
+      <div class="cal-day-header">Sun</div>
+      <div class="cal-day-header">Mon</div>
+      <div class="cal-day-header">Tue</div>
+      <div class="cal-day-header">Wed</div>
+      <div class="cal-day-header">Thu</div>
+      <div class="cal-day-header">Fri</div>
+      <div class="cal-day-header">Sat</div>
+
+      
+        
+        <div class="cal-day past" data-iso="2026-06-28">
+          <div class="cal-num">28</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day past" data-iso="2026-06-29">
+          <div class="cal-num">29</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day past" data-iso="2026-06-30">
+          <div class="cal-num">30</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day today" data-iso="2026-07-01">
+          <div class="cal-num">1</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-02">
+          <div class="cal-num">2</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-03">
+          <div class="cal-num">3</div>
+          
+          <a href="#card-tzavta:tz-901" class="cal-event g-comedy" data-target="card-tzavta:tz-901">
+            <span class="cal-time">21:00</span>Laugh Lines
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-04">
+          <div class="cal-num">4</div>
+          
+          <a href="#card-gesher:gs-330" class="cal-event g-theater" data-target="card-gesher:gs-330">
+            <span class="cal-time">19:00</span>The Dybbuk Reimagined
+          </a>
+          
+          <a href="#card-suzanne_dellal:sd-301" class="cal-event g-dance" data-target="card-suzanne_dellal:sd-301">
+            <span class="cal-time">20:00</span>Kinetic Horizons
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-07-05">
+          <div class="cal-num">5</div>
+          
+          <a href="#card-habima:hb-101" class="cal-event g-theater" data-target="card-habima:hb-101">
+            <span class="cal-time">20:30</span>The Glass Menagerie Revisited
+          </a>
+          
+          <a href="#card-reading3:r3-810" class="cal-event g-music" data-target="card-reading3:r3-810">
+            <span class="cal-time">22:00</span>Blue Note Jazz Quartet
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-06">
+          <div class="cal-num">6</div>
+          
+          <a href="#card-lessin:ls-140" class="cal-event g-theater" data-target="card-lessin:ls-140">
+            <span class="cal-time">20:30</span>Kitchen Conversations
+          </a>
+          
+          <a href="#card-barby:bb-620" class="cal-event g-music" data-target="card-barby:bb-620">
+            <span class="cal-time">21:30</span>Electric Tram
+          </a>
+          
+          <a href="#card-reading3:r3-950" class="cal-event g-party" data-target="card-reading3:r3-950">
+            <span class="cal-time">23:00</span>90s Throwback Night
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-07">
+          <div class="cal-num">7</div>
+          
+          <a href="#card-heichal_givatayim:hg-970" class="cal-event g-other" data-target="card-heichal_givatayim:hg-970">
+            <span class="cal-time">11:00</span>Family Circus Spectacular
+          </a>
+          
+          <a href="#card-cameri:cm-210" class="cal-event g-theater" data-target="card-cameri:cm-210">
+            <span class="cal-time">20:00</span>A Simple Story
+          </a>
+          
+          <a href="#card-zappa_tlv:zt-501" class="cal-event g-music" data-target="card-zappa_tlv:zt-501">
+            <span class="cal-time">21:00</span>Shlomo Artzi: Summer Songs
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-08">
+          <div class="cal-num">8</div>
+          
+          <a href="#card-habima:hb-155" class="cal-event g-theater" data-target="card-habima:hb-155">
+            <span class="cal-time">20:30</span>Waiting Rooms
+          </a>
+          
+          <a href="#card-zappa_tlv:zt-501" class="cal-event g-music" data-target="card-zappa_tlv:zt-501">
+            <span class="cal-time">21:00</span>Shlomo Artzi: Summer Songs
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-09">
+          <div class="cal-num">9</div>
+          
+          <a href="#card-cameri:cm-410" class="cal-event g-theater" data-target="card-cameri:cm-410">
+            <span class="cal-time">20:00</span>City of Dreams
+          </a>
+          
+          <a href="#card-heichal_tlv:ht-910" class="cal-event g-comedy" data-target="card-heichal_tlv:ht-910">
+            <span class="cal-time">20:30</span>The Roast of Everything
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-10">
+          <div class="cal-num">10</div>
+          
+          <a href="#card-habima:hb-101" class="cal-event g-theater" data-target="card-habima:hb-101">
+            <span class="cal-time">20:30</span>The Glass Menagerie Revisited
+          </a>
+          
+          <a href="#card-suzanne_dellal:sd-320" class="cal-event g-dance" data-target="card-suzanne_dellal:sd-320">
+            <span class="cal-time">20:30</span>Bodies in Motion
+          </a>
+          
+          <a href="#card-hasimta:hs-072" class="cal-event g-theater" data-target="card-hasimta:hs-072">
+            <span class="cal-time">21:00</span>Alleyway Tales
+          </a>
+          
+          <a href="#card-tzavta:tz-901" class="cal-event g-comedy" data-target="card-tzavta:tz-901">
+            <span class="cal-time">21:00</span>Laugh Lines
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-11">
+          <div class="cal-num">11</div>
+          
+          <a href="#card-gesher:gs-330" class="cal-event g-theater" data-target="card-gesher:gs-330">
+            <span class="cal-time">19:00</span>The Dybbuk Reimagined
+          </a>
+          
+          <a href="#card-suzanne_dellal:sd-301" class="cal-event g-dance" data-target="card-suzanne_dellal:sd-301">
+            <span class="cal-time">20:00</span>Kinetic Horizons
+          </a>
+          
+          <a href="#card-zappa_herzliya:zh-512" class="cal-event g-music" data-target="card-zappa_herzliya:zh-512">
+            <span class="cal-time">21:00</span>Rita: Under One Sky
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-07-12">
+          <div class="cal-num">12</div>
+          
+          <a href="#card-yoram_loewenstein:yl-060" class="cal-event g-theater" data-target="card-yoram_loewenstein:yl-060">
+            <span class="cal-time">19:30</span>Graduation Stage
+          </a>
+          
+          <a href="#card-tzavta:tz-920" class="cal-event g-comedy" data-target="card-tzavta:tz-920">
+            <span class="cal-time">21:30</span>Improv Republic
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-13">
+          <div class="cal-num">13</div>
+          
+          <a href="#card-lessin:ls-140" class="cal-event g-theater" data-target="card-lessin:ls-140">
+            <span class="cal-time">20:30</span>Kitchen Conversations
+          </a>
+          
+          <a href="#card-tmuna:tm-330" class="cal-event g-dance" data-target="card-tmuna:tm-330">
+            <span class="cal-time">21:00</span>Contemporary Fragments
+          </a>
+          
+          <a href="#card-barby:bb-620" class="cal-event g-music" data-target="card-barby:bb-620">
+            <span class="cal-time">21:30</span>Electric Tram
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-14">
+          <div class="cal-num">14</div>
+          
+          <a href="#card-heichal_givatayim:hg-970" class="cal-event g-other" data-target="card-heichal_givatayim:hg-970">
+            <span class="cal-time">11:00</span>Family Circus Spectacular
+          </a>
+          
+          <a href="#card-cameri:cm-210" class="cal-event g-theater" data-target="card-cameri:cm-210">
+            <span class="cal-time">20:00</span>A Simple Story
+          </a>
+          
+          <a href="#card-zappa_tlv:zt-820" class="cal-event g-music" data-target="card-zappa_tlv:zt-820">
+            <span class="cal-time">22:30</span>Midnight in Jaffa Jazz
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-15">
+          <div class="cal-num">15</div>
+          
+          <a href="#card-habima:hb-155" class="cal-event g-theater" data-target="card-habima:hb-155">
+            <span class="cal-time">20:30</span>Waiting Rooms
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-16">
+          <div class="cal-num">16</div>
+          
+          <a href="#card-cameri:cm-410" class="cal-event g-theater" data-target="card-cameri:cm-410">
+            <span class="cal-time">20:00</span>City of Dreams
+          </a>
+          
+          <a href="#card-barby:bb-960" class="cal-event g-party" data-target="card-barby:bb-960">
+            <span class="cal-time">22:30</span>Class Reunion Rave
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-17">
+          <div class="cal-num">17</div>
+          
+          <a href="#card-habima:hb-101" class="cal-event g-theater" data-target="card-habima:hb-101">
+            <span class="cal-time">20:30</span>The Glass Menagerie Revisited
+          </a>
+          
+          <a href="#card-tzavta:tz-901" class="cal-event g-comedy" data-target="card-tzavta:tz-901">
+            <span class="cal-time">21:00</span>Laugh Lines
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-18">
+          <div class="cal-num">18</div>
+          
+          <a href="#card-suzanne_dellal:sd-301" class="cal-event g-dance" data-target="card-suzanne_dellal:sd-301">
+            <span class="cal-time">20:00</span>Kinetic Horizons
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-07-19">
+          <div class="cal-num">19</div>
+          
+          <a href="#card-yoram_loewenstein:yl-060" class="cal-event g-theater" data-target="card-yoram_loewenstein:yl-060">
+            <span class="cal-time">19:30</span>Graduation Stage
+          </a>
+          
+          <a href="#card-reading3:r3-810" class="cal-event g-music" data-target="card-reading3:r3-810">
+            <span class="cal-time">22:00</span>Blue Note Jazz Quartet
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-20">
+          <div class="cal-num">20</div>
+          
+          <a href="#card-shuni:sh-710" class="cal-event g-music" data-target="card-shuni:sh-710">
+            <span class="cal-time">20:00</span>Mediterranean Nights
+          </a>
+          
+          <a href="#card-lessin:ls-140" class="cal-event g-theater" data-target="card-lessin:ls-140">
+            <span class="cal-time">20:30</span>Kitchen Conversations
+          </a>
+          
+          <a href="#card-reading3:r3-950" class="cal-event g-party" data-target="card-reading3:r3-950">
+            <span class="cal-time">23:00</span>90s Throwback Night
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-21">
+          <div class="cal-num">21</div>
+          
+          <a href="#card-heichal_givatayim:hg-970" class="cal-event g-other" data-target="card-heichal_givatayim:hg-970">
+            <span class="cal-time">11:00</span>Family Circus Spectacular
+          </a>
+          
+          <a href="#card-cameri:cm-210" class="cal-event g-theater" data-target="card-cameri:cm-210">
+            <span class="cal-time">20:00</span>A Simple Story
+          </a>
+          
+          <a href="#card-zappa_tlv:zt-501" class="cal-event g-music" data-target="card-zappa_tlv:zt-501">
+            <span class="cal-time">21:00</span>Shlomo Artzi: Summer Songs
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-22">
+          <div class="cal-num">22</div>
+          
+          <a href="#card-caesarea:cs-700" class="cal-event g-music" data-target="card-caesarea:cs-700">
+            <span class="cal-time">20:30</span>Summer Under the Stars
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-23">
+          <div class="cal-num">23</div>
+          
+          <a href="#card-cameri:cm-410" class="cal-event g-theater" data-target="card-cameri:cm-410">
+            <span class="cal-time">20:00</span>City of Dreams
+          </a>
+          
+          <a href="#card-heichal_tlv:ht-910" class="cal-event g-comedy" data-target="card-heichal_tlv:ht-910">
+            <span class="cal-time">20:30</span>The Roast of Everything
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-24">
+          <div class="cal-num">24</div>
+          
+          <a href="#card-habima:hb-101" class="cal-event g-theater" data-target="card-habima:hb-101">
+            <span class="cal-time">20:30</span>The Glass Menagerie Revisited
+          </a>
+          
+          <a href="#card-suzanne_dellal:sd-320" class="cal-event g-dance" data-target="card-suzanne_dellal:sd-320">
+            <span class="cal-time">20:30</span>Bodies in Motion
+          </a>
+          
+          <a href="#card-hasimta:hs-072" class="cal-event g-theater" data-target="card-hasimta:hs-072">
+            <span class="cal-time">21:00</span>Alleyway Tales
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-25">
+          <div class="cal-num">25</div>
+          
+          <a href="#card-gesher:gs-330" class="cal-event g-theater" data-target="card-gesher:gs-330">
+            <span class="cal-time">19:00</span>The Dybbuk Reimagined
+          </a>
+          
+          <a href="#card-zappa_herzliya:zh-512" class="cal-event g-music" data-target="card-zappa_herzliya:zh-512">
+            <span class="cal-time">21:00</span>Rita: Under One Sky
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-07-26">
+          <div class="cal-num">26</div>
+          
+          <a href="#card-tzavta:tz-920" class="cal-event g-comedy" data-target="card-tzavta:tz-920">
+            <span class="cal-time">21:30</span>Improv Republic
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-27">
+          <div class="cal-num">27</div>
+          
+          <a href="#card-lessin:ls-140" class="cal-event g-theater" data-target="card-lessin:ls-140">
+            <span class="cal-time">20:30</span>Kitchen Conversations
+          </a>
+          
+          <a href="#card-tmuna:tm-330" class="cal-event g-dance" data-target="card-tmuna:tm-330">
+            <span class="cal-time">21:00</span>Contemporary Fragments
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-28">
+          <div class="cal-num">28</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-29">
+          <div class="cal-num">29</div>
+          
+          <a href="#card-habima:hb-155" class="cal-event g-theater" data-target="card-habima:hb-155">
+            <span class="cal-time">20:30</span>Waiting Rooms
+          </a>
+          
+          <a href="#card-caesarea:cs-700" class="cal-event g-music" data-target="card-caesarea:cs-700">
+            <span class="cal-time">20:30</span>Summer Under the Stars
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-30">
+          <div class="cal-num">30</div>
+          
+          <a href="#card-cameri:cm-410" class="cal-event g-theater" data-target="card-cameri:cm-410">
+            <span class="cal-time">20:00</span>City of Dreams
+          </a>
+          
+          <a href="#card-barby:bb-960" class="cal-event g-party" data-target="card-barby:bb-960">
+            <span class="cal-time">22:30</span>Class Reunion Rave
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-07-31">
+          <div class="cal-num">31</div>
+          
+          <a href="#card-tzavta:tz-901" class="cal-event g-comedy" data-target="card-tzavta:tz-901">
+            <span class="cal-time">21:00</span>Laugh Lines
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-01">
+          <div class="cal-num">1</div>
+          
+          <a href="#card-suzanne_dellal:sd-301" class="cal-event g-dance" data-target="card-suzanne_dellal:sd-301">
+            <span class="cal-time">20:00</span>Kinetic Horizons
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-08-02">
+          <div class="cal-num">2</div>
+          
+          <a href="#card-reading3:r3-810" class="cal-event g-music" data-target="card-reading3:r3-810">
+            <span class="cal-time">22:00</span>Blue Note Jazz Quartet
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-03">
+          <div class="cal-num">3</div>
+          
+          <a href="#card-barby:bb-620" class="cal-event g-music" data-target="card-barby:bb-620">
+            <span class="cal-time">21:30</span>Electric Tram
+          </a>
+          
+          <a href="#card-reading3:r3-950" class="cal-event g-party" data-target="card-reading3:r3-950">
+            <span class="cal-time">23:00</span>90s Throwback Night
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-04">
+          <div class="cal-num">4</div>
+          
+          <a href="#card-cameri:cm-210" class="cal-event g-theater" data-target="card-cameri:cm-210">
+            <span class="cal-time">20:00</span>A Simple Story
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-05">
+          <div class="cal-num">5</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-06">
+          <div class="cal-num">6</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-07">
+          <div class="cal-num">7</div>
+          
+          <a href="#card-hasimta:hs-072" class="cal-event g-theater" data-target="card-hasimta:hs-072">
+            <span class="cal-time">21:00</span>Alleyway Tales
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-08">
+          <div class="cal-num">8</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-08-09">
+          <div class="cal-num">9</div>
+          
+          <a href="#card-tzavta:tz-920" class="cal-event g-comedy" data-target="card-tzavta:tz-920">
+            <span class="cal-time">21:30</span>Improv Republic
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-10">
+          <div class="cal-num">10</div>
+          
+          <a href="#card-shuni:sh-710" class="cal-event g-music" data-target="card-shuni:sh-710">
+            <span class="cal-time">20:00</span>Mediterranean Nights
+          </a>
+          
+          <a href="#card-lessin:ls-140" class="cal-event g-theater" data-target="card-lessin:ls-140">
+            <span class="cal-time">20:30</span>Kitchen Conversations
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-11">
+          <div class="cal-num">11</div>
+          
+          <a href="#card-zappa_tlv:zt-820" class="cal-event g-music" data-target="card-zappa_tlv:zt-820">
+            <span class="cal-time">22:30</span>Midnight in Jaffa Jazz
+          </a>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-12">
+          <div class="cal-num">12</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-13">
+          <div class="cal-num">13</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-14">
+          <div class="cal-num">14</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-15">
+          <div class="cal-num">15</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+        
+        <div class="cal-day" data-iso="2026-08-16">
+          <div class="cal-num">16</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-17">
+          <div class="cal-num">17</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-18">
+          <div class="cal-num">18</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-19">
+          <div class="cal-num">19</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-20">
+          <div class="cal-num">20</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-21">
+          <div class="cal-num">21</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+        <div class="cal-day" data-iso="2026-08-22">
+          <div class="cal-num">22</div>
+          
+          <span class="cal-overflow" hidden></span>
+        </div>
+        
+      
+    </div>
+  </div>
+</div><!-- /#view-calendar -->
+
+<!-- Preferences modal -->
+<div class="modal-overlay" id="prefs-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⚙️ My preferences</h2>
+      <button class="modal-close" data-close="prefs-modal">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-dim); font-size:13px; margin-top:0">
+        Mark the artists, actors, directors, and genres you love — and shows featuring them will get higher priority. Your changes are saved automatically.
+      </p>
+
+      <div class="pref-section" data-key="loved_artists">
+        <h3>🎵 Favorite artists (singers, performers)</h3>
+        <div class="pref-chips"></div>
+        <div class="pref-input-row">
+          <input type="text" placeholder="Artist name…">
+          <button class="pref-add">+ Add</button>
+        </div>
+        <div class="pref-suggestions" data-suggestions-from="artists"></div>
+      </div>
+
+      <div class="pref-section" data-key="loved_performers">
+        <h3>🎭 Favorite actors</h3>
+        <div class="pref-chips"></div>
+        <div class="pref-input-row">
+          <input type="text" placeholder="Actor name…">
+          <button class="pref-add">+ Add</button>
+        </div>
+        <div class="pref-suggestions" data-suggestions-from="performers"></div>
+      </div>
+
+      <div class="pref-section" data-key="loved_directors">
+        <h3>🎬 Favorite directors</h3>
+        <div class="pref-chips"></div>
+        <div class="pref-input-row">
+          <input type="text" placeholder="Director name…">
+          <button class="pref-add">+ Add</button>
+        </div>
+        <div class="pref-suggestions" data-suggestions-from="directors"></div>
+      </div>
+
+      <div class="pref-section" data-key="loved_genres">
+        <h3>🏷️ Favorite genres</h3>
+        <div class="pref-chips"></div>
+        <div class="pref-input-row">
+          <input type="text" placeholder="Genre name…">
+          <button class="pref-add">+ Add</button>
+        </div>
+        <div class="pref-suggestions" data-suggestions-from="genres"></div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--border); margin:24px 0">
+
+      <div class="pref-section" data-key="disliked_genres">
+        <h3>👎 Genres not for you (fully hidden)</h3>
+        <div class="pref-chips"></div>
+        <div class="pref-input-row">
+          <input type="text" placeholder="Genre to exclude…">
+          <button class="pref-add">+ Add</button>
+        </div>
+        <div class="pref-suggestions" data-suggestions-from="genres"></div>
+      </div>
+
+      <div class="pref-section" data-key="disliked_performers">
+        <h3>👎 Actors/artists you're not into</h3>
+        <div class="pref-chips"></div>
+        <div class="pref-input-row">
+          <input type="text" placeholder="Name to exclude…">
+          <button class="pref-add">+ Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="reset-all-state" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:6px 12px;cursor:pointer;font-family:inherit;font-size:12px">🗑 Reset everything (preferences + favorites + hidden)</button>
+      <button class="quiz-nav primary" data-close="prefs-modal" style="border-radius:6px;border:none;padding:7px 16px;cursor:pointer;color:white;background:var(--accent);font-family:inherit;font-size:13px">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Questionnaire modal -->
+<div class="modal-overlay" id="quiz-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📝 Quick taste quiz</h2>
+      <button class="modal-close" data-close="quiz-modal">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="quiz-progress" id="quiz-progress"></div>
+      <div class="quiz-question" id="quiz-question"></div>
+      <div class="quiz-options" id="quiz-options"></div>
+    </div>
+    <div class="modal-footer">
+      <button id="quiz-skip" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;font-family:inherit">Skip the quiz</button>
+      <div class="quiz-nav">
+        <button id="quiz-prev">Back</button>
+        <button id="quiz-next" class="primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Generated 2026-07-01 17:54 • 24 shows tracked • Sources: barby · caesarea · cameri · gesher · habima · hasimta · heichal_givatayim · heichal_tlv · lessin · reading3 · shuni · suzanne_dellal · tmuna · tzavta · yoram_loewenstein · zappa_herzliya · zappa_tlv
+</footer>
+
+<!-- Server-provided seed data (consumed by JS below) -->
+<script id="suggestions-data" type="application/json">{"curated": {"event_categories": [{"key": "theater", "label": "Plays / Theater"}, {"key": "music", "label": "Music / Concerts"}, {"key": "standup", "label": "Standup / Entertainment"}, {"key": "musicals", "label": "Musicals"}, {"key": "dance", "label": "Dance"}, {"key": "tribute", "label": "Tribute nights and tribute bands"}, {"key": "parties", "label": "Parties / Dance nights"}, {"key": "lectures", "label": "Lectures / Meetups"}, {"key": "literature", "label": "Literature / Poetry"}, {"key": "movies", "label": "Films / Cinema"}, {"key": "festivals", "label": "Festivals / Specials"}, {"key": "kids", "label": "Kids and family"}, {"key": "family", "label": "Family entertainment / Experiences"}], "music_subgenres": ["Classic Israeli music (Arik Einstein, Shalom Hanoch, Matti Caspi)", "Contemporary Israeli music (Shlomi Shaban, Berry Sakharof)", "Mediterranean / Mizrahi", "Rock / Pop", "Jazz", "World music", "Tribute to hit bands (Tribute bands)"], "music_artists": ["Arik Einstein", "Shalom Hanoch", "Yehuda Poliker", "Matti Caspi", "David Broza", "Chava Alberstein", "Yossi Banai", "Nurit Galron", "Berry Sakharof", "Shlomo Artzi", "Ehud Banai", "Meir Banai", "Evyatar Banai", "Yonatan Geffen", "Arik Lavie", "Yehoram Gaon", "Gidi Gov", "Danny Sanderson", "Danny Robas", "Shlomo Gronich", "Hani Nahmias", "Rami Kleinstein", "Aviva Avidan", "Rita", "Achinoam Nini", "Aviv Geffen", "Mashina", "Tislam", "Yoni Bloch", "Shlomi Shaban", "Asaf Avidan", "Ninet Tayeb", "Ivri Lider", "Alon Eder", "Micha Shitrit", "Yizhar Ashdot", "Stella Rahat", "Eyal Golan", "Sarit Hadad", "Moshe Peretz", "Shimi Tavori", "Avi Biter", "Margalit Tzan'ani", "Zohar Argov", "Ofer Levi", "Haim Moshe", "Miri Mesika", "Muki", "Idan Raichel", "Idan Amedi", "Idan Haviv", "Benny Amdursky", "Assaf Amdursky", "Yael Kraus", "HaGevatron"], "theater_actors": ["Gila Almagor", "Yossi Pollak", "Yaakov Bodo", "Rivka Michaeli", "Tiki Dayan", "Menachem Peri", "Tikva Mor", "Sandra Sade", "Naomi Polani", "Aliza Rosen", "Devora Keidar", "Assi Levy", "Itzik Hizkiya", "Yossi Graber", "Natan Kogan", "Rachel Atas", "Mira Avana", "Shlomo Bar-Aba", "Albert Iluz", "Rama Messinger", "Shlomo Artzi", "Lior Ashkenazi", "Sasson Gabai", "Avigail Harari", "Michael Moshonov", "Yoav Levi", "Orna Rotberg", "Agam Rodberg", "Einat Weizman", "Amir Bashan", "Einat Brenner", "Michal Bat-Adam", "Aviv Alush", "Alon Aboutboul", "Yuval Segal", "Dov Navon", "Amos Tamam", "Adi Gilat", "Moni Moshonov", "Itay Tiran", "Tamar Keenan", "Ofri Biterman"], "theater_directors": ["Hanan Snir", "Ilan Ronen", "Hillel Mittelpunkt", "Yevgeny Arye", "Gedalia Besser", "Omri Nitzan", "Ido Bornstein", "Irad Rubinstein", "Alon Ophir", "Micha Lewinsohn", "Itzik Weingarten", "Moshe Kepten", "Roni Brodetsky", "Ilil Semel", "Udi Ben Moshe", "Shir Goldberg", "Eldad Gohar Groisman", "Uri Paster", "Dedi Baron"], "standup_comedians": ["Adir Miller", "Shahar Hason", "Eran Zarhovitch", "Shelly Ben-Moshe", "Dudu Tassa", "Eli Yatzpan", "Israel Katorza", "Assi Cohen", "Erez Tal", "Chen Bauman", "Rotem Weissberg", "Oren Zol", "Yuval Semo", "David D'Or", "Yossi Marshak", "Dotan Ravid", "Daniel Cohen", "Eldad Shitrit", "Lior Duvdevani", "Reshef Levy", "Tom Yarden", "Shmuel Vilozny"], "default_exclusions": ["Classical / symphonic music", "Opera", "Ballet", "Kids", "Children's theater", "Shows for toddlers"]}, "scraped": {"performers": ["Adir Miller", "Anat Cohen", "Assi Levy", "Avishai Cohen Trio", "Batsheva Dancers", "DJ Retro", "DJ Tapes", "Doron Tavory", "Dov Navon", "Dudu Aharon", "Efrat Ben-Zur", "Electric Tram", "Fresh Paint Collective", "Gil Frank", "Gila Almagor", "Idan Alterman", "Maya Dagan", "Neta Shpigelman", "Ninet Tayeb", "Omer Klein", "Orna Banai", "Rita", "Rivka Michaeli", "Sasson Gabai", "Shahar Hason", "Shira Naor", "Shlomo Artzi", "The Big Top Company", "The Graduating Ensemble", "The Republic Troupe", "Vertigo Company", "Yoav Ronen", "Yona Elian"], "directors": ["Hanan Snir", "Ilan Ronen", "Iris Erez", "Maya Levy", "Michael Zats", "Noa Barkai", "Noa Wertheim", "Ronit Kaplan", "Tamar Keenan"], "artists": ["Blue Note Jazz Quartet", "Class Reunion Rave", "Electric Tram", "Mediterranean Nights", "Midnight in Jaffa Jazz", "Summer Under the Stars"], "genres": ["Comedy", "Dance", "Jazz", "Mizrahi", "Music", "Musical", "Parties", "Pop", "Rock", "Stand-up", "Theater", "cabaret"]}}</script>
+<script id="prefs-seed-data" type="application/json">{"loved_performers": ["Gila Almagor", "Sasson Gabai"], "loved_artists": ["Rita", "Shlomo Artzi"], "loved_directors": ["Hanan Snir"], "loved_genres": ["Jazz", "Theater"], "disliked_performers": [], "disliked_artists": [], "disliked_genres": ["Opera"]}</script>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'event-digest-state-v1';
+  const TODAY = '2026-07-01';
+
+  // -- Persistent state --
+  // pinned/dismissed are {showId: timestamp}.
+  // performer_history aggregates: {performerName: {pin: count, dismiss: count}}
+  // prefs: {loved_performers, loved_artists, loved_directors, loved_genres,
+  //         disliked_performers, disliked_artists, disliked_genres}
+  //         — each is an array of strings. Seeded from server preferences.yaml
+  //           on first visit, then editable in-browser.
+  function loadState() {
+    let s;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      s = raw ? JSON.parse(raw) : {};
+    } catch { s = {}; }
+    // Garbage-collect very old dismissals
+    const now = Date.now();
+    const cutoff = now - 60 * 24 * 60 * 60 * 1000;
+    s.dismissed = s.dismissed || {};
+    for (const id of Object.keys(s.dismissed)) {
+      if (s.dismissed[id] < cutoff) delete s.dismissed[id];
+    }
+    // First-time seed prefs from the server's preferences.yaml
+    if (!s.prefs) {
+      try {
+        const seed = JSON.parse(document.getElementById('prefs-seed-data').textContent);
+        s.prefs = {
+          loved_performers: seed.loved_performers || [],
+          loved_artists: seed.loved_artists || [],
+          loved_directors: seed.loved_directors || [],
+          loved_genres: seed.loved_genres || [],
+          disliked_performers: seed.disliked_performers || [],
+          disliked_artists: seed.disliked_artists || [],
+          disliked_genres: seed.disliked_genres || [],
+        };
+      } catch {
+        s.prefs = {loved_performers:[], loved_artists:[], loved_directors:[], loved_genres:[],
+                   disliked_performers:[], disliked_artists:[], disliked_genres:[]};
+      }
+    }
+    return {
+      pinned: s.pinned || {},
+      dismissed: s.dismissed,
+      performer_history: s.performer_history || {},
+      prefs: s.prefs,
+    };
+  }
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+  const state = loadState();
+  const SUGGESTIONS = (() => {
+    try { return JSON.parse(document.getElementById('suggestions-data').textContent); }
+    catch { return {performers:[], directors:[], artists:[], genres:[]}; }
+  })();
+
+  function performersOf(card) {
+    const raw = card.dataset.performers || '';
+    return raw ? raw.split('|').filter(Boolean) : [];
+  }
+  function recordBehavior(card, kind /* 'pin' or 'dismiss' */) {
+    const performers = performersOf(card);
+    const director = (card.dataset.director || '').trim();
+    const subjects = [...performers];
+    if (director) subjects.push(director);
+    for (const name of subjects) {
+      if (!state.performer_history[name]) state.performer_history[name] = {pin: 0, dismiss: 0};
+      state.performer_history[name][kind] += 1;
+    }
+  }
+  function unrecordBehavior(card, kind) {
+    const performers = performersOf(card);
+    const director = (card.dataset.director || '').trim();
+    const subjects = [...performers];
+    if (director) subjects.push(director);
+    for (const name of subjects) {
+      if (state.performer_history[name]) {
+        state.performer_history[name][kind] = Math.max(0, state.performer_history[name][kind] - 1);
+      }
+    }
+  }
+
+  // Compute final match score from state.prefs (user-editable preferences
+  // in localStorage) PLUS behavioral overlay from prior pins/dismisses.
+  // All client-side — no server roundtrip.
+  function computeScore(card) {
+    const prefs = state.prefs;
+    let score = 0;
+
+    const performers = performersOf(card);
+    const director = (card.dataset.director || '').trim();
+    const genre = (card.dataset.genre || '').trim();
+    const title = (card.querySelector('h3 a')?.textContent || '').trim();
+    const description = (card.querySelector('.desc')?.textContent || '').trim();
+    // Combined haystack for substring lookups — title often has decorations
+    // like "Shalom Hanoch - band show" or "Ehud Banai | new songs".
+    const haystack = `${title} ${description} ${performers.join(' ')} ${director}`;
+
+    // Explicit preference matches
+    for (const p of performers) {
+      if (prefs.loved_performers.includes(p)) score += 30;
+      if (prefs.loved_artists.includes(p)) score += 30;
+    }
+    // Substring matching for artist names (catches "Shalom Hanoch - band show" when
+    // the loved name is just "Shalom Hanoch"). Also catches the artist name
+    // appearing in the description.
+    for (const a of prefs.loved_artists) {
+      if (a && haystack.includes(a) && !performers.includes(a) && a !== title) {
+        score += 25;   // weaker than exact match but still strong
+      }
+    }
+    if (prefs.loved_artists.includes(title)) score += 35;
+    for (const p of prefs.loved_performers) {
+      if (p && haystack.includes(p) && !performers.includes(p)) {
+        score += 20;
+      }
+    }
+    if (director && prefs.loved_directors.includes(director)) score += 25;
+    if (genre && prefs.loved_genres.includes(genre)) score += 15;
+    // Genre substring match (handles compound labels)
+    for (const g of prefs.loved_genres) {
+      if (g && genre && genre !== g && genre.includes(g)) score += 10;
+    }
+
+    // Behavioral history overlay
+    const subjects = [...performers];
+    if (director) subjects.push(director);
+    for (const name of subjects) {
+      const h = state.performer_history[name];
+      if (!h) continue;
+      score += h.pin * 15;
+      score -= h.dismiss * 12;
+    }
+
+    return Math.max(0, Math.min(100, score));
+  }
+
+  // Hard-disliked check (replaces server-side filter for client edits)
+  function isDisliked(card) {
+    const prefs = state.prefs;
+    const performers = performersOf(card);
+    const genre = (card.dataset.genre || '').trim();
+    const title = (card.querySelector('h3 a')?.textContent || '').trim();
+    if (genre && prefs.disliked_genres.includes(genre)) return true;
+    if (prefs.disliked_artists.includes(title)) return true;
+    for (const p of performers) {
+      if (prefs.disliked_performers.includes(p) || prefs.disliked_artists.includes(p)) return true;
+    }
+    return false;
+  }
+
+  function applyMatchBadges() {
+    allCards.forEach(c => {
+      const score = computeScore(c);
+      c.dataset.totalScore = score;
+      const badge = c.querySelector('.match-badge');
+      // Reset visual classes
+      c.classList.remove('match-strong', 'match-mid');
+      if (!badge) return;
+      if (score >= 60) {
+        badge.hidden = false;
+        badge.innerHTML = `🌟 <strong>Strongly recommended for you</strong> · score ${score}`;
+        badge.classList.add('high');
+        c.classList.add('match-strong');
+      } else if (score >= 25) {
+        badge.hidden = false;
+        badge.innerHTML = `⭐ <strong>Matches your taste</strong> · ${score}`;
+        badge.classList.remove('high');
+        c.classList.add('match-mid');
+      } else {
+        badge.hidden = true;
+      }
+    });
+  }
+
+  // -- DOM refs --
+  const mainGrid = document.getElementById('main-grid');
+  const pinnedGrid = document.getElementById('pinned-grid');
+  const pinnedHeading = document.getElementById('pinned-heading');
+  const mainHeading = document.getElementById('main-heading');
+  const noResults = document.getElementById('no-results');
+  const stats = document.getElementById('stats');
+  const dismissedCountSpan = document.getElementById('dismissed-count');
+
+  const sortSel = document.getElementById('sort');
+  const venueSel = document.getElementById('venue-filter');
+  const genreSel = document.getElementById('genre-filter');
+  const subGenreSel = document.getElementById('sub-genre-filter');   // optional
+  const windowSel = document.getElementById('window-filter');
+  const distanceSel = document.getElementById('distance-filter');
+  const textInput = document.getElementById('text-filter');
+  const lovedOnlyBtn = document.getElementById('loved-only');
+  const showDismissedBtn = document.getElementById('show-dismissed');
+  const resetBtn = document.getElementById('reset-filters');
+
+  let lovedOnly = false;
+  let showDismissed = false;
+
+  // Each filter value uses prefix syntax:
+  //   ""           — no filter (show all)
+  //   "only:X"     — show only items where field === X
+  //   "not:X"      — hide items where field === X
+  function parseFilterValue(v) {
+    if (!v) return {mode: 'all', val: ''};
+    if (v.startsWith('only:')) return {mode: 'only', val: v.slice(5)};
+    if (v.startsWith('not:')) return {mode: 'not', val: v.slice(4)};
+    return {mode: 'only', val: v};   // backward compat
+  }
+  function passesFilter(fieldValue, parsed) {
+    if (parsed.mode === 'all') return true;
+    if (parsed.mode === 'only') return fieldValue === parsed.val;
+    if (parsed.mode === 'not') return fieldValue !== parsed.val;
+    return true;
+  }
+
+  const allCards = Array.from(mainGrid.querySelectorAll('.card'));
+
+  // -- Apply pin/dismiss state on load --
+  function applyState() {
+    allCards.forEach(c => {
+      const id = c.dataset.id;
+      const pinBtn = c.querySelector('.card-action.pin');
+      if (state.pinned[id]) { c.classList.add('pinned'); pinBtn.classList.add('active'); }
+      else { c.classList.remove('pinned'); pinBtn.classList.remove('active'); }
+    });
+  }
+
+  // -- Filtering + sorting --
+  function daysUntil(isoDate) {
+    if (!isoDate) return Infinity;
+    const d = new Date(isoDate);
+    const today = new Date(TODAY);
+    return Math.floor((d - today) / (1000 * 60 * 60 * 24));
+  }
+
+  function applyFilters() {
+    const venueFilter = parseFilterValue(venueSel.value);
+    const genreFilter = parseFilterValue(genreSel.value);
+    const subGenreFilter = subGenreSel ? parseFilterValue(subGenreSel.value) : {mode: 'all', val: ''};
+    const windowDays = windowSel.value;
+    const distanceMax = parseInt(distanceSel.value || '', 10);
+    const text = textInput.value.trim().toLowerCase();
+
+    let visibleMain = 0;
+    let visiblePinned = 0;
+
+    allCards.forEach(c => {
+      const id = c.dataset.id;
+      const isPinned = !!state.pinned[id];
+      const isDismissed = !!state.dismissed[id];
+
+      let show = true;
+
+      // Hard dislike (from prefs) — always hide
+      if (isDisliked(c)) show = false;
+
+      // Dismissed handling
+      if (show && isDismissed && !showDismissed) show = false;
+      if (show && showDismissed && !isDismissed) show = false;
+
+      if (lovedOnly && !isPinned) show = false;
+      if (show && !passesFilter(c.dataset.venueCanonical, venueFilter)) show = false;
+      if (show && !passesFilter(c.dataset.genreClass, genreFilter)) show = false;
+      if (show && !passesFilter(c.dataset.subGenre, subGenreFilter)) show = false;
+      if (show && windowDays !== 'all') {
+        const d = daysUntil(c.dataset.nextPerf);
+        if (d === Infinity || d < 0 || d > parseInt(windowDays, 10)) show = false;
+      }
+      if (show && !isNaN(distanceMax)) {
+        const dist = parseInt(c.dataset.distance || '', 10);
+        if (isNaN(dist) || dist > distanceMax) show = false;
+      }
+      if (show && text) {
+        const hay = (c.dataset.search || '').toLowerCase();
+        if (!hay.includes(text)) show = false;
+      }
+
+      c.classList.toggle('hidden-by-filter', !show);
+
+      // Re-parent pinned cards into the pinned section, others into main
+      if (show) {
+        if (isPinned && !showDismissed && !lovedOnly) {
+          if (c.parentElement !== pinnedGrid) pinnedGrid.appendChild(c);
+          visiblePinned++;
+        } else {
+          if (c.parentElement !== mainGrid) mainGrid.appendChild(c);
+          visibleMain++;
+        }
+      }
+    });
+
+    // Sort each visible group
+    sortGrid(pinnedGrid);
+    sortGrid(mainGrid);
+
+    pinnedGrid.hidden = visiblePinned === 0;
+    pinnedHeading.hidden = visiblePinned === 0;
+    mainHeading.hidden = visibleMain === 0;
+    noResults.hidden = (visibleMain + visiblePinned) > 0;
+
+    const totalShown = visibleMain + visiblePinned;
+    stats.textContent = `Showing ${totalShown} of ${allCards.length} shows`;
+
+    const dismissedTotal = Object.keys(state.dismissed).length;
+    dismissedCountSpan.textContent = dismissedTotal ? `(${dismissedTotal})` : '';
+
+    // Mirror filter state into the calendar view: every cal-event whose
+    // target card is hidden gets hidden too. Days with no surviving events
+    // are de-emphasized.
+    // Step 1: hide cal-events whose underlying card is filtered out.
+    let calVisible = 0, calTotal = 0;
+    document.querySelectorAll('.cal-event').forEach(ev => {
+      const card = document.getElementById(ev.dataset.target);
+      const hide = !card || card.classList.contains('hidden-by-filter');
+      ev.classList.toggle('hidden-by-filter', hide);
+      calTotal++;
+      if (!hide) calVisible++;
+    });
+    // Step 2: per-day, only show first 6 SURVIVORS; collapse the rest under
+    // a "+N more" link the user can expand. This way the displayed events
+    // are always actual matches, not the first 6 by chronology that may all
+    // be filtered out.
+    const MAX_PER_DAY = 6;
+    document.querySelectorAll('.cal-day').forEach(day => {
+      const survivors = Array.from(day.querySelectorAll('.cal-event:not(.hidden-by-filter)'));
+      const overflowEl = day.querySelector('.cal-overflow');
+      if (!day.dataset.expanded) {
+        survivors.forEach((ev, i) => {
+          ev.classList.toggle('hidden-by-overflow', i >= MAX_PER_DAY);
+        });
+        const extra = Math.max(0, survivors.length - MAX_PER_DAY);
+        if (overflowEl) {
+          overflowEl.hidden = extra === 0;
+          overflowEl.textContent = extra ? `+${extra} more` : '';
+        }
+      } else {
+        survivors.forEach(ev => ev.classList.remove('hidden-by-overflow'));
+        if (overflowEl) {
+          overflowEl.hidden = false;
+          overflowEl.textContent = '× Show less';
+        }
+      }
+    });
+    const calStatus = document.getElementById('cal-status');
+    if (calStatus) {
+      calStatus.textContent = calVisible === calTotal
+        ? `📅 Showing all ${calTotal} events in the next two months`
+        : `📅 ${calVisible} of ${calTotal} events match the filter. ${calTotal - calVisible} hidden`;
+    }
+    document.querySelectorAll('.cal-day').forEach(day => {
+      const visibleEvents = day.querySelectorAll('.cal-event:not(.hidden-by-filter)').length;
+      const totalEvents = day.querySelectorAll('.cal-event').length;
+      day.classList.toggle('empty-by-filter', totalEvents > 0 && visibleEvents === 0);
+    });
+  }
+
+  function sortGrid(grid) {
+    const mode = sortSel.value;
+    const cards = Array.from(grid.querySelectorAll('.card:not(.hidden-by-filter)'));
+    cards.sort((a, b) => {
+      switch (mode) {
+        case 'match': {
+          const ba = parseInt(a.dataset.totalScore || '0', 10);
+          const bb = parseInt(b.dataset.totalScore || '0', 10);
+          if (ba !== bb) return bb - ba;  // higher score first
+          // Tie-break by next performance
+          return (a.dataset.nextPerf || 'zzzz').localeCompare(b.dataset.nextPerf || 'zzzz');
+        }
+        case 'next_perf':
+          return (a.dataset.nextPerf || 'zzzz').localeCompare(b.dataset.nextPerf || 'zzzz');
+        case 'alpha':
+          return (a.querySelector('h3').textContent || '').localeCompare(
+            (b.querySelector('h3').textContent || ''), 'en');
+        case 'opened_desc': {
+          // Cards without an opened date go to the bottom
+          const ad = a.dataset.opened || '', bd = b.dataset.opened || '';
+          if (ad === bd) return 0;
+          if (!ad) return 1;
+          if (!bd) return -1;
+          return bd.localeCompare(ad, 'en');
+        }
+        case 'distance': {
+          const ad = parseInt(a.dataset.distance || '999', 10);
+          const bd = parseInt(b.dataset.distance || '999', 10);
+          return ad - bd;
+        }
+        case 'run_short': {
+          const ac = parseInt(a.dataset.perfCount || '999', 10);
+          const bc = parseInt(b.dataset.perfCount || '999', 10);
+          return ac - bc;
+        }
+      }
+      return 0;
+    });
+    cards.forEach(c => grid.appendChild(c));
+  }
+
+  // -- Card action handlers --
+  mainGrid.addEventListener('click', handleCardAction);
+  pinnedGrid.addEventListener('click', handleCardAction);
+
+  function handleCardAction(e) {
+    const btn = e.target.closest('.card-action');
+    if (!btn) return;
+    const card = btn.closest('.card');
+    const id = card.dataset.id;
+    const action = btn.dataset.action;
+
+    if (action === 'pin') {
+      if (state.pinned[id]) {
+        delete state.pinned[id];
+        unrecordBehavior(card, 'pin');
+      } else {
+        state.pinned[id] = Date.now();
+        recordBehavior(card, 'pin');
+        if (state.dismissed[id]) {
+          delete state.dismissed[id];
+          unrecordBehavior(card, 'dismiss');
+        }
+      }
+      saveState();
+      applyState();
+      applyMatchBadges();
+      applyFilters();
+    } else if (action === 'dismiss') {
+      if (!state.dismissed[id]) {
+        state.dismissed[id] = Date.now();
+        recordBehavior(card, 'dismiss');
+      }
+      if (state.pinned[id]) {
+        delete state.pinned[id];
+        unrecordBehavior(card, 'pin');
+      }
+      saveState();
+      applyState();
+      applyMatchBadges();
+      applyFilters();
+    }
+  }
+
+  // -- Filter handlers --
+  [sortSel, venueSel, genreSel, windowSel, distanceSel].forEach(el => {
+    el.addEventListener('change', applyFilters);
+  });
+  if (subGenreSel) subGenreSel.addEventListener('change', applyFilters);
+  textInput.addEventListener('input', applyFilters);
+
+  lovedOnlyBtn.addEventListener('click', () => {
+    lovedOnly = !lovedOnly;
+    lovedOnlyBtn.classList.toggle('active', lovedOnly);
+    applyFilters();
+  });
+  showDismissedBtn.addEventListener('click', () => {
+    showDismissed = !showDismissed;
+    showDismissedBtn.classList.toggle('active', showDismissed);
+    applyFilters();
+  });
+  resetBtn.addEventListener('click', () => {
+    sortSel.value = 'match';
+    venueSel.value = '';
+    genreSel.value = '';
+    windowSel.value = 'all';
+    distanceSel.value = '';
+    textInput.value = '';
+    lovedOnly = false;
+    showDismissed = false;
+    lovedOnlyBtn.classList.remove('active');
+    showDismissedBtn.classList.remove('active');
+    applyFilters();
+  });
+
+  // -- View switching (cards <-> calendar) --
+  const tabs = document.querySelectorAll('.view-tab');
+  const views = {
+    cards: document.getElementById('view-cards'),
+    calendar: document.getElementById('view-calendar'),
+  };
+  tabs.forEach(t => {
+    t.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.toggle('active', x === t));
+      const v = t.dataset.view;
+      Object.entries(views).forEach(([k, el]) => el.classList.toggle('active', k === v));
+    });
+  });
+
+  // -- Calendar overflow click: expand/collapse a day --
+  document.querySelectorAll('.cal-overflow').forEach(el => {
+    el.addEventListener('click', () => {
+      const day = el.closest('.cal-day');
+      day.dataset.expanded = day.dataset.expanded ? '' : '1';
+      applyFilters();
+    });
+  });
+
+  // -- Calendar event click → switch to cards view, scroll to and highlight the card --
+  document.querySelectorAll('.cal-event').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const targetId = link.dataset.target;
+      // Switch to cards view
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.view === 'cards'));
+      Object.entries(views).forEach(([k, el]) => el.classList.toggle('active', k === 'cards'));
+      // Scroll + highlight
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      // Make sure the card isn't filtered out
+      el.classList.remove('hidden-by-filter');
+      el.scrollIntoView({behavior: 'smooth', block: 'center'});
+      el.classList.add('highlight');
+      setTimeout(() => el.classList.remove('highlight'), 2200);
+    });
+  });
+
+  // ===== Preferences modal =====
+  const prefsModal = document.getElementById('prefs-modal');
+
+  // For each pref key, build a list of suggestion sources in priority order:
+  // (1) curated lists, (2) scraped (filtered) data as a smaller secondary list.
+  function suggestionsFor(prefKey) {
+    const curated = SUGGESTIONS.curated || {};
+    const scraped = SUGGESTIONS.scraped || {};
+    switch (prefKey) {
+      case 'loved_artists':
+        return [
+          ...(curated.music_artists || []),
+          ...(scraped.artists || []).filter(a => !(curated.music_artists || []).includes(a)),
+        ];
+      case 'loved_performers':
+        return [
+          ...(curated.theater_actors || []),
+          ...(curated.standup_comedians || []),
+          ...(scraped.performers || []).filter(a =>
+            !(curated.theater_actors || []).includes(a) &&
+            !(curated.standup_comedians || []).includes(a)),
+        ];
+      case 'loved_directors':
+        return [
+          ...(curated.theater_directors || []),
+          ...(scraped.directors || []).filter(a => !(curated.theater_directors || []).includes(a)),
+        ];
+      case 'loved_genres':
+        return [
+          ...((curated.event_categories || []).map(c => c.label)),
+          ...(curated.music_subgenres || []),
+        ];
+      case 'disliked_genres':
+        return curated.default_exclusions || [];
+      case 'disliked_performers':
+      case 'disliked_artists':
+        return [
+          ...(curated.music_artists || []),
+          ...(curated.theater_actors || []),
+        ];
+      default:
+        return [];
+    }
+  }
+
+  function renderPrefsPanel() {
+    document.querySelectorAll('.pref-section').forEach(section => {
+      const key = section.dataset.key;
+      const isDislike = key.startsWith('disliked_');
+      const items = state.prefs[key] || [];
+      const chipsBox = section.querySelector('.pref-chips');
+      chipsBox.innerHTML = '';
+      items.forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'pref-chip' + (isDislike ? ' dislike' : '');
+        chip.innerHTML = `<span>${item}</span><button title="Remove">×</button>`;
+        chip.querySelector('button').addEventListener('click', () => {
+          state.prefs[key] = state.prefs[key].filter(x => x !== item);
+          saveState();
+          renderPrefsPanel();
+          rescore();
+        });
+        chipsBox.appendChild(chip);
+      });
+
+      // Render suggestions (curated first, then scraped)
+      const sugBox = section.querySelector('.pref-suggestions');
+      if (sugBox) {
+        const all = suggestionsFor(key);
+        sugBox.innerHTML = '';
+        all.filter(x => !items.includes(x)).slice(0, 60).forEach(name => {
+          const btn = document.createElement('button');
+          btn.className = 'pref-suggestion';
+          btn.textContent = name;
+          btn.addEventListener('click', () => {
+            if (!state.prefs[key].includes(name)) {
+              state.prefs[key].push(name);
+              saveState();
+              renderPrefsPanel();
+              rescore();
+            }
+          });
+          sugBox.appendChild(btn);
+        });
+      }
+    });
+  }
+
+  function rescore() {
+    applyMatchBadges();
+    applyFilters();
+  }
+
+  // Add-button handlers
+  document.querySelectorAll('.pref-section').forEach(section => {
+    const key = section.dataset.key;
+    const input = section.querySelector('input[type=text]');
+    const addBtn = section.querySelector('.pref-add');
+    function add() {
+      const val = input.value.trim();
+      if (!val) return;
+      if (!state.prefs[key].includes(val)) state.prefs[key].push(val);
+      input.value = '';
+      saveState();
+      renderPrefsPanel();
+      rescore();
+    }
+    addBtn.addEventListener('click', add);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  });
+
+  // Open/close handlers
+  document.getElementById('open-prefs').addEventListener('click', () => {
+    renderPrefsPanel();
+    prefsModal.classList.add('open');
+  });
+  document.getElementById('reset-all-state').addEventListener('click', () => {
+    if (!confirm('Reset all preferences, favorites, and hidden items? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.close;
+      document.getElementById(id).classList.remove('open');
+    });
+  });
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+
+  // ===== Questionnaire =====
+  // Pulls primarily from CURATED lists (real Israeli artists/performers, not
+  // raw scraper output). Hierarchical: later questions are conditional on
+  // the answer to Q1 (event categories).
+  const C = SUGGESTIONS.curated || {};
+  const SCRAPED = SUGGESTIONS.scraped || {performers:[], directors:[], artists:[], genres:[]};
+
+  // Map curated event_categories to internal "kind" keys used for conditional logic
+  const QUIZ_QUESTIONS = [
+    {
+      key: '_event_categories',  // not directly stored, drives conditionals
+      kind: 'multi',
+      question: 'What kinds of events do you go to?',
+      hint: 'Select everything that interests you',
+      options: (C.event_categories || []).map(c => c.label),
+      // Map labels back to keys for conditional checks
+      _categoryMap: Object.fromEntries((C.event_categories || []).map(c => [c.label, c.key])),
+    },
+    {
+      key: 'loved_genres',
+      kind: 'multi',
+      question: 'What music styles do you like?',
+      hint: 'If you chose music above',
+      options: C.music_subgenres || [],
+      condition: ans => (ans._event_categories || []).some(l => /Music|Concerts|Parties|Tribute/i.test(l)),
+    },
+    {
+      key: 'loved_artists',
+      kind: 'multi',
+      question: 'Which singers/musicians do you like?',
+      hint: 'Pick from the list or add your own. We\'ll know to look for them across all the shows.',
+      options: C.music_artists || [],
+      allowFreeText: true,
+      placeholder: 'Add an artist name (e.g. Shlomo Artzi)…',
+      condition: ans => (ans._event_categories || []).some(l => /Music|Concerts|Parties|Tribute/i.test(l)),
+    },
+    {
+      key: 'loved_performers',
+      kind: 'multi',
+      question: 'Which theater actors interest you?',
+      hint: 'Pick from the list or add more names',
+      options: C.theater_actors || [],
+      allowFreeText: true,
+      placeholder: 'Add an actor name…',
+      condition: ans => (ans._event_categories || []).some(l => /Theater|Plays|Musicals/i.test(l)),
+    },
+    {
+      key: 'loved_directors',
+      kind: 'multi',
+      question: 'Any directors you especially love?',
+      hint: 'Optional — you can skip',
+      options: C.theater_directors || [],
+      allowFreeText: true,
+      placeholder: 'Add a director name…',
+      condition: ans => (ans._event_categories || []).some(l => /Theater|Plays|Musicals/i.test(l)),
+    },
+    {
+      key: 'loved_performers',  // standup goes into same bucket as actors
+      kind: 'multi',
+      question: 'Which stand-up comedians do you like?',
+      hint: 'Pick from the list or add your own',
+      options: C.standup_comedians || [],
+      allowFreeText: true,
+      placeholder: 'Add a comedian name…',
+      condition: ans => (ans._event_categories || []).some(l => /Stand-?up|Comedy|Entertainment/i.test(l)),
+      mergeMode: 'append',  // don't overwrite the actors selection
+    },
+    {
+      key: 'disliked_genres',
+      kind: 'multi',
+      question: 'What do you never want to see? (fully hidden)',
+      hint: 'Optional',
+      options: C.default_exclusions || ['Classical music','Ballet','Opera','Children'],
+      allowFreeText: true,
+      placeholder: 'Add more…',
+    },
+  ];
+  const quizModal = document.getElementById('quiz-modal');
+  const quizQuestion = document.getElementById('quiz-question');
+  const quizOptions = document.getElementById('quiz-options');
+  const quizProgress = document.getElementById('quiz-progress');
+  const quizPrev = document.getElementById('quiz-prev');
+  const quizNext = document.getElementById('quiz-next');
+  let quizIdx = 0;
+  // Working copy of selections — only committed to state.prefs at the end
+  const quizAnswers = {};
+
+  // Build the list of questions actually shown (skipping conditional ones)
+  function activeQuestions() {
+    return QUIZ_QUESTIONS.filter(q =>
+      !q.condition || q.condition(quizAnswers)
+    );
+  }
+
+  function renderQuiz() {
+    const visible = activeQuestions();
+    if (quizIdx >= visible.length) quizIdx = Math.max(0, visible.length - 1);
+    const q = visible[quizIdx];
+    quizProgress.innerHTML = `Question ${quizIdx + 1} of ${visible.length}` +
+      (q.hint ? ` <span style="color:var(--text-faint)">· ${q.hint}</span>` : '');
+    quizQuestion.textContent = q.question;
+    quizOptions.innerHTML = '';
+    const seedFromState = q.key.startsWith('_') ? [] : (state.prefs[q.key] || []);
+    const selected = quizAnswers[q.key] || [...seedFromState];
+    quizAnswers[q.key] = selected;
+    if (q.options.length === 0) {
+      const note = document.createElement('div');
+      note.style.cssText = 'color:var(--text-faint);font-size:13px;font-style:italic;padding:12px 0';
+      note.textContent = 'No options to choose right now — you can continue.';
+      quizOptions.appendChild(note);
+    }
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option' + (selected.includes(opt) ? ' selected' : '');
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        if (selected.includes(opt)) {
+          quizAnswers[q.key] = selected.filter(x => x !== opt);
+        } else {
+          quizAnswers[q.key] = [...selected, opt];
+        }
+        renderQuiz();
+      });
+      quizOptions.appendChild(btn);
+    });
+    if (q.allowFreeText) {
+      const wrap = document.createElement('div');
+      wrap.className = 'pref-input-row';
+      wrap.style.marginTop = '10px';
+      wrap.style.width = '100%';
+      wrap.innerHTML = `<input type="text" placeholder="${q.placeholder || 'Add…'}"><button class="pref-add">+ Add</button>`;
+      const inp = wrap.querySelector('input');
+      const btn = wrap.querySelector('button');
+      function addFree() {
+        const v = inp.value.trim();
+        if (v && !selected.includes(v)) {
+          quizAnswers[q.key] = [...selected, v];
+          inp.value = '';
+          renderQuiz();
+        }
+      }
+      btn.addEventListener('click', addFree);
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addFree(); } });
+      quizOptions.appendChild(wrap);
+    }
+    quizPrev.disabled = quizIdx === 0;
+    quizNext.textContent = quizIdx === visible.length - 1 ? 'Finish ✓' : 'Next';
+  }
+
+  function commitQuiz() {
+    // Group answers by destination key so multiple questions can append to
+    // the same preference bucket (e.g. theater actors + standup comedians
+    // both go into loved_performers).
+    const byKey = {};
+    Object.entries(quizAnswers).forEach(([key, vals]) => {
+      if (key.startsWith('_')) return;   // internal questions like _event_categories
+      byKey[key] = byKey[key] || [];
+      // Find the question to check mergeMode
+      const q = QUIZ_QUESTIONS.find(qq => qq.key === key);
+      if (q && q.mergeMode === 'append') {
+        // Append to existing prefs rather than replacing
+        byKey[key] = byKey[key].concat(state.prefs[key] || [], vals);
+      } else {
+        byKey[key] = byKey[key].concat(vals);
+      }
+    });
+    Object.entries(byKey).forEach(([key, vals]) => {
+      state.prefs[key] = [...new Set(vals)];
+    });
+    saveState();
+    renderPrefsPanel();
+    rescore();
+  }
+
+  document.getElementById('open-quiz').addEventListener('click', () => {
+    quizIdx = 0;
+    Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
+    renderQuiz();
+    quizModal.classList.add('open');
+  });
+  quizPrev.addEventListener('click', () => { if (quizIdx > 0) { quizIdx--; renderQuiz(); } });
+  quizNext.addEventListener('click', () => {
+    const visible = activeQuestions();
+    if (quizIdx < visible.length - 1) { quizIdx++; renderQuiz(); }
+    else { commitQuiz(); quizModal.classList.remove('open'); }
+  });
+  document.getElementById('quiz-skip').addEventListener('click', () => {
+    quizModal.classList.remove('open');
+  });
+
+  // -- Init --
+  applyState();
+  applyMatchBadges();
+  applyFilters();
+})();
+</script>
+</body>
+</html>
